@@ -1,0 +1,6 @@
+@ActiveOfficeLife.Api_HostAddress = http://localhost:5003
+
+GET {{ActiveOfficeLife.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
