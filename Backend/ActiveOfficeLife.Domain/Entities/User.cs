@@ -14,8 +14,6 @@ namespace ActiveOfficeLife.Domain.Entities
         public string Email { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
 
-        public string Role { get; set; } = null!;  // String để dễ mở rộng quyền
-
         public string? Token { get; set; }         // AccessToken hoặc RefreshToken
         public string? AvatarUrl { get; set; }     // Đường dẫn avatar
 
