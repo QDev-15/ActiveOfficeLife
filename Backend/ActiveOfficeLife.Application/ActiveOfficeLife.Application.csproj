@@ -7,7 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ActiveOfficeLife.Infrastructure\ActiveOfficeLife.Infrastructure.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.24.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ActiveOfficeLife.Common\ActiveOfficeLife.Common.csproj" />
   </ItemGroup>
 
 </Project>

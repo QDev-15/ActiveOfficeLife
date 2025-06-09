@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ActiveOfficeLife.Application\ActiveOfficeLife.Application.csproj" />
     <ProjectReference Include="..\ActiveOfficeLife.Domain\ActiveOfficeLife.Domain.csproj" />
   </ItemGroup>
 
