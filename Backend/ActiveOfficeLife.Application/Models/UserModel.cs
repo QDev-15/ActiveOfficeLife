@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Application.Models
 {
-    public class UserDto
+    public class UserModel
     {
         public Guid Id { get; set; }
 
@@ -15,6 +15,8 @@ namespace ActiveOfficeLife.Application.Models
         public string PasswordHash { get; set; } = null!;
 
         public string? Token { get; set; }         // AccessToken hoặc RefreshToken
+        public string? RefreshTokenExpiryTime { get; set; }         // AccessToken hoặc RefreshToken
+
         public string? AvatarUrl { get; set; } 
         public List<string> Roles { set; get; }
     }

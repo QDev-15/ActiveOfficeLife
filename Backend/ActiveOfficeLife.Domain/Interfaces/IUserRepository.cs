@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Domain.Interfaces
 {
-    public interface IUserRepository
+    public interface IUserRepository : _IRepository<User>
     {
-        Task<User> GetByIdAsync(string guidId);
-        Task<User> GetByUserPassAsync(string userName, string password);
+        Task<User?> GetByUserPassAsync(string userName, string password);
+        Task<User?> GetByUserName(string username);
     }
 }

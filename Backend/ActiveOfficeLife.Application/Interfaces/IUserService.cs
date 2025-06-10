@@ -9,6 +9,6 @@ namespace ActiveOfficeLife.Application.Interfaces
 {
     public interface IUserService
     {
-        Task<UserDto> ValidateUserAsync(string userName, string password);
+        Task<UserModel> ValidateUserAsync(string userName, string password);
     }
 }
