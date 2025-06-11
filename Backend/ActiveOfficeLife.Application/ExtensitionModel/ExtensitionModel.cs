@@ -20,7 +20,7 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
                 AvatarUrl = user.AvatarUrl,
                 Email = user.Email,
                 PasswordHash = user.PasswordHash,
-                RefreshTokenExpiryTime = user.RefreshTokenExpiryTime,
+                RefreshToken = user.RefreshToken,
                 Roles = user.Roles.Select(a => a.Name).ToList(),
                 Token = user.Token
             };

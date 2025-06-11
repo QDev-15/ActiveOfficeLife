@@ -1,4 +1,7 @@
-﻿using System;
+﻿using ActiveOfficeLife.Application.Models;
+using ActiveOfficeLife.Application.Models.Requests;
+using ActiveOfficeLife.Application.Models.Responses;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -9,8 +12,10 @@ namespace ActiveOfficeLife.Application.Interfaces
 {
     public interface ITokenService
     {
-        string GenerateAccessToken(Guid userId, string username, IList<string> roles);
-        string GenerateRefreshToken();
+        Task<AuthResponse> LoginAsync(LoginRequest loginRequest);
+        Task<AuthResponse> RefreshTokenAsync(string refreshToken);
+        string GenerateAccessToken(UserModel user);
+        string GenerateRefreshToken(int daysValid);
         ClaimsPrincipal? ValidateToken(string token);
         ClaimsPrincipal? GetPrincipalFromExpiredToken(string token);
     }

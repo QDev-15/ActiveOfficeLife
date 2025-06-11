@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Infrastructure.Repositories
 {
-    public class SettingResitory : _Repository<Setting>, ISettingRepository
+    public class SettingRepository : _Repository<Setting>, ISettingRepository
     {
-        public SettingResitory(ActiveOfficeLifeDbContext context) : base(context)
+        public SettingRepository(ActiveOfficeLifeDbContext context) : base(context)
         {
         }
     }

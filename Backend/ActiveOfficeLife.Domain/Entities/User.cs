@@ -13,9 +13,9 @@ namespace ActiveOfficeLife.Domain.Entities
         public string Username { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
-        public string RefreshTokenExpiryTime { get; set; }
 
         public string? Token { get; set; }         // AccessToken hoặc RefreshToken
+        public string? RefreshToken { get; set; }         // AccessToken hoặc RefreshToken
         public string? AvatarUrl { get; set; }     // Đường dẫn avatar
 
         public DateTime CreatedAt { get; set; }

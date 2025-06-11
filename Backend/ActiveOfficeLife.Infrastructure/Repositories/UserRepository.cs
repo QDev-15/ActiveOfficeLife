@@ -19,7 +19,21 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
         {
         }
 
-        public async Task<User?> GetByUserName(string username)
+        public Task<User?> GetByRefreshTokenAsync(string refreshToken)
+        {
+            return _context.Users
+                .Where(u => u.RefreshToken == refreshToken)
+                .FirstOrDefaultAsync();
+        }
+
+        public Task<User?> GetByTokenAsync(string token)
+        {
+            return _context.Users
+                .Where(u => u.Token == token)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<User?> GetByUserNameAsync(string username)
         {
             return await _context.Users.Where(x => x.Username.ToLower() == username.ToLower()).FirstOrDefaultAsync();
         }

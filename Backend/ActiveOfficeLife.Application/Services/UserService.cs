@@ -2,7 +2,7 @@
 using ActiveOfficeLife.Application.ExtensitionModel;
 using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Models;
-using ActiveOfficeLife.Application.Requests;
+using ActiveOfficeLife.Application.Models.Requests;
 using ActiveOfficeLife.Common;
 using ActiveOfficeLife.Domain;
 using ActiveOfficeLife.Domain.Entities;
@@ -47,28 +47,8 @@ namespace ActiveOfficeLife.Application.Services
             }
         }
 
-        public async Task<UserModel> Login(LoginRequest loginRequest)
-        {
-            try
-            {
-                var user = await _userRepository.GetByUserPassAsync(loginRequest.UserName, loginRequest.Password);
-                if (user != null)
-                {
-                    return user.ReturnModel();
-                }
-                else
-                {
-                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - username = " + loginRequest.UserName + " - " + MessageContext.NotFound);
-                    throw new Exception("User " + MessageContext.NotFound);
-                }
-            } catch(Exception ex)
-            {
-                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public async Task<UserModel> Register(RegisterRequest registerRequest)
+        
+        public async Task<UserModel> Create(RegisterRequest registerRequest)
         {
             try
             {
@@ -111,6 +91,55 @@ namespace ActiveOfficeLife.Application.Services
         public Task<UserModel> Update(UserModel model)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<UserModel> GetByRefreshToken(string refreshToken)
+        {
+            try
+            {
+                var user = await _userRepository.GetByRefreshTokenAsync(refreshToken);
+                if (user != null)
+                {
+                    return user.ReturnModel();
+                }
+                else
+                {
+                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - refreshToken = " + refreshToken + " - " + MessageContext.NotFound);
+                    throw new Exception("User " + MessageContext.NotFound);
+                }
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public Task<UserModel> Delete(Guid id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<UserModel> GetByToken(string token)
+        {
+            try
+            {
+                var user = await _userRepository.GetByTokenAsync(token);
+                if (user != null)
+                {
+                    return user.ReturnModel();
+                }
+                else
+                {
+                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - token = " + token + " - " + MessageContext.NotFound);
+                    throw new Exception("User " + MessageContext.NotFound);
+                }
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

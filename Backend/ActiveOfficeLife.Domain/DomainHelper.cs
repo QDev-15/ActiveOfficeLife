@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Domain
@@ -22,10 +23,22 @@ namespace ActiveOfficeLife.Domain
         /// <param name="hashedPassword"></param>
         /// <param name="providedPassword"></param>
         /// <returns></returns>
-        public static PasswordVerificationResult VerifyPassword(string hashedPassword, string providedPassword)
+        public static PasswordVerifyResult VerifyPassword(string hashedPassword, string providedPassword)
         {
             var hasher = new PasswordHasher<User>();
-            return hasher.VerifyHashedPassword(null, hashedPassword, providedPassword);
+            var result = hasher.VerifyHashedPassword(null, hashedPassword, providedPassword);
+            return new PasswordVerifyResult
+            {
+                Success = result == PasswordVerificationResult.Success,
+                SuccessRehashNeeded = result == PasswordVerificationResult.SuccessRehashNeeded,
+                Failed = result == PasswordVerificationResult.Failed
+            };
         }
+    }
+    public class PasswordVerifyResult
+    {
+        public bool Success { get; set; }
+        public bool SuccessRehashNeeded { get; set; }
+        public bool Failed { get; set; }
     }
 }

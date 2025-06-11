@@ -9,5 +9,6 @@ namespace ActiveOfficeLife.Common
     public static class MessageContext
     {
         public static string NotFound = "Not Found";
+        public static string NotActive = "Not Active";
     }
 }

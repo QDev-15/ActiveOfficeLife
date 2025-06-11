@@ -17,7 +17,7 @@ namespace ActiveOfficeLife.Infrastructure.EFCore.DBContext
             // Build configuration
             IConfigurationRoot configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory()) // Lấy folder hiện tại khi gọi từ CLI
-                .AddJsonFile("appSettings.json", optional: false)
+                .AddJsonFile("appsettings.json", optional: false)
                 .Build();
 
             var connectionString = configuration.GetConnectionString("DefaultConnectionLocal");

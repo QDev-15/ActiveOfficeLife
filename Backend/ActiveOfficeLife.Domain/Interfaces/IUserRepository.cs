@@ -10,7 +10,9 @@ namespace ActiveOfficeLife.Domain.Interfaces
     public interface IUserRepository : _IRepository<User>
     {
         Task<User?> GetByUserPassAsync(string userName, string password);
-        Task<User?> GetByUserName(string username);
+        Task<User?> GetByUserNameAsync(string username);
+        Task<User?> GetByTokenAsync(string token);
+        Task<User?> GetByRefreshTokenAsync(string refreshToken);
 
     }
 }

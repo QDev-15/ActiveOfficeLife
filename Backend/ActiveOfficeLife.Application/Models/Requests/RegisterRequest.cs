@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ActiveOfficeLife.Application.Requests
+namespace ActiveOfficeLife.Application.Models.Requests
 {
     public class RegisterRequest
     {
