@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ActiveOfficeLife.Common\ActiveOfficeLife.Common.csproj" />
+    <ProjectReference Include="..\ActiveOfficeLife.Domain\ActiveOfficeLife.Domain.csproj" />
   </ItemGroup>
 
 </Project>

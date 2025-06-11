@@ -7,10 +7,7 @@ using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Domain.Interfaces
 {
-    public interface IUserRepository : _IRepository<User>
+    public interface IMediaRepository : _IRepository<Media>
     {
-        Task<User?> GetByUserPassAsync(string userName, string password);
-        Task<User?> GetByUserName(string username);
-
     }
 }

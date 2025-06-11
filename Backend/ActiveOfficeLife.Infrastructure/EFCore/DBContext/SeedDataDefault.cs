@@ -21,6 +21,7 @@ namespace ActiveOfficeLife.Infrastructure.EFCore.DBContext
             });
             Guid roleAdminId = Guid.NewGuid();
             Guid roleUserId = Guid.NewGuid();
+            Guid roleCommentId = Guid.NewGuid();
             modelBuilder.Entity<Role>().HasData(
                 new Role
                 {
@@ -33,6 +34,12 @@ namespace ActiveOfficeLife.Infrastructure.EFCore.DBContext
                     Id = roleUserId,
                     Name = "User",
                     Description = "Người dùng bình thường"
+                },
+                new Role
+                {
+                    Id = roleCommentId,
+                    Name = "Comment",
+                    Description = "Người đọc chỉ comment"
                 }
             );
             // new user admin

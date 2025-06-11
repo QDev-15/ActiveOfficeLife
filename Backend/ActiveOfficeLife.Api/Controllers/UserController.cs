@@ -22,7 +22,7 @@ namespace ActiveOfficeLife.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var user = await _userService.ValidateUserAsync(request.UserName, request.Password);
+            var user = await _userService.Login(request);
             if (user == null)
             {
                 return Unauthorized(new { message = "Invalid credentials." });

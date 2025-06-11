@@ -7,10 +7,7 @@ using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Domain.Interfaces
 {
-    public interface IUserRepository : _IRepository<User>
+    public interface ISeoMetadataRepository : _IRepository<SeoMetadata>
     {
-        Task<User?> GetByUserPassAsync(string userName, string password);
-        Task<User?> GetByUserName(string username);
-
     }
 }

@@ -1,3 +1,4 @@
+using ActiveOfficeLife.Application.Common;
 using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Services;
 using ActiveOfficeLife.Domain.Interfaces;
@@ -14,6 +15,7 @@ builder.Services.AddScoped<ILogRepository, LogRepository>();
 builder.Services.AddScoped<ILogService, LogService>();
 builder.Services.AddHostedService<LogBackgroundService>();
 
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 
@@ -22,6 +24,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+// setup ILogService for static helper
+var logService = app.Services.GetRequiredService<ILogService>();
+AOLLogger.LogService = logService;
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -1,4 +1,5 @@
 ﻿using ActiveOfficeLife.Domain.Entities;
+using ActiveOfficeLife.Infrastructure.EFCore.Configurations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +8,7 @@ using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Domain.Interfaces
 {
-    public interface IUserRepository : _IRepository<User>
+    public interface ISettingRepository : _IRepository<Setting>
     {
-        Task<User?> GetByUserPassAsync(string userName, string password);
-        Task<User?> GetByUserName(string username);
-
     }
 }
