@@ -9,8 +9,6 @@ namespace ActiveOfficeLife.Application.Interfaces
 {
     public interface ICategoryService
     {
-        // Define methods for category service here
-        // For example:
         Task<IEnumerable<CategoryModel>> GetAllCategoriesAsync();
         Task<CategoryModel> GetCategoryByIdAsync(Guid id);
         Task<CategoryModel> CreateCategoryAsync(CategoryModel category);

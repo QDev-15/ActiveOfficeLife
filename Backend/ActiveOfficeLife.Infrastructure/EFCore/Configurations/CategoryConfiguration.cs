@@ -26,6 +26,10 @@ namespace ActiveOfficeLife.Domain.EFCore.Configurations
 
             builder.Property(c => c.Description)
                    .HasMaxLength(1000);
+            builder.Property(c => c.IsActive)
+                   .HasDefaultValue(true); // Mặc định là true
+            builder.Property(c => c.IsDeleted)
+                    .HasDefaultValue(false); // Mặc định là false (chưa xóa)
 
             // Quan hệ cha-con
             builder.HasOne(c => c.Parent)
