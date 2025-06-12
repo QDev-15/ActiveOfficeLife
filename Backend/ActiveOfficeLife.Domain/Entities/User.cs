@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ActiveOfficeLife.Common.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,6 +15,7 @@ namespace ActiveOfficeLife.Domain.Entities
         public string Email { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
 
+        public UserStatus Status { get; set; } = UserStatus.Active; // Trạng thái người dùng 
         public string? Token { get; set; }         // AccessToken hoặc RefreshToken
         public string? RefreshToken { get; set; }         // AccessToken hoặc RefreshToken
         public string? AvatarUrl { get; set; }     // Đường dẫn avatar

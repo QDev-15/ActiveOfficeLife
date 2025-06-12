@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Domain.EFCore.Configurations
 {
+    using ActiveOfficeLife.Common.Enums;
     using ActiveOfficeLife.Domain.Entities;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -28,6 +29,10 @@ namespace ActiveOfficeLife.Domain.EFCore.Configurations
 
             builder.Property(u => u.PasswordHash)
                 .IsRequired();
+            builder.Property(u => u.Status)
+                .HasConversion<string>() // Chuyển đổi enum sang string
+                .HasMaxLength(50) // Giới hạn độ dài của chuỗi
+                .HasDefaultValue(UserStatus.Active);
 
             builder.Property(u => u.Token)
                 .HasMaxLength(500);

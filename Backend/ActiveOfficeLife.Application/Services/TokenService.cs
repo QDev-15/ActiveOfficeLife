@@ -1,5 +1,4 @@
 ﻿using ActiveOfficeLife.Application.Common;
-using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Models.Requests;
 using ActiveOfficeLife.Application.Models;
 using ActiveOfficeLife.Common;
@@ -21,8 +20,9 @@ using Microsoft.AspNetCore.Identity;
 using System.Security;
 using ActiveOfficeLife.Application.ExtensitionModel;
 using System.Text.Json;
+using ActiveOfficeLife.Application.Interfaces;
 
-namespace ActiveOfficeLife.Infrastructure.Services
+namespace ActiveOfficeLife.Application.Services
 {
     public class TokenService : ITokenService
     {

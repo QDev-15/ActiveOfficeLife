@@ -1,9 +1,11 @@
-﻿using ActiveOfficeLife.Application.Common;
+﻿using ActiveOfficeLife.Application;
+using ActiveOfficeLife.Application.Common;
 using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Services;
 using ActiveOfficeLife.Common;
 using ActiveOfficeLife.Domain.EFCore.DBContext;
 using ActiveOfficeLife.Domain.Interfaces;
+using ActiveOfficeLife.Infrastructure;
 using ActiveOfficeLife.Infrastructure.Repositories;
 using ActiveOfficeLife.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -47,23 +49,13 @@ builder.Services.AddAuthentication(options =>
 });
 builder.Services.AddAuthorization();
 
+
+builder.Services.AddMemoryCache(); // Thêm bộ nhớ cache nếu cần
+// Thêm các dịch vụ ứng dụng
+builder.Services.AddActiveOfficeLifeInfrastructure(builder.Configuration);
+builder.Services.AddActiveOfficeLifeApplication();
+
 builder.Services.AddControllers();
-
-builder.Services.AddScoped<ILogRepository, LogRepository>();
-builder.Services.AddScoped<ILogService, LogService>();
-builder.Services.AddHostedService<LogBackgroundService>();
-
-builder.Services.AddScoped<_IUnitOfWork, _UnitOfWork>();
-builder.Services.AddScoped<ISettingRepository, SettingRepository>();
-builder.Services.AddScoped<IRoleRepository, RoleRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-
-
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IUserService, UserService>();
-
-
-
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
