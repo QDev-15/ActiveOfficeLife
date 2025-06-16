@@ -51,6 +51,7 @@ builder.Services.AddAuthorization();
 
 
 builder.Services.AddMemoryCache(); // Thêm bộ nhớ cache nếu cần
+builder.Services.AddSingleton<CustomMemoryCache>();
 // Thêm các dịch vụ ứng dụng
 builder.Services.AddActiveOfficeLifeInfrastructure(builder.Configuration);
 builder.Services.AddActiveOfficeLifeApplication();

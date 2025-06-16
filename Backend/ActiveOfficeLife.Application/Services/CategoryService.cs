@@ -2,11 +2,13 @@
 using ActiveOfficeLife.Application.ExtensitionModel;
 using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Models;
+using ActiveOfficeLife.Common;
 using ActiveOfficeLife.Domain.Entities;
 using ActiveOfficeLife.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -16,11 +18,13 @@ namespace ActiveOfficeLife.Application.Services
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly _IUnitOfWork _unitOfWork;
+        private readonly CustomMemoryCache _cache;
        
-        public CategoryService(ICategoryRepository categoryRepository, _IUnitOfWork unitOfWork)
+        public CategoryService(ICategoryRepository categoryRepository, _IUnitOfWork unitOfWork, CustomMemoryCache cache)
         {
             _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
             _unitOfWork = unitOfWork;
+            _cache = cache;
         }
         public async Task<CategoryModel> CreateCategoryAsync(CategoryModel category)
         {
@@ -85,23 +89,89 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(ex.Message, "Error deleting category with ID: {CategoryId}", id);
+                AOLLogger.Error(ex.Message, "Error deleting category with ID: {CategoryId}", id.ToString());
                 throw new ApplicationException("An error occurred while deleting the category", ex);
             }
         }
-        public Task<IEnumerable<CategoryModel>> GetAllCategoriesAsync()
+        public async Task<IEnumerable<CategoryModel>> GetAllCategoriesAsync()
         {
-            throw new NotImplementedException();
+            string cacheKey = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}";
+            var categories = _cache.Get<IEnumerable<CategoryModel>>(cacheKey);
+            if (categories != null && categories.Any())
+            {
+                return categories;
+            }
+            var cats = await _categoryRepository.GetAllAsync();
+            if (cats == null || !cats.Any())
+            {
+                AOLLogger.Error($"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-GetAll Category not found");
+                throw new KeyNotFoundException($"Categories not found");
+            }
+            categories = cats.Select(x => x.ReturnModel());
+            _cache.Set<IEnumerable<CategoryModel>>(cacheKey, categories);
+            return categories;
         }
 
-        public Task<CategoryModel> GetCategoryByIdAsync(Guid id)
+        public async Task<CategoryModel> GetCategoryByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                string cacheKey = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-{id.ToString()}";
+                var cacheValue = _cache.Get<CategoryModel>(cacheKey);
+                if (cacheValue != null)
+                {
+                    return cacheValue;
+                }
+                var cat = await _categoryRepository.GetByIdAsync(id);
+                if (cat == null)
+                {
+                    AOLLogger.Error($"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-{MessageContext.NotFound}");
+                    throw new KeyNotFoundException("Get Cagegory not found");
+                }
+                _cache.Set<CategoryModel>(cacheKey, cat.ReturnModel());
+                return cat.ReturnModel();
+            } catch (Exception ex)
+            {
+                AOLLogger.Error($"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-Error:{ex.Message}", ex.Source, ex.StackTrace);
+                throw new Exception("Get category faild");
+            }
         }
 
-        public Task<CategoryModel> UpdateCategoryAsync(CategoryModel category)
+        public async Task<CategoryModel> UpdateCategoryAsync(CategoryModel category)
         {
-            throw new NotImplementedException();
+            string msg = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod()}";
+            try
+            {
+                var cat = await _categoryRepository.GetByIdAsync(category.Id);
+                if (cat == null)
+                {
+                    AOLLogger.Error(msg + $"-Error category Id:{category.Id.ToString()}-not found");
+                    throw new KeyNotFoundException("not found category update");
+                }
+                cat.Slug = category.Slug;
+                cat.ParentId = category.ParentId;
+                cat.Description = category.Description;
+                cat.Name = category.Name;
+                if (category.SeoMetadata != null) {
+                    cat.SeoMetadata = new SeoMetadata()
+                    {
+                        Id = cat.SeoMetadataId ?? Guid.NewGuid(),
+                        CreatedAt = DateTime.UtcNow,
+                        MetaDescription = category.SeoMetadata.MetaDescription,
+                        MetaKeywords = category.SeoMetadata.MetaKeywords,
+                        MetaTitle = category.SeoMetadata.MetaTitle,
+                        UpdatedAt = category.SeoMetadata.UpdatedAt,
+                    };
+                };
+                _categoryRepository.UpdateAsync(cat);
+                await _unitOfWork.SaveChangeAsync();
+                return cat.ReturnModel();
+
+            } catch(Exception ex)
+            {
+                AOLLogger.Error($"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-Error: {ex.Message}", ex.Source, "", ex.StackTrace);
+                throw new Exception("update category faild");
+            }
         }
     }
 }

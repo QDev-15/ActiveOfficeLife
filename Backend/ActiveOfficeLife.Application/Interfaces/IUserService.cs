@@ -11,6 +11,6 @@ namespace ActiveOfficeLife.Application.Interfaces
         Task<UserModel> GetByToken(string token);
         Task<UserModel> Create(RegisterRequest registerRequest);
         Task<UserModel> Update(UserModel model);
-        bool Delete(Guid id);
+        Task<bool> Delete(Guid id);
     }
 }

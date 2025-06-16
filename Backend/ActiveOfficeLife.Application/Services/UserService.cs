@@ -24,28 +24,30 @@ namespace ActiveOfficeLife.Application.Services
         private readonly IRoleRepository _roleRepository;
         private readonly IUserRepository _userRepository;
         private readonly _IUnitOfWork _unitOfWord;
-        private readonly IMemoryCache _memoryCache;
-        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, _IUnitOfWork unitOfWord, IMemoryCache memoryCache)
+        private readonly CustomMemoryCache _cache;
+        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, _IUnitOfWork unitOfWord, CustomMemoryCache cache)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
             _unitOfWord = unitOfWord;
-            _memoryCache = memoryCache;
+            _cache = cache;
         }
         public async Task<UserModel> GetUser(Guid id)
         {
             var cacheKey = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}:{id}";
 
-            if (_memoryCache.TryGetValue(cacheKey, out UserModel cachedUser))
+            var userCache = _cache.Get<UserModel>(cacheKey);
+
+            if (userCache != null)
             {
-                return cachedUser;
+                return userCache;
             }
             try
             {
                 var user = await _userRepository.GetByIdAsync(id);
                 if (user != null)
                 {
-                    _memoryCache.Set(cacheKey, user.ReturnModel(), TimeSpan.FromMinutes(30)); // TTL 30 phút
+                    _cache.Set(cacheKey, user.ReturnModel()); // TTL 30 phút
                     return user.ReturnModel();
                 } else
                 {
@@ -172,7 +174,7 @@ namespace ActiveOfficeLife.Application.Services
             }
         }
 
-        public async bool Delete(Guid id)
+        public async Task<bool> Delete(Guid id)
         {
             try
             {
