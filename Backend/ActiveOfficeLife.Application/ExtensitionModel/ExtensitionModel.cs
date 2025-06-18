@@ -41,6 +41,7 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
                     Description = category.Description,
                     SeoMetadataId = category.SeoMetadataId,
                     SeoMetadata = category.SeoMetadata?.ReturnModel(),
+                    Children = []
                 };
             }
             return new CategoryModel()
@@ -53,7 +54,7 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
                 SeoMetadata = category.SeoMetadata?.ReturnModel(),
                 ParentId = category.ParentId,
                 Parent = category.Parent?.ReturnModel(true),
-                Children = category.Children.Select(c => c.ReturnModel()).ToList(),
+                Children = category.Children.Any() ? category.Children.Select(c => c.ReturnModel()).ToList() : [],
             };
         }
         public static SeoMetadataModel ReturnModel(this SeoMetadata seo)

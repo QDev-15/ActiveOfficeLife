@@ -93,10 +93,10 @@ namespace ActiveOfficeLife.Application.Services
                 throw new ApplicationException("An error occurred while deleting the category", ex);
             }
         }
-        public async Task<IEnumerable<CategoryModel>> GetAllCategoriesAsync()
+        public async Task<List<CategoryModel>> GetAllCategoriesAsync()
         {
             string cacheKey = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}";
-            var categories = _cache.Get<IEnumerable<CategoryModel>>(cacheKey);
+            var categories = _cache.Get<List<CategoryModel>>(cacheKey);
             if (categories != null && categories.Any())
             {
                 return categories;
@@ -107,9 +107,31 @@ namespace ActiveOfficeLife.Application.Services
                 AOLLogger.Error($"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-GetAll Category not found");
                 throw new KeyNotFoundException($"Categories not found");
             }
-            categories = cats.Select(x => x.ReturnModel());
-            _cache.Set<IEnumerable<CategoryModel>>(cacheKey, categories);
+            categories = [];
+            var queryCats = cats.Where(x => x.ParentId == null);
+
+            foreach (var item in queryCats)
+            {
+                categories.Add(GetCategoryChild(item, cats));
+            }
+            _cache.Set<List<CategoryModel>>(cacheKey, categories);
             return categories;
+        }
+        private CategoryModel GetCategoryChild(Category category, IEnumerable<Category> categoryModels)
+        {
+            var childs = categoryModels.Where(x => x.ParentId == category.Id);
+            if (!childs.Any())
+            {
+                return category.ReturnModel();
+            }
+
+            var resultCat = category.ReturnModel();
+            foreach (var item in childs)
+            {
+                resultCat.Children.Add(GetCategoryChild(item, categoryModels));
+            }
+            return resultCat;
+            
         }
 
         public async Task<CategoryModel> GetCategoryByIdAsync(Guid id)
