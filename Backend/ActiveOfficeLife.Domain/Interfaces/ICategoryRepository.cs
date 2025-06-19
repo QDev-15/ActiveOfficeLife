@@ -9,5 +9,6 @@ namespace ActiveOfficeLife.Domain.Interfaces
 {
     public interface ICategoryRepository : _IRepository<Category>
     {
+        Task<IEnumerable<Category>> GetByParrentId(Guid parentId);
     }
 }
