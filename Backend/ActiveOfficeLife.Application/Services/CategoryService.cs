@@ -58,7 +58,7 @@ namespace ActiveOfficeLife.Application.Services
                 }
                 await _categoryRepository.AddAsync(categoryEntity);
                 // Commit the changes to the database
-                await _unitOfWork.SaveChangeAsync();
+                await _unitOfWork.SaveChangesAsync();
                 // Map back to CategoryModel if necessary
                 return categoryEntity.ReturnModel(); // Assuming you have an extension method to convert Category to CategoryModel  
             }
@@ -84,7 +84,7 @@ namespace ActiveOfficeLife.Application.Services
                 }
                 category.IsDeleted = true;
                 _categoryRepository.UpdateAsync(category);
-                await _unitOfWork.SaveChangeAsync();
+                await _unitOfWork.SaveChangesAsync();
                 return true; // Return true if deletion was successful
             }
             catch (Exception ex)
@@ -186,7 +186,7 @@ namespace ActiveOfficeLife.Application.Services
                     };
                 };
                 _categoryRepository.UpdateAsync(cat);
-                await _unitOfWork.SaveChangeAsync();
+                await _unitOfWork.SaveChangesAsync();
                 return cat.ReturnModel();
 
             } catch(Exception ex)

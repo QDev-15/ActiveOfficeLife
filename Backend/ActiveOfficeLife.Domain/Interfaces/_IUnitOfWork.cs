@@ -8,6 +8,6 @@ namespace ActiveOfficeLife.Domain.Interfaces
 {
     public interface _IUnitOfWork
     {
-        Task SaveChangeAsync();
+        Task SaveChangesAsync();
     }
 }

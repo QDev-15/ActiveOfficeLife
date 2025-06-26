@@ -24,30 +24,28 @@ namespace ActiveOfficeLife.Application.Services
         private readonly IRoleRepository _roleRepository;
         private readonly IUserRepository _userRepository;
         private readonly _IUnitOfWork _unitOfWord;
-        private readonly CustomMemoryCache _cache;
-        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, _IUnitOfWork unitOfWord, CustomMemoryCache cache)
+        private readonly IMemoryCache _memoryCache;
+        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, _IUnitOfWork unitOfWord, IMemoryCache memoryCache)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
             _unitOfWord = unitOfWord;
-            _cache = cache;
+            _memoryCache = memoryCache;
         }
         public async Task<UserModel> GetUser(Guid id)
         {
             var cacheKey = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}:{id}";
 
-            var userCache = _cache.Get<UserModel>(cacheKey);
-
-            if (userCache != null)
+            if (_memoryCache.TryGetValue(cacheKey, out UserModel cachedUser))
             {
-                return userCache;
+                return cachedUser;
             }
             try
             {
                 var user = await _userRepository.GetByIdAsync(id);
                 if (user != null)
                 {
-                    _cache.Set(cacheKey, user.ReturnModel()); // TTL 30 phút
+                    _memoryCache.Set(cacheKey, user.ReturnModel(), TimeSpan.FromMinutes(30)); // TTL 30 phút
                     return user.ReturnModel();
                 } else
                 {
@@ -94,7 +92,7 @@ namespace ActiveOfficeLife.Application.Services
                     }
                 }
                 await _userRepository.AddAsync(user);
-                await _unitOfWord.SaveChangeAsync();
+                await _unitOfWord.SaveChangesAsync();
                 return user.ReturnModel();
             } catch(Exception ex)
             {
@@ -143,7 +141,7 @@ namespace ActiveOfficeLife.Application.Services
                 user.Status = model.Status;
                 user.UpdatedAt = DateTime.UtcNow;
                 _userRepository.UpdateAsync(user);
-                await _unitOfWord.SaveChangeAsync();
+                await _unitOfWord.SaveChangesAsync();
                 return user.ReturnModel();
             }
             catch (Exception ex)
@@ -174,7 +172,7 @@ namespace ActiveOfficeLife.Application.Services
             }
         }
 
-        public async Task<bool> Delete(Guid id)
+        public async bool Delete(Guid id)
         {
             try
             {
@@ -190,7 +188,7 @@ namespace ActiveOfficeLife.Application.Services
                 }
                 user.Status = UserStatus.Deleted; // Cập nhật trạng thái người dùng thành Deleted
                 _userRepository.UpdateAsync(user);
-                await _unitOfWord.SaveChangeAsync();
+                await _unitOfWord.SaveChangesAsync();
                 return true;
             }
             catch (Exception ex)

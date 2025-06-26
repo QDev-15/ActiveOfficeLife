@@ -9,5 +9,6 @@ namespace ActiveOfficeLife.Domain.Interfaces
 {
     public interface ITagRepository : _IRepository<Tag>
     {
+        Task<Tag?> GetByNameAsync(string name);
     }
 }

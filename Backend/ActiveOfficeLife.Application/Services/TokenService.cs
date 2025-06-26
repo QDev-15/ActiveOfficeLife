@@ -176,7 +176,7 @@ namespace ActiveOfficeLife.Application.Services
             user.RefreshToken = GenerateRefreshToken(); // generate a new refresh token
             user.Token = GenerateAccessToken(user.ReturnModel()); // generate a new access token
             _userRepository.UpdateAsync(user);
-            await _unitOfWork.SaveChangeAsync();
+            await _unitOfWork.SaveChangesAsync();
             return new AuthResponse
             {
                 AccessToken = user.Token,

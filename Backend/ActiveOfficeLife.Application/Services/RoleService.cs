@@ -37,7 +37,7 @@ namespace ActiveOfficeLife.Application.Services
                     Name = role.Name
                 };
                 await _roleRepository.AddAsync(newRole);
-                await _iUnitOfWork.SaveChangeAsync();
+                await _iUnitOfWork.SaveChangesAsync();
                 AOLLogger.Info($"{msg} - Added Role - {newRole.Name}");
                 return newRole.ReturnModel();
                 
@@ -60,7 +60,7 @@ namespace ActiveOfficeLife.Application.Services
                     throw new Exception($"Role not found");
                 }
                 _roleRepository.RemoveAsync(deleteRole);
-                await _iUnitOfWork.SaveChangeAsync();
+                await _iUnitOfWork.SaveChangesAsync();
                 return true;
             }
             catch (Exception ex)
@@ -84,7 +84,7 @@ namespace ActiveOfficeLife.Application.Services
                 updateRole.Description = role.Description;
                 updateRole.Name = role.Name;
                 _roleRepository.UpdateAsync(updateRole);
-                await _iUnitOfWork.SaveChangeAsync();
+                await _iUnitOfWork.SaveChangesAsync();
                 return updateRole.ReturnModel();
             } catch(Exception ex)
             {
