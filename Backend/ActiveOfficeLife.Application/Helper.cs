@@ -10,8 +10,10 @@ namespace ActiveOfficeLife.Application
 {
     public static class Helper
     {
-        public static string GenerateSlug(string title)
+        public static string GenerateSlug(string? title)
         {
+            if (string.IsNullOrEmpty(title))
+                title = "aol-" + DateTime.UtcNow.ToShortTimeString();
             if (string.IsNullOrWhiteSpace(title))
                 return string.Empty;
 
