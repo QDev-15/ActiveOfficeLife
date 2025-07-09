@@ -45,6 +45,15 @@ namespace ActiveOfficeLife.Application.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
+                new Claim("AvatarUrl", user.AvatarUrl ?? string.Empty),
+                new Claim("Status", user.Status.ToString()),
+                new Claim("UserId", user.Id.ToString()),
+                new Claim("UserName", user.Username),
+                new Claim("Email", user.Email),
+                new Claim("Roles", string.Join(",", user.Roles)),
+                new Claim("Token", user.Token ?? string.Empty),
+                new Claim("RefreshToken", user.RefreshToken ?? string.Empty),
+                new Claim("CreatedAt", DateTime.UtcNow.ToString("o")), // ISO 8601 format
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -52,6 +61,8 @@ namespace ActiveOfficeLife.Application.Services
             {
                 authClaims.Add(new Claim(ClaimTypes.Role, role));
             }
+
+          
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -64,7 +75,6 @@ namespace ActiveOfficeLife.Application.Services
                     SecurityAlgorithms.HmacSha256Signature
                 )
             };
-
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
@@ -133,7 +143,9 @@ namespace ActiveOfficeLife.Application.Services
                             AccessToken = GenerateAccessToken(user.ReturnModel()),
                             RefreshToken = GenerateRefreshToken(),
                             User = user.ReturnModel(),
-                            Role = string.Join(",", user.Roles.Select(x => x.Name).ToList())
+                            Role = string.Join(",", user.Roles.Select(x => x.Name).ToList()),
+                            UserId = user.Id
+                            
                         };
                     }
                     else

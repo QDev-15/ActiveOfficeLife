@@ -35,7 +35,8 @@ namespace ActiveOfficeLife.Application.Services
                 await _commentRepository.AddAsync(comment);
                 await _iUnitOfWork.SaveChangesAsync();
                 return comment.ReturnModel();
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 AOLLogger.Error(ex.Message, ex.Source, userId, ex.StackTrace);
                 // Log the exception (not implemented here)
@@ -62,6 +63,7 @@ namespace ActiveOfficeLife.Application.Services
                 AOLLogger.Error(ex.Message, ex.Source, userId, ex.StackTrace);
                 // Log the exception (not implemented here)
                 throw new NotImplementedException();
+            }
         }
     }
 }

@@ -11,6 +11,7 @@ using ActiveOfficeLife.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,9 +47,26 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(key),
         ClockSkew = TimeSpan.Zero // Không cho phép trễ thời gian
     };
+    // ✅ Hook sự kiện kiểm tra lỗi token
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            if (context.Exception is SecurityTokenExpiredException)
+            {
+                context.Response.Headers.Add("Token-Expired", "true");
+
+                // Bạn có thể log, hoặc ghi log ở đây
+                Console.WriteLine("⚠️ Token đã hết hạn.");
+            }
+
+            return Task.CompletedTask;
+        }
+    };
 });
 builder.Services.AddAuthorization();
 
+builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddMemoryCache(); // Thêm bộ nhớ cache nếu cần
 builder.Services.AddSingleton<CustomMemoryCache>();
@@ -59,7 +77,37 @@ builder.Services.AddActiveOfficeLifeApplication();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "AOL API", Version = "v1" });
+
+    // Thêm phần cấu hình xác thực Bearer token
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Nhập token theo dạng: Bearer {your token}"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
 
 var app = builder.Build();
 // setup ILogService for static helper
@@ -89,10 +137,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseRouting();
 app.UseAuthentication(); // Thêm middleware xác thực trước Authorization
 app.UseAuthorization();
-app.UseRouting();
+
 app.MapControllers();
 
 app.Run();

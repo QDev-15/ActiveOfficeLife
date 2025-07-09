@@ -172,7 +172,7 @@ namespace ActiveOfficeLife.Application.Services
             }
         }
 
-        public async bool Delete(Guid id)
+        public async Task<bool> Delete(Guid id)
         {
             try
             {
@@ -197,6 +197,7 @@ namespace ActiveOfficeLife.Application.Services
                 throw new Exception(ex.Message);
             }
         }
+
         public async Task<UserModel> GetByToken(string token)
         {
             try

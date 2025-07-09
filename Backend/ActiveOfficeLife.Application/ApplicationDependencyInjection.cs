@@ -22,4 +22,5 @@ namespace ActiveOfficeLife.Application
             return services;
 
         }
+    }
 }

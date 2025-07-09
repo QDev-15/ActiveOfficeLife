@@ -19,6 +19,7 @@ namespace ActiveOfficeLife.Application.Models
         public string? Token { get; set; }         // AccessToken hoặc RefreshToken
         public string? RefreshToken { get; set; }         // AccessToken hoặc RefreshToken
 
+        public DateTime? CreatedAt { set; get; }
         public string? AvatarUrl { get; set; } 
         public List<string> Roles { set; get; }
     }

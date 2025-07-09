@@ -20,26 +20,7 @@ namespace ActiveOfficeLife.Api.Controllers
             _userService = userService;
             _tokenService = token;
         }
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
-        {
-            if (request == null || string.IsNullOrEmpty(request.UserName) || string.IsNullOrEmpty(request.Password))
-            {
-                return BadRequest(new { message = "Invalid login data." });
-            }
-            try
-            {
-                request.ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
-                var authResponse = await _tokenService.LoginAsync(request);
-                return Ok(authResponse);
-            }
-            catch (Exception ex)
-            {
-                // Log the exception (you can use a logging framework)
-                AOLLogger.Error($"Login failed for user {request.UserName}: {ex.Message}");
-                return Unauthorized(new { message = "Invalid credentials." });
-            }
-        }
+
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
@@ -63,30 +44,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
         }
 
-        [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh(string refreshToken)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(refreshToken))
-                {
-                    return BadRequest(new { message = "Refresh token is required." });
-                }
-                var user = await _userService.GetByRefreshToken(refreshToken);
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-                AOLLogger.Error($"Error refreshing token: {ex.Message}");
-                return Unauthorized(new { message = "Invalid refresh token." });
-            }
-        }
 
-        [HttpGet("validate")]
-        public IActionResult ValidateToken([FromQuery] string token)
-        {
-            var principal = _tokenService.ValidateToken(token);
-            return principal != null ? Ok("Valid") : Unauthorized();
-        }
+
     }
 }
