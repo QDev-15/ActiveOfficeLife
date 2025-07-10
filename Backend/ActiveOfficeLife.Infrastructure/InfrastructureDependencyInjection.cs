@@ -29,6 +29,7 @@ namespace ActiveOfficeLife.Infrastructure
             services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IVisitorRepository, VisitorRepository>();
+            services.AddScoped<IUserTokenRepository, UserTokenRepository>();
             return services;
         }
     }

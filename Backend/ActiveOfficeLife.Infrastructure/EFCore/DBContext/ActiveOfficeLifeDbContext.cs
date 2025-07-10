@@ -21,6 +21,7 @@ namespace ActiveOfficeLife.Domain.EFCore.DBContext
         }
 
         public DbSet<User> Users => Set<User>();
+        public DbSet<UserToken> UserTokens => Set<UserToken>();
         public DbSet<Role> Roles => Set<Role>();
         public DbSet<Post> Posts => Set<Post>();
         public DbSet<Category> Categories => Set<Category>();

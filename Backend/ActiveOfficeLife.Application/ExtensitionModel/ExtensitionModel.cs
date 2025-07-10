@@ -11,6 +11,21 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
 {
     public static class ExtensitionModel
     {
+        public static UserTokenModel ReturnModel(this UserToken userToken)
+        {
+            return new UserTokenModel()
+            {
+                Id = userToken.Id,
+                UserId = userToken.UserId,
+                User = userToken.User.ReturnModel(),
+                AccessToken = userToken.AccessToken,
+                AccessTokenExpiresAt = userToken.AccessTokenExpiresAt,
+                IpAddress = userToken.IpAddress,
+                RefreshToken = userToken.RefreshToken,
+                RefreshTokenExpiresAt = userToken.RefreshTokenExpiresAt,
+                CreatedAt = userToken.CreatedAt
+            };
+        }
         public static PostModel ReturnModel(this Post value)
         {
             return new PostModel()

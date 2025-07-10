@@ -1,26 +1,28 @@
 ﻿using ActiveOfficeLife.Application.Common;
-using ActiveOfficeLife.Application.Models.Requests;
+using ActiveOfficeLife.Application.ExtensitionModel;
+using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Models;
+using ActiveOfficeLife.Application.Models.Requests;
+using ActiveOfficeLife.Application.Models.Responses;
 using ActiveOfficeLife.Common;
+using ActiveOfficeLife.Domain;
+using ActiveOfficeLife.Domain.Entities;
 using ActiveOfficeLife.Domain.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.Security;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
-using ActiveOfficeLife.Application.Models.Responses;
-using ActiveOfficeLife.Domain;
-using Microsoft.AspNetCore.Identity;
-using System.Security;
-using ActiveOfficeLife.Application.ExtensitionModel;
 using System.Text.Json;
-using ActiveOfficeLife.Application.Interfaces;
+using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Application.Services
 {
@@ -28,15 +30,47 @@ namespace ActiveOfficeLife.Application.Services
     {
         private readonly byte[] _secretKey;
         private readonly JwtSettings _jwtSettings;
+        private readonly IUserTokenRepository _userTokenRepository;
         private readonly IUserRepository _userRepository;
         private readonly _IUnitOfWork _unitOfWork;
 
-        public TokenService(IOptions<JwtSettings> jwtOptions, IUserRepository userRepository, _IUnitOfWork iUnitOfWork)
+        public TokenService(IOptions<JwtSettings> jwtOptions, IUserRepository userRepository, _IUnitOfWork iUnitOfWork, IUserTokenRepository userTokenRepository)
         {
             _jwtSettings = jwtOptions.Value;
             _secretKey = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
             _userRepository = userRepository;
             _unitOfWork = iUnitOfWork;
+            _userTokenRepository = userTokenRepository;
+        }
+
+        public async Task<UserTokenModel> CreateAsync(string userId, string ipAddress)
+        {
+            var user = await _userRepository.GetByIdAsync(new Guid(userId));
+            var userToken = await _userTokenRepository.GetByUserIdAsync(userId, ipAddress);
+            var token = GenerateAccessToken(user.ReturnModel());
+            var refreshToken = GenerateRefreshToken();
+            if (userToken == null)
+            {
+                userToken = new UserToken
+                {
+                    UserId = userId,
+                    AccessToken = token,
+                    AccessTokenExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
+                    RefreshToken = refreshToken,
+                    RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(365), // Set refresh token expiration
+                    IpAddress = ipAddress,
+                    CreatedAt = DateTime.UtcNow,
+                };
+                await _userTokenRepository.AddAsync(userToken);
+            }
+            else
+            {
+                userToken.AccessToken = token;
+                userToken.RefreshToken = refreshToken;
+                userToken.IpAddress = ipAddress;
+                userToken.ExpiresAt = DateTime.UtcNow.AddDays(7); // Update expiration
+                _userTokenRepository.Update(userToken);
+            }
         }
 
         public string GenerateAccessToken(UserModel user)
@@ -57,12 +91,10 @@ namespace ActiveOfficeLife.Application.Services
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
-            foreach (var role in user.Roles)
-            {
-                authClaims.Add(new Claim(ClaimTypes.Role, role));
-            }
-
-          
+            //foreach (var role in user.Roles)
+            //{
+            //    authClaims.Add(new Claim(ClaimTypes.Role, role));
+            //}
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -86,15 +118,11 @@ namespace ActiveOfficeLife.Application.Services
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomBytes);
 
-            var token = Convert.ToBase64String(randomBytes);
-            var refreshTokenData = new RefreshTokenData
-            {
-                Token = token,
-                Expires = DateTime.UtcNow.AddDays(daysValid)
-            };
+            var refreshToken = Convert.ToBase64String(randomBytes);
 
-            return JsonSerializer.Serialize(refreshTokenData);
+            return refreshToken;
         }
+
 
         public ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
         {
@@ -196,6 +224,11 @@ namespace ActiveOfficeLife.Application.Services
                 User = user.ReturnModel(),
                 Role = string.Join(",", user.Roles.Select(x => x.Name).ToList()),
             };
+        }
+
+        public Task<UserTokenModel> RefreshTokenAsync(string refreshToken, string ipAddress)
+        {
+            throw new NotImplementedException();
         }
 
         public ClaimsPrincipal? ValidateToken(string token)
