@@ -1,6 +1,7 @@
 ﻿using ActiveOfficeLife.Application.Models;
 using ActiveOfficeLife.Application.Models.Requests;
 using ActiveOfficeLife.Application.Models.Responses;
+using ActiveOfficeLife.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,12 +13,11 @@ namespace ActiveOfficeLife.Application.Interfaces
 {
     public interface ITokenService
     {
-        Task<UserTokenModel> CreateAsync(string userId, string ipAddress);
+        Task<AuthResponse> CreateAsync(UserModel userModel, string ipAddress);
         Task<AuthResponse> LoginAsync(LoginRequest loginRequest);
-        Task<UserTokenModel> RefreshTokenAsync(string refreshToken, string ipAddress);
+        Task<AuthResponse> RefreshTokenAsync(string refreshToken, string ipAddress);
+        Task<List<UserTokenModel>> GetUserTokensAsync(Guid userId);
         string GenerateAccessToken(UserModel user);
         string GenerateRefreshToken(int daysValid);
-        ClaimsPrincipal? ValidateToken(string token);
-        ClaimsPrincipal? GetPrincipalFromExpiredToken(string token);
     }
 }

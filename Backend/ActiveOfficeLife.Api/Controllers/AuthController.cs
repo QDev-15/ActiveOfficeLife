@@ -55,14 +55,15 @@ namespace ActiveOfficeLife.Api.Controllers
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] string refreshToken)
         {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
             try
             {
-                var authResponse = await _tokenService.RefreshTokenAsync(refreshToken);
+                var authResponse = await _tokenService.RefreshTokenAsync(refreshToken, ipAddress);
                 return Ok(authResponse);
             }
             catch (Exception ex)
             {
-                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+                
                 // Log the exception (optional)
                 AOLLogger.Error($"Error processing refresh token: {ex.Message}", ex.Source, null, ex.StackTrace, ipAddress);
                 return BadRequest($"Error processing refresh token: {ex.Message}");
@@ -94,13 +95,6 @@ namespace ActiveOfficeLife.Api.Controllers
                 CreatedAt = DateTime.TryParse(claims.FirstOrDefault(c => c.Type == "CreatedAt")?.Value, out var createdAt) ? createdAt : DateTime.UtcNow
             };
             return Ok(userInfo);
-        }
-        [Authorize]
-        [HttpGet("validate")]
-        public IActionResult ValidateToken([FromQuery] string token)
-        {
-            var principal = _tokenService.ValidateToken(token);
-            return principal != null ? Ok("Valid") : Unauthorized();
         }
 
     }

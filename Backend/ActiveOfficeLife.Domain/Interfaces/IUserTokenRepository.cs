@@ -9,8 +9,8 @@ namespace ActiveOfficeLife.Domain.Interfaces
 {
     public interface IUserTokenRepository : _IRepository<UserToken>
     {
-        Task<UserToken?> GetByUserIdAsync(string userId, string ipAddress);
-        Task<ICollection<UserToken>> GetAllByUserIdAsync(string userId);
+        Task<UserToken?> GetByUserIdAsync(Guid userId, string ipAddress);
+        Task<ICollection<UserToken>> GetAllByUserIdAsync(Guid userId);
         Task<UserToken?> GetByAccessTokenAsync(string accessToken);
         Task<UserToken?> GetByRefreshTokenAsync(string refreshToken);
 

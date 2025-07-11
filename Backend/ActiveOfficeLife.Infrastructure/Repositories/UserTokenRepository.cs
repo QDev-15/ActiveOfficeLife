@@ -2,11 +2,6 @@
 using ActiveOfficeLife.Domain.Entities;
 using ActiveOfficeLife.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Infrastructure.Repositories
 {
@@ -16,7 +11,7 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
         {
         }
 
-        public async Task<ICollection<UserToken>> GetAllByUserIdAsync(string userId)
+        public async Task<ICollection<UserToken>> GetAllByUserIdAsync(Guid userId)
         {
             var userTokens = await _context.UserTokens
                 .Where(ut => ut.UserId == userId)
@@ -38,7 +33,7 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             return userToken;
         }
 
-        public async Task<UserToken?> GetByUserIdAsync(string userId, string ipAddress)
+        public async Task<UserToken?> GetByUserIdAsync(Guid userId, string ipAddress)
         {
             var userToken = await _context.UserTokens
                 .FirstOrDefaultAsync(ut => ut.UserId == userId && ut.IpAddress == ipAddress);

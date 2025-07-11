@@ -23,6 +23,7 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
         {
             return _context.Users
                 .Where(u => u.RefreshToken == refreshToken)
+                .Include(x => x.Roles)
                 .FirstOrDefaultAsync();
         }
 
@@ -30,18 +31,21 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
         {
             return _context.Users
                 .Where(u => u.Token == token)
+                .Include(x => x.Roles)
                 .FirstOrDefaultAsync();
         }
 
         public async Task<User?> GetByUserNameAsync(string username)
         {
-            return await _context.Users.Where(x => x.Username.ToLower() == username.ToLower()).FirstOrDefaultAsync();
+            return await _context.Users.Where(x => x.Username.ToLower() == username.ToLower())
+                .Include(x => x.Roles).FirstOrDefaultAsync();
         }
 
         public async Task<User?> GetByUserPassAsync(string userName, string password)
         {
             var hasPass = DomainHelper.HashPassword(password);
-            return await _context.Users.Where(u => u.Username.ToLower() == userName.ToLower() && u.PasswordHash == hasPass).FirstOrDefaultAsync();
+            return await _context.Users.Where(u => u.Username.ToLower() == userName.ToLower() && u.PasswordHash == hasPass)
+                .Include(x => x.Roles).FirstOrDefaultAsync();
         }
     }
 }

@@ -43,35 +43,55 @@ namespace ActiveOfficeLife.Application.Services
             _userTokenRepository = userTokenRepository;
         }
 
-        public async Task<UserTokenModel> CreateAsync(string userId, string ipAddress)
+        public async Task<AuthResponse> CreateAsync(UserModel userModel, string ipAddress)
         {
-            var user = await _userRepository.GetByIdAsync(new Guid(userId));
-            var userToken = await _userTokenRepository.GetByUserIdAsync(userId, ipAddress);
-            var token = GenerateAccessToken(user.ReturnModel());
-            var refreshToken = GenerateRefreshToken();
-            if (userToken == null)
+            var userToken = await _userTokenRepository.GetByUserIdAsync(userModel.Id, ipAddress);
+            if (userToken != null)
             {
-                userToken = new UserToken
-                {
-                    UserId = userId,
-                    AccessToken = token,
-                    AccessTokenExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
-                    RefreshToken = refreshToken,
-                    RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(365), // Set refresh token expiration
-                    IpAddress = ipAddress,
-                    CreatedAt = DateTime.UtcNow,
-                };
-                await _userTokenRepository.AddAsync(userToken);
-            }
-            else
-            {
-                userToken.AccessToken = token;
-                userToken.RefreshToken = refreshToken;
+                // If the user already, generate a new access token and refresh token save to the database
+                userToken.AccessToken = GenerateAccessToken(userModel);
+                userToken.AccessTokenExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes);
+                userToken.RefreshToken = GenerateRefreshToken();
+                userToken.RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays); // Set refresh token expiration
                 userToken.IpAddress = ipAddress;
-                userToken.ExpiresAt = DateTime.UtcNow.AddDays(7); // Update expiration
-                _userTokenRepository.Update(userToken);
+                _userTokenRepository.UpdateAsync(userToken);
+                await _unitOfWork.SaveChangesAsync();
+
+                // If a token already exists for this user and IP address, return it
+                return new AuthResponse
+                {
+                    AccessToken = userToken.AccessToken,
+                    RefreshToken = userToken.RefreshToken,
+                    User = userModel,
+                    Role = string.Join(",", userModel.Roles.ToList()),
+                    UserId = userModel.Id
+                };
             }
+            var token = GenerateAccessToken(userModel);
+            var refreshToken = GenerateRefreshToken();
+            var newUserToken = new UserToken
+            {
+                UserId = userModel.Id,
+                AccessToken = token,
+                AccessTokenExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes),
+                RefreshToken = refreshToken,
+                RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays), // Set refresh token expiration
+                IpAddress = ipAddress,
+                CreatedAt = DateTime.UtcNow,
+            };
+            await _userTokenRepository.AddAsync(newUserToken);
+            await _unitOfWork.SaveChangesAsync();
+            return new AuthResponse
+            {
+                AccessToken = token,
+                RefreshToken = refreshToken,
+                User = userModel,
+                Role = string.Join(",", userModel.Roles.ToList()),
+                UserId = userModel.Id
+            };
         }
+
+
 
         public string GenerateAccessToken(UserModel user)
         {
@@ -123,39 +143,34 @@ namespace ActiveOfficeLife.Application.Services
             return refreshToken;
         }
 
-
-        public ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
+        public async Task<List<UserTokenModel>> GetUserTokensAsync(Guid userId)
         {
-            var tokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(_secretKey),
-                ValidateIssuer = true,
-                ValidIssuer = _jwtSettings.Issuer,
-                ValidateAudience = true,
-                ValidAudience = _jwtSettings.Audience,
-                ValidateLifetime = false, // Bỏ qua thời hạn token
-                ClockSkew = TimeSpan.Zero
-            };
-
             try
             {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
-
-                if (securityToken is not JwtSecurityToken jwtSecurityToken ||
-                    !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-                    return null;
-
-                return principal;
+                var userTokens = await _userTokenRepository.GetAllByUserIdAsync(userId);
+                if (userTokens == null || !userTokens.Any())
+                {
+                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - userId = " + userId + " - " + MessageContext.NotFound);
+                    throw new Exception("User tokens not found");
+                }
+                return userTokens.Select(ut => new UserTokenModel
+                {
+                    Id = ut.Id,
+                    UserId = ut.UserId,
+                    AccessToken = ut.AccessToken,
+                    AccessTokenExpiresAt = ut.AccessTokenExpiresAt,
+                    RefreshToken = ut.RefreshToken,
+                    RefreshTokenExpiresAt = ut.RefreshTokenExpiresAt,
+                    IpAddress = ut.IpAddress,
+                    CreatedAt = ut.CreatedAt
+                }).ToList();
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(MethodBase.GetCurrentMethod()?.Name + " - error = " + ex.Message);
-                return null;
+                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                throw new Exception(ex.Message);
             }
         }
-
         public async Task<AuthResponse> LoginAsync(LoginRequest loginRequest)
         {
             try
@@ -166,15 +181,8 @@ namespace ActiveOfficeLife.Application.Services
                     var verified = DomainHelper.VerifyPassword(user.PasswordHash, loginRequest.Password);
                     if (verified.Success)
                     {
-                        return new AuthResponse
-                        {
-                            AccessToken = GenerateAccessToken(user.ReturnModel()),
-                            RefreshToken = GenerateRefreshToken(),
-                            User = user.ReturnModel(),
-                            Role = string.Join(",", user.Roles.Select(x => x.Name).ToList()),
-                            UserId = user.Id
-                            
-                        };
+                        var authResponse = await CreateAsync(user.ReturnModel(), loginRequest.ipAddress);
+                        return authResponse;
                     }
                     else
                     {
@@ -197,74 +205,41 @@ namespace ActiveOfficeLife.Application.Services
             }
         }
 
-        public async Task<AuthResponse> RefreshTokenAsync(string refreshToken)
+        public async Task<AuthResponse> RefreshTokenAsync(string refreshToken, string ipAddress)
         {
-            var user = await _userRepository.GetByRefreshTokenAsync(refreshToken);
-
-            if (user == null)
+            var userToken = await _userTokenRepository.GetByRefreshTokenAsync(refreshToken);
+            if (userToken == null)
             {
                 throw new SecurityException("Invalid refresh token");
             }
             // Check if the refresh token is expired
-            var tokenData = JsonSerializer.Deserialize<RefreshTokenData>(refreshToken);
-
-            if (tokenData.Expires <= DateTime.UtcNow)
+            if (userToken.RefreshTokenExpiresAt <= DateTime.UtcNow)
             {
                 throw new SecurityException("logout");
             }
-
-            user.RefreshToken = GenerateRefreshToken(); // generate a new refresh token
-            user.Token = GenerateAccessToken(user.ReturnModel()); // generate a new access token
-            _userRepository.UpdateAsync(user);
+            // Generate new tokens
+            var user = await _userRepository.GetByIdAsync(userToken.UserId);
+            var newAccessToken = GenerateAccessToken(user.ReturnModel());
+            var newRefreshToken = GenerateRefreshToken();
+            // Update the user token
+            userToken.AccessToken = newAccessToken;
+            userToken.AccessTokenExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.AccessTokenExpirationMinutes);
+            userToken.RefreshToken = newRefreshToken;
+            userToken.RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays);
+            userToken.IpAddress = ipAddress;
+            userToken.CreatedAt = DateTime.UtcNow;
+            _userTokenRepository.UpdateAsync(userToken);
             await _unitOfWork.SaveChangesAsync();
             return new AuthResponse
             {
-                AccessToken = user.Token,
-                RefreshToken = user.RefreshToken,
+                AccessToken = userToken.AccessToken,
+                RefreshToken = userToken.RefreshToken,
                 User = user.ReturnModel(),
                 Role = string.Join(",", user.Roles.Select(x => x.Name).ToList()),
+                UserId = user.Id
             };
         }
 
-        public Task<UserTokenModel> RefreshTokenAsync(string refreshToken, string ipAddress)
-        {
-            throw new NotImplementedException();
-        }
-
-        public ClaimsPrincipal? ValidateToken(string token)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-
-            try
-            {
-                var validationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(_secretKey),
-                    ValidateIssuer = true,
-                    ValidIssuer = _jwtSettings.Issuer,
-                    ValidateAudience = true,
-                    ValidAudience = _jwtSettings.Audience,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
-                };
-
-                var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
-
-                if (validatedToken is JwtSecurityToken jwtToken &&
-                    jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    return principal;
-                }
-
-                return null;
-            }
-            catch (Exception ex)
-            {
-                AOLLogger.Error(MethodBase.GetCurrentMethod()?.Name + " - error = " + ex.Message);
-                return null;
-            }
-        }
 
     }
 }

@@ -2,6 +2,7 @@
 using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Models;
 using ActiveOfficeLife.Application.Models.Requests;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -21,7 +22,7 @@ namespace ActiveOfficeLife.Api.Controllers
             _tokenService = token;
         }
 
-
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
@@ -44,7 +45,26 @@ namespace ActiveOfficeLife.Api.Controllers
             }
         }
 
+        [Authorize]
+        [HttpGet("login-history")]
+        public async Task<IActionResult> GetLoginHistory()
+        {
+            try
+            {
+                var userId = User.FindFirst("UserId")?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { message = "User not authenticated." });
+                }
+                var histories = await _tokenService.GetUserTokensAsync(Guid.Parse(userId));
+                return Ok(histories);
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error fetching login history: {ex.Message}");
+                return BadRequest(new { message = "Failed to retrieve login history." });
+            }
 
-
+        }
     }
 }

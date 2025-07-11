@@ -134,9 +134,13 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+} else
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+    app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication(); // Thêm middleware xác thực trước Authorization
 app.UseAuthorization();

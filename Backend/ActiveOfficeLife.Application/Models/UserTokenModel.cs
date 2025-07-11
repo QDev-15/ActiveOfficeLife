@@ -11,7 +11,7 @@ namespace ActiveOfficeLife.Application.Models
     {
         public Guid? Id { get; set; } = Guid.NewGuid();
 
-        public string? UserId { get; set; }
+        public Guid? UserId { get; set; }
         public UserModel? User { get; set; }
 
         public string? AccessToken { get; set; }
@@ -22,5 +22,19 @@ namespace ActiveOfficeLife.Application.Models
         public DateTime? RefreshTokenExpiresAt { get; set; }
 
         public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
+        public bool AccessTokenIsValid
+        {
+            get
+            {
+                return AccessTokenExpiresAt.HasValue && AccessTokenExpiresAt.Value > DateTime.UtcNow;
+            }
+        }
+        public bool RefreshTokenIsValid
+        {
+            get
+            {
+                return RefreshTokenExpiresAt.HasValue && RefreshTokenExpiresAt.Value > DateTime.UtcNow;
+            }
+        }
     }
 }
