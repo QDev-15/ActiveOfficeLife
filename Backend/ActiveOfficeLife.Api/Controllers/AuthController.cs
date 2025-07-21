@@ -11,9 +11,7 @@ using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Api.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AuthController : Controller
+    public class AuthController : BaseController
     {
         private readonly ITokenService _tokenService;
         public AuthController(ITokenService tokenService)
@@ -69,14 +67,12 @@ namespace ActiveOfficeLife.Api.Controllers
                 return BadRequest($"Error processing refresh token: {ex.Message}");
             }
         }
-        [Authorize]
         [HttpGet("protected")]
         public IActionResult GetSecureData()
         {
             var username = User.Identity?.Name;
             return Ok(new { message = $"Hello {username}, this is protected data!" });
         }
-        [Authorize]
         [HttpGet("me")]
         public IActionResult GetCurrentUser()
         {

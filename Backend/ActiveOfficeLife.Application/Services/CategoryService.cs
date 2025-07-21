@@ -18,13 +18,11 @@ namespace ActiveOfficeLife.Application.Services
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly _IUnitOfWork _unitOfWork;
-        private readonly CustomMemoryCache _cache;
        
-        public CategoryService(ICategoryRepository categoryRepository, _IUnitOfWork unitOfWork, CustomMemoryCache cache)
+        public CategoryService(ICategoryRepository categoryRepository, _IUnitOfWork unitOfWork)
         {
             _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
             _unitOfWork = unitOfWork;
-            _cache = cache;
         }
         public async Task<CategoryModel> CreateCategoryAsync(CategoryModel category)
         {
@@ -96,11 +94,8 @@ namespace ActiveOfficeLife.Application.Services
         public async Task<List<CategoryModel>> GetAllCategoriesAsync(bool? nocache = false)
         {
             string cacheKey = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}";
-            var categories = _cache.Get<List<CategoryModel>>(cacheKey);
-            if (!(nocache ?? false) && categories != null && categories.Any())
-            {
-                return categories;
-            }
+            var categories = new List<CategoryModel>();
+
             var cats = await _categoryRepository.GetAllAsync();
             if (cats == null || !cats.Any())
             {
@@ -114,7 +109,6 @@ namespace ActiveOfficeLife.Application.Services
             {
                 categories.Add(GetCategoryChild(item, cats));
             }
-            _cache.Set<List<CategoryModel>>(cacheKey, categories);
             return categories;
         }
         private CategoryModel GetCategoryChild(Category category, IEnumerable<Category> categoryModels)
@@ -138,19 +132,12 @@ namespace ActiveOfficeLife.Application.Services
         {
             try
             {
-                string cacheKey = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-{id.ToString()}";
-                var cacheValue = _cache.Get<CategoryModel>(cacheKey);
-                if (cacheValue != null)
-                {
-                    return cacheValue;
-                }
                 var cat = await _categoryRepository.GetByIdAsync(id);
                 if (cat == null)
                 {
                     AOLLogger.Error($"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-{MessageContext.NotFound}");
                     throw new KeyNotFoundException("Get Cagegory not found");
                 }
-                _cache.Set<CategoryModel>(cacheKey, cat.ReturnModel());
                 return cat.ReturnModel();
             } catch (Exception ex)
             {

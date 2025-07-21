@@ -16,6 +16,7 @@ namespace ActiveOfficeLife.Application
             // Register application services here
             // Example: services.AddScoped<ICategoryService, CategoryService>();
             // Add other application services as needed
+            services.AddSingleton<AppConfigService>();
             services.AddScoped<ILogService, LogService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IUserService, UserService>();
