@@ -8,10 +8,11 @@ namespace ActiveOfficeLife.Application.Models.Responses
 {
     public class AuthResponse
     {
-        public Guid UserId { get; set; }
+        public string UserId { get; set; }
+        public string Email { set; get; }
+        public string Status { set; get; }
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }
-        public UserModel User { get; set; } = new UserModel();
         public string Role { get; set; }
     }
 }

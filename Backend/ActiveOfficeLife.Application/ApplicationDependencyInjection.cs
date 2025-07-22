@@ -20,6 +20,7 @@ namespace ActiveOfficeLife.Application
             services.AddScoped<ILogService, LogService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ICategoryService, CategoryService>();
             return services;
 
         }

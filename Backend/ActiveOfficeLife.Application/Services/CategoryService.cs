@@ -91,7 +91,7 @@ namespace ActiveOfficeLife.Application.Services
                 throw new ApplicationException("An error occurred while deleting the category", ex);
             }
         }
-        public async Task<List<CategoryModel>> GetAllCategoriesAsync(bool? nocache = false)
+        public async Task<List<CategoryModel>> GetAllCategoriesAsync()
         {
             string cacheKey = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}";
             var categories = new List<CategoryModel>();

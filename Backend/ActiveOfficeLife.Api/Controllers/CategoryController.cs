@@ -1,9 +1,148 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ActiveOfficeLife.Application.Common;
+using ActiveOfficeLife.Application.Interfaces;
+using ActiveOfficeLife.Application.Models;
+using ActiveOfficeLife.Application.Models.AppConfigs;
+using ActiveOfficeLife.Application.Services;
+using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
 
 namespace ActiveOfficeLife.Api.Controllers
 {
     public class CategoryController : BaseController
     {
-        
+        private readonly ICategoryService _categoryService;
+        private readonly CustomMemoryCache _cache;
+        private readonly AppConfigService _appConfigService;
+        public CategoryController(ICategoryService categoryService, CustomMemoryCache cache, AppConfigService appConfigService)
+        {
+            _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            _appConfigService = appConfigService;
+        }
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllCategories()
+        {
+            // cache key for categories
+            string cacheKey = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}";
+
+            try
+            {
+                var chedCategories = _cache.Get<List<CategoryModel>>(cacheKey);
+                if (chedCategories != null)
+                {
+                    return Ok(chedCategories);
+                }
+                var categories = await _categoryService.GetAllCategoriesAsync();
+                if (categories == null || !categories.Any())
+                {
+                    return NotFound(new { message = "No categories found." });
+                }
+                _cache.Set(cacheKey, categories, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout)); // Set cache for 30 minutes
+                return Ok(categories);
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error fetching categories: {ex.Message}", ex.Source, null, ex.StackTrace);
+                return BadRequest(new { message = "Failed to retrieve categories." });
+            }
+        }
+        // create category using POST method and usint CategoryModel as request body from category service
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateCategory([FromForm] CategoryModel category)
+        {
+            if (category == null)
+            {
+                return BadRequest(new { message = "Invalid category data." });
+            }
+            try
+            {
+                var createdCategory = await _categoryService.CreateCategoryAsync(category);
+                // Clear cache after creating a new category
+                _cache.Clear();
+                return Ok(createdCategory);
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error creating category: {ex.Message}", ex.Source, null, ex.StackTrace);
+                return BadRequest(new { message = "Failed to create category." });
+
+            }
+        }
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteCategory(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest(new { message = "Invalid category ID." });
+            }
+            try
+            {
+                var result = await _categoryService.DeleteCategoryAsync(id);
+                if (result)
+                {
+                    // Clear cache after deleting a category
+                    _cache.Clear();
+                    return Ok(new { message = "Category deleted successfully." });
+                }
+                return NotFound(new { message = "Category not found." });
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error deleting category: {ex.Message}", ex.Source, null, ex.StackTrace);
+                return BadRequest(new { message = "Failed to delete category." });
+            }
+        }
+        [HttpGet("get/{id}")]
+        public async Task<IActionResult> GetCategoryById(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest(new { message = "Invalid category ID." });
+            }
+            try
+            {
+                // Check cache first
+                string cacheKey = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-{id}";
+                var cachedCategory = _cache.Get<CategoryModel>(cacheKey);
+                if (cachedCategory != null)
+                {
+                    return Ok(cachedCategory);
+                }
+                var category = await _categoryService.GetCategoryByIdAsync(id);
+                if (category != null)
+                {
+                    // Set cache for the category
+                    _cache.Set(cacheKey, category, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout));
+                    return Ok(category);
+                }
+                return NotFound(new { message = "Category not found." });
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error fetching category: {ex.Message}", ex.Source, null, ex.StackTrace);
+                return BadRequest(new { message = "Failed to retrieve category." });
+            }
+        }
+        // update category using PUT method and usint CategoryModel as request body from category service
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateCategory([FromForm] CategoryModel category)
+        {
+            if (category == null || category.Id == Guid.Empty)
+            {
+                return BadRequest(new { message = "Invalid category data." });
+            }
+            try
+            {
+                var updatedCategory = await _categoryService.UpdateCategoryAsync(category);
+                // Clear cache after updating a category
+                _cache.Clear();
+                return Ok(updatedCategory);
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error updating category: {ex.Message}", ex.Source, null, ex.StackTrace);
+                return BadRequest(new { message = "Failed to update category." });
+            }
+        }
     }
 }

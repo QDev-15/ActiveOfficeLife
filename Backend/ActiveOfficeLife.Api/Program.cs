@@ -1,14 +1,8 @@
 ﻿using ActiveOfficeLife.Api;
 using ActiveOfficeLife.Application;
-using ActiveOfficeLife.Application.Common;
-using ActiveOfficeLife.Application.Interfaces;
-using ActiveOfficeLife.Application.Services;
-using ActiveOfficeLife.Common;
+using ActiveOfficeLife.Application.Models.AppConfigs;
 using ActiveOfficeLife.Domain.EFCore.DBContext;
-using ActiveOfficeLife.Domain.Interfaces;
 using ActiveOfficeLife.Infrastructure;
-using ActiveOfficeLife.Infrastructure.Repositories;
-using ActiveOfficeLife.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -17,14 +11,26 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// define settings for the application
+var environment = builder.Environment.EnvironmentName;
+var jwtSettings = builder.Configuration.GetSection("JwtTokens").Get<JwtTokens>();
+var connectionSettings = builder.Configuration.GetSection("ConnectionStrings").Get<ConnectionStrings>();
+var key = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
+var connectionString = connectionSettings.DefaultConnection;
+
+
+builder.Configuration
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
+// Register JwtTokens configuration for dependency injection: ex using IOptions<JwtTokens> on your services
+builder.Services.Configure<JwtTokens>(builder.Configuration.GetSection("JwtTokens"));
 
 builder.Services.AddDbContext<ActiveOfficeLifeDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(connectionString));
 // Add services to the container.
-builder.Services.Configure<JwtTokens>(builder.Configuration.GetSection("JwtTokens"));
-var jwtSettings = builder.Configuration.GetSection("JwtTokens").Get<JwtTokens>();
 
-var key = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
 
 // Thêm Authentication - JWT Bearer
 builder.Services.AddAuthentication(options =>

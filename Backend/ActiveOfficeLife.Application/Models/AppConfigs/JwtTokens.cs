@@ -8,9 +8,10 @@ namespace ActiveOfficeLife.Application.Models.AppConfigs
 {
     public class JwtTokens
     {
-        public string Key { set; get; }
-        public string Issuer { set; get; }
-        public string Audience { set; get; }
-        public int ExpiresInMinutes { set; get; }
+        public string SecretKey { get; set; } = null!;
+        public string Issuer { get; set; } = null!;
+        public string Audience { get; set; } = null!;
+        public int AccessTokenExpirationMinutes { get; set; }
+        public int RefreshTokenExpirationDays { get; set; }
     }
 }

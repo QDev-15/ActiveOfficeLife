@@ -21,7 +21,7 @@ namespace ActiveOfficeLife.Api.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        public async Task<IActionResult> Login([FromForm] LoginRequest request)
         {
             try 
             {
@@ -51,7 +51,7 @@ namespace ActiveOfficeLife.Api.Controllers
 
         [AllowAnonymous]
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh([FromBody] string refreshToken)
+        public async Task<IActionResult> Refresh([FromForm] string refreshToken)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
             try

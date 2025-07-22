@@ -2,6 +2,7 @@
 using ActiveOfficeLife.Application.ExtensitionModel;
 using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Models;
+using ActiveOfficeLife.Application.Models.AppConfigs;
 using ActiveOfficeLife.Application.Models.Requests;
 using ActiveOfficeLife.Application.Models.Responses;
 using ActiveOfficeLife.Common;
@@ -62,9 +63,10 @@ namespace ActiveOfficeLife.Application.Services
                 {
                     AccessToken = userToken.AccessToken,
                     RefreshToken = userToken.RefreshToken,
-                    User = userModel,
+                    Email = userModel.Email,
                     Role = string.Join(",", userModel.Roles.ToList()),
-                    UserId = userModel.Id
+                    UserId = userModel.Id.ToString(),
+                    Status = userModel.Status.ToString()
                 };
             }
             var token = GenerateAccessToken(userModel);
@@ -83,11 +85,12 @@ namespace ActiveOfficeLife.Application.Services
             await _unitOfWork.SaveChangesAsync();
             return new AuthResponse
             {
-                AccessToken = token,
-                RefreshToken = refreshToken,
-                User = userModel,
+                AccessToken = userToken.AccessToken,
+                RefreshToken = userToken.RefreshToken,
+                Email = userModel.Email,
                 Role = string.Join(",", userModel.Roles.ToList()),
-                UserId = userModel.Id
+                UserId = userModel.Id.ToString(),
+                Status = userModel.Status.ToString()
             };
         }
 
@@ -234,9 +237,10 @@ namespace ActiveOfficeLife.Application.Services
             {
                 AccessToken = userToken.AccessToken,
                 RefreshToken = userToken.RefreshToken,
-                User = user.ReturnModel(),
-                Role = string.Join(",", user.Roles.Select(x => x.Name).ToList()),
-                UserId = user.Id
+                Email = user.Email,
+                Role = string.Join(",", user.Roles.ToList()),
+                UserId = user.Id.ToString(),
+                Status = user.Status.ToString()
             };
         }
 
