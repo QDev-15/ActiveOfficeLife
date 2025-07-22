@@ -14,7 +14,7 @@ namespace ActiveOfficeLife.Application.Interfaces
     public interface ITokenService
     {
         Task<AuthResponse> CreateAsync(UserModel userModel, string ipAddress);
-        Task<AuthResponse> LoginAsync(LoginRequest loginRequest);
+        Task<AuthResponse> LoginAsync(LoginRequest loginRequest, string ipAddress);
         Task<AuthResponse> RefreshTokenAsync(string refreshToken, string ipAddress);
         Task<List<UserTokenModel>> GetUserTokensAsync(Guid userId);
         string GenerateAccessToken(UserModel user);

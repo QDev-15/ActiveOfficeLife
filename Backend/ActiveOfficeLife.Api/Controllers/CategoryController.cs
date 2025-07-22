@@ -48,7 +48,7 @@ namespace ActiveOfficeLife.Api.Controllers
         }
         // create category using POST method and usint CategoryModel as request body from category service
         [HttpPost("create")]
-        public async Task<IActionResult> CreateCategory([FromForm] CategoryModel category)
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryModel category)
         {
             if (category == null)
             {

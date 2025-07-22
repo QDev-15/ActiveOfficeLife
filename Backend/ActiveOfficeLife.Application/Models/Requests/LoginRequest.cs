@@ -10,7 +10,6 @@ namespace ActiveOfficeLife.Application.Models.Requests
     {
         public string UserName { set; get; }
         public string Password { set; get; }
-        public string ipAddress { set; get; }
         public bool Remember { set; get; }
     }
 }

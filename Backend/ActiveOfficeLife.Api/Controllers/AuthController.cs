@@ -21,37 +21,30 @@ namespace ActiveOfficeLife.Api.Controllers
 
         [AllowAnonymous]
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromForm] LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
             try 
             {
                 if (request == null || string.IsNullOrEmpty(request.UserName) || string.IsNullOrEmpty(request.Password))
                 {
                     return BadRequest("Invalid login request.");
                 }
-                var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-                if (!string.IsNullOrEmpty(ipAddress))
-                {
-                    request.ipAddress = ipAddress;
-                }
-                else
-                {
-                    request.ipAddress = "Unknown IP";
-                }
-                var authResponse = await _tokenService.LoginAsync(request);
+
+                var authResponse = await _tokenService.LoginAsync(request, ipAddress);
                 return Ok(authResponse);
             }
             catch (Exception ex)
             {
                 // Log the exception (optional)
-                AOLLogger.Error($"Error processing login request: {ex.Message}", ex.Source, null, ex.StackTrace, request.ipAddress);
+                AOLLogger.Error($"Error processing login request: {ex.Message}", ex.Source, null, ex.StackTrace, ipAddress);
                 return BadRequest($"Error processing login request: {ex.Message}");
             }
         }
 
         [AllowAnonymous]
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh([FromForm] string refreshToken)
+        public async Task<IActionResult> Refresh([FromBody] string refreshToken)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
             try

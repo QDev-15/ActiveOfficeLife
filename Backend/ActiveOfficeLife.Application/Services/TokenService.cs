@@ -174,17 +174,18 @@ namespace ActiveOfficeLife.Application.Services
                 throw new Exception(ex.Message);
             }
         }
-        public async Task<AuthResponse> LoginAsync(LoginRequest loginRequest)
+        public async Task<AuthResponse> LoginAsync(LoginRequest loginRequest, string ipAddress)
         {
             try
             {
+
                 var user = await _userRepository.GetByUserNameAsync(loginRequest.UserName);
                 if (user != null)
                 {
                     var verified = DomainHelper.VerifyPassword(user.PasswordHash, loginRequest.Password);
                     if (verified.Success)
                     {
-                        var authResponse = await CreateAsync(user.ReturnModel(), loginRequest.ipAddress);
+                        var authResponse = await CreateAsync(user.ReturnModel(), ipAddress);
                         return authResponse;
                     }
                     else
