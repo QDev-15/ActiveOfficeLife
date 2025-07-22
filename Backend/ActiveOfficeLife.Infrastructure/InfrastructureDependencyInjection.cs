@@ -14,7 +14,7 @@ namespace ActiveOfficeLife.Infrastructure
 {
     public static class InfrastructureDependencyInjection
     {
-        public static IServiceCollection AddActiveOfficeLifeInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddActiveOfficeLifeInfrastructure(this IServiceCollection services)
         {
             // Các config khác...
             services.AddScoped<_IUnitOfWork, _UnitOfWork>();

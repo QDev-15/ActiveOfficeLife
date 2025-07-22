@@ -8,9 +8,5 @@ namespace ActiveOfficeLife.Api.Controllers
     [Route("api/[controller]")]
     public class BaseController : Controller
     {
-        public IActionResult Index()
-        {
-            return View();
-        }
     }
 }

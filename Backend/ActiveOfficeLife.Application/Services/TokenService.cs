@@ -29,12 +29,12 @@ namespace ActiveOfficeLife.Application.Services
     public class TokenService : ITokenService
     {
         private readonly byte[] _secretKey;
-        private readonly JwtSettings _jwtSettings;
+        private readonly JwtTokens _jwtSettings;
         private readonly IUserTokenRepository _userTokenRepository;
         private readonly IUserRepository _userRepository;
         private readonly _IUnitOfWork _unitOfWork;
 
-        public TokenService(IOptions<JwtSettings> jwtOptions, IUserRepository userRepository, _IUnitOfWork iUnitOfWork, IUserTokenRepository userTokenRepository)
+        public TokenService(IOptions<JwtTokens> jwtOptions, IUserRepository userRepository, _IUnitOfWork iUnitOfWork, IUserTokenRepository userTokenRepository)
         {
             _jwtSettings = jwtOptions.Value;
             _secretKey = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);

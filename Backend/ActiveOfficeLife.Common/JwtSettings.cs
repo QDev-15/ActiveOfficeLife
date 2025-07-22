@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Common
 {
-    public class JwtSettings
+    public class JwtTokens
     {
         public string SecretKey { get; set; } = null!;
         public string Issuer { get; set; } = null!;

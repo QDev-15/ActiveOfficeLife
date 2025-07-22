@@ -19,10 +19,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddDbContext<ActiveOfficeLifeDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnectionLocal")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 // Add services to the container.
-builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
-var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+builder.Services.Configure<JwtTokens>(builder.Configuration.GetSection("JwtTokens"));
+var jwtSettings = builder.Configuration.GetSection("JwtTokens").Get<JwtTokens>();
 
 var key = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
 
@@ -72,7 +72,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddMemoryCache(); // Thêm bộ nhớ cache nếu cần
 builder.Services.AddSingleton<CustomMemoryCache>();
 // Thêm các dịch vụ ứng dụng
-builder.Services.AddActiveOfficeLifeInfrastructure(builder.Configuration);
+builder.Services.AddActiveOfficeLifeInfrastructure();
 builder.Services.AddActiveOfficeLifeApplication();
 
 builder.Services.AddControllers();
@@ -135,13 +135,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-} else
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
 }
 
-    app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication(); // Thêm middleware xác thực trước Authorization
 app.UseAuthorization();

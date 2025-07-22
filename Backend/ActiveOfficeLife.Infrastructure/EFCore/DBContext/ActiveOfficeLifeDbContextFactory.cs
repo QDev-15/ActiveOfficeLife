@@ -20,7 +20,7 @@ namespace ActiveOfficeLife.Infrastructure.EFCore.DBContext
                 .AddJsonFile("appsettings.json", optional: false)
                 .Build();
 
-            var connectionString = configuration.GetConnectionString("DefaultConnectionLocal");
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
 
             var optionsBuilder = new DbContextOptionsBuilder<ActiveOfficeLifeDbContext>();
             optionsBuilder.UseSqlServer(connectionString);
