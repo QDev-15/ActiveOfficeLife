@@ -8,11 +8,11 @@ namespace ActiveOfficeLife.Application.Models.Requests
 {
     public class PagingRequest
     {
-        public int pageIndex { get; set; } = 0;
-        public int pageSize { get; set; } = 10;
-        public string? sortField { get; set; } = "createdAt";
-        public string? sortDirection { get; set; } = "desc";
-        public string? searchText { get; set; } = null;
-        
+        public int PageIndex { get; set; } = 0;
+        public int PageSize { get; set; } = 10;
+        public string? SortField { get; set; } = "createdAt";
+        public string? SortDirection { get; set; } = "desc";
+        public string? SearchText { get; set; } = null;
+        public int DefaultIfNull { get; set; } = 1000;
     }
 }

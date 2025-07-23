@@ -23,6 +23,18 @@ namespace ActiveOfficeLife.Api
             return _cache.TryGetValue(key, out T value) ? value : default;
         }
 
+        //ex: _memoryCache.TryGetValue(cacheKey, out var cachedPost)
+        public bool TryGetValue<T>(string key, out T value)
+        {
+            if (_cache.TryGetValue(key, out value))
+            {
+                return true;
+            }
+            value = default;
+            return false;
+        }
+
+
         public void Set<T>(string key, T value, TimeSpan ttl)
         {
             _cache.Set(key, value, ttl);

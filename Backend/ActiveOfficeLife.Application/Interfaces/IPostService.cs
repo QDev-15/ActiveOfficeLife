@@ -12,6 +12,7 @@ namespace ActiveOfficeLife.Application.Interfaces
     {
         Task<PostModel> GetById(Guid id);
         Task<PostModel> GetByAlias(string slug);
+        Task<List<PostModel>> GetByCategoryId(Guid categoryId, PagingRequest? request);
         Task<List<PostModel>> GetByKey(string keyWord);
         Task<List<PostModel>> Search(PagingRequest request);
         Task<PostModel> Create(PostModel post);

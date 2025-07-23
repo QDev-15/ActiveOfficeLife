@@ -148,10 +148,10 @@ namespace ActiveOfficeLife.Application.Services
                     AOLLogger.Error($"{msgHdr}: PagingRequest is null.");
                     throw new ArgumentNullException(nameof(request), "PagingRequest cannot be null.");
                 }
-                var posts = await _postRepository.SearchAsync(request.searchText, request.pageIndex, request.pageSize);
+                var posts = await _postRepository.SearchAsync(request.SearchText, request.PageIndex, request.PageSize);
                 if (posts == null || !posts.Any())
                 {
-                    AOLLogger.Error($"{msgHdr}: No posts found for keyword {request.searchText}.");
+                    AOLLogger.Error($"{msgHdr}: No posts found for keyword {request.SearchText}.");
                     return new List<PostModel>(); // No posts found
                 }
                 return posts.Select(p => p.ReturnModel()).ToList();
@@ -191,6 +191,27 @@ namespace ActiveOfficeLife.Application.Services
             catch (Exception ex)
             {
                 AOLLogger.Error($"{serviceName}-{nameof(Update)}: Error updating post. Exception: {ex.Message}", ex.Source, null, ex.StackTrace);
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<List<PostModel>> GetByCategoryId(Guid categoryId, PagingRequest? request)
+        {
+            try
+            {
+                string msgHdr = serviceName + "-" + nameof(GetByCategoryId);
+                if (request == null)
+                {
+                    // set default values for paging request
+                    request = new PagingRequest();
+                    request.PageSize = request.DefaultIfNull;
+                }
+                var posts = await _postRepository.GetPostsByCategoryAsync(categoryId, request.PageIndex, request.PageSize);
+                return posts.Select(p => p.ReturnModel()).ToList();
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"{serviceName}-{nameof(GetByCategoryId)}: Error retrieving posts by category. Exception: {ex.Message}", ex.Source, null, ex.StackTrace);
                 throw new Exception(ex.Message);
             }
         }
