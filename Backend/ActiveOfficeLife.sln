@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActiveOfficeLife.Infrastruc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActiveOfficeLife.Common", "ActiveOfficeLife.Common\ActiveOfficeLife.Common.csproj", "{BB290672-95D8-4AB0-8A43-CF17C8778640}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActiveOfficeLife.Admin", "ActiveOfficeLife.Admin\ActiveOfficeLife.Admin.csproj", "{87674099-9F8F-4EF9-ACB0-3E11251F656C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{BB290672-95D8-4AB0-8A43-CF17C8778640}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB290672-95D8-4AB0-8A43-CF17C8778640}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB290672-95D8-4AB0-8A43-CF17C8778640}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87674099-9F8F-4EF9-ACB0-3E11251F656C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87674099-9F8F-4EF9-ACB0-3E11251F656C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87674099-9F8F-4EF9-ACB0-3E11251F656C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87674099-9F8F-4EF9-ACB0-3E11251F656C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
