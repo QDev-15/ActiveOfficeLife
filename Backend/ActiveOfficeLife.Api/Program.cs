@@ -143,13 +143,12 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwaggerUI();
 }
 
-app.UseMiddleware<TokenValidationMiddleware>();
-
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication(); // Thêm middleware xác thực trước Authorization
 app.UseAuthorization();
 
 app.MapControllers();
+app.UseMiddleware<TokenValidationMiddleware>();
 
 app.Run();

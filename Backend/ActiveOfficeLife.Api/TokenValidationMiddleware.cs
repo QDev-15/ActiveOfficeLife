@@ -1,4 +1,5 @@
 ﻿using ActiveOfficeLife.Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ActiveOfficeLife.Api
 {
@@ -13,15 +14,25 @@ namespace ActiveOfficeLife.Api
 
         public async Task Invoke(HttpContext context, IUserTokenRepository tokenRepository)
         {
-            var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-            if (!string.IsNullOrEmpty(token))
+            // Lấy endpoint hiện tại
+            var endpoint = context.GetEndpoint();
+
+            // Nếu endpoint không yêu cầu Authorize => bỏ qua middleware
+            var hasAuthorize = endpoint?.Metadata?.GetMetadata<AuthorizeAttribute>() != null;
+            var hasAllowAnonymous = endpoint?.Metadata?.GetMetadata<AllowAnonymousAttribute>() != null;
+
+            if (hasAuthorize && !hasAllowAnonymous)
             {
-                var tokenExists = await tokenRepository.IsValidAccessTokenAsync(token);
-                if (!tokenExists)
+                var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+                if (!string.IsNullOrEmpty(token))
                 {
-                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                    await context.Response.WriteAsync("Token is revoked or invalid");
-                    return;
+                    var tokenExists = await tokenRepository.IsValidAccessTokenAsync(token);
+                    if (!tokenExists)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        await context.Response.WriteAsync("Token is revoked or invalid");
+                        return;
+                    }
                 }
             }
 
