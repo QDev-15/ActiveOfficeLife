@@ -59,7 +59,7 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
                 .Include(x => x.Roles).FirstOrDefaultAsync();
         }
 
-        public async Task<List<User>> SearchAsync(string keyword, int index, int pageSize, bool? desc = true)
+        public async Task<List<User>> SearchAsync(string keyword, int index, int pageSize, bool desc = true)
         {
             if (string.IsNullOrEmpty(keyword))
             {
