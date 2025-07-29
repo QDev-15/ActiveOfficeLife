@@ -2,6 +2,7 @@
 using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Models;
 using ActiveOfficeLife.Application.Models.Requests;
+using ActiveOfficeLife.Application.Models.Responses;
 using ActiveOfficeLife.Common.Enums;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -23,22 +24,21 @@ namespace ActiveOfficeLife.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown IP";
             try 
             {
                 if (request == null || string.IsNullOrEmpty(request.UserName) || string.IsNullOrEmpty(request.Password))
                 {
-                    return BadRequest("Invalid login request.");
+                    return BadRequest(new ResultError("Invalid login request."));
                 }
 
-                var authResponse = await _tokenService.LoginAsync(request, ipAddress);
-                return Ok(authResponse);
+                var authResponse = await _tokenService.LoginAsync(request, IpAddress);
+                return Ok(new ResultSuccess(authResponse));
             }
             catch (Exception ex)
             {
                 // Log the exception (optional)
-                AOLLogger.Error($"Error processing login request: {ex.Message}", ex.Source, null, ex.StackTrace, ipAddress);
-                return BadRequest($"Error processing login request: {ex.Message}");
+                AOLLogger.Error($"Error processing login request: {ex.Message}", ex.Source, null, ex.StackTrace, IpAddress);
+                return BadRequest(new ResultError($"Error processing login request: {ex.Message}"));
             }
         }
 
@@ -46,25 +46,24 @@ namespace ActiveOfficeLife.Api.Controllers
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] string refreshToken)
         {
-            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
             try
             {
-                var authResponse = await _tokenService.RefreshTokenAsync(refreshToken, ipAddress);
-                return Ok(authResponse);
+                var authResponse = await _tokenService.RefreshTokenAsync(refreshToken, IpAddress);
+                return Ok(new ResultSuccess(authResponse));
             }
             catch (Exception ex)
             {
                 
                 // Log the exception (optional)
-                AOLLogger.Error($"Error processing refresh token: {ex.Message}", ex.Source, null, ex.StackTrace, ipAddress);
-                return BadRequest($"Error processing refresh token: {ex.Message}");
+                AOLLogger.Error($"Error processing refresh token: {ex.Message}", ex.Source, null, ex.StackTrace, IpAddress);
+                return BadRequest(new ResultError($"Error processing refresh token: {ex.Message}"));
             }
         }
-        [HttpGet("protected")]
-        public IActionResult GetSecureData()
+        [HttpGet("logout")]
+        public async Task<IActionResult> Logout()
         {
-            var username = User.Identity?.Name;
-            return Ok(new { message = $"Hello {username}, this is protected data!" });
+            await _tokenService.LogoutAsync(UserId, IpAddress);
+            return Ok(new ResultSuccess());
         }
         [HttpGet("me")]
         public IActionResult GetCurrentUser()
@@ -83,7 +82,7 @@ namespace ActiveOfficeLife.Api.Controllers
                 Roles = claims.FirstOrDefault(c => c.Type == "Roles")?.Value?.Split(',').ToList(),
                 CreatedAt = DateTime.TryParse(claims.FirstOrDefault(c => c.Type == "CreatedAt")?.Value, out var createdAt) ? createdAt : DateTime.UtcNow
             };
-            return Ok(userInfo);
+            return Ok(new ResultSuccess(userInfo));
         }
 
     }

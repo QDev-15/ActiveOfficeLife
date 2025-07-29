@@ -219,5 +219,34 @@ namespace ActiveOfficeLife.Application.Services
                 throw new Exception(ex.Message);
             }
         }
+
+        public async Task<List<UserModel>> GetAll(int index, int pageSize = 1000, bool desc = true)
+        {
+            try
+            {
+                if (index < 1 || pageSize < 1)
+                {
+                    throw new ArgumentException("Index and page size must be greater than 0.");
+                }
+                var users = await _userRepository.SearchAsync(string.Empty, index, pageSize, desc);
+                if (users == null || !users.Any())
+                {
+                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - No users found.");
+                    return new List<UserModel>();
+                }
+
+                return users.Select(u => u.ReturnModel()).ToList();
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<List<UserModel>> GetAll(int page, int pageSize)
+        {
+           return await GetAll(page, pageSize, true);
+        }
     }
 }

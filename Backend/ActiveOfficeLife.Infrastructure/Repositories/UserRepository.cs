@@ -19,6 +19,17 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
         {
         }
 
+        public async Task<List<User>> GetAllAsync(int index, int pageSize)
+        {
+            var users = await _context.Users
+                .Include(x => x.Roles)
+                .OrderByDescending(u => u.CreatedAt)
+                .Skip((index - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            return users;
+        }
+
         public Task<User?> GetByRefreshTokenAsync(string refreshToken)
         {
             return _context.Users
@@ -46,6 +57,30 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             var hasPass = DomainHelper.HashPassword(password);
             return await _context.Users.Where(u => u.Username.ToLower() == userName.ToLower() && u.PasswordHash == hasPass)
                 .Include(x => x.Roles).FirstOrDefaultAsync();
+        }
+
+        public async Task<List<User>> SearchAsync(string keyword, int index, int pageSize, bool? desc = true)
+        {
+            if (string.IsNullOrEmpty(keyword))
+            {
+                return await GetAllAsync(index, pageSize);
+            }
+            var query = _context.Users
+                .Where(u => u.Username.Contains(keyword) || u.Email.Contains(keyword));
+            if (desc)
+            {
+                query = query.OrderByDescending(u => u.CreatedAt);
+            }
+            else
+            {
+                query = query.OrderBy(u => u.CreatedAt);
+            }
+            return await query
+                .Skip((index - 1) * pageSize)
+                .Take(pageSize)
+                .Include(x => x.Roles)
+                .ToListAsync();
+
         }
     }
 }

@@ -13,6 +13,7 @@ namespace ActiveOfficeLife.Domain.Interfaces
         Task<ICollection<UserToken>> GetAllByUserIdAsync(Guid userId);
         Task<UserToken?> GetByAccessTokenAsync(string accessToken);
         Task<UserToken?> GetByRefreshTokenAsync(string refreshToken);
+        Task<bool> IsValidAccessTokenAsync(string accessToken);
 
     }
 }

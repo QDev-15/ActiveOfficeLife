@@ -2,6 +2,7 @@
 using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Models;
 using ActiveOfficeLife.Application.Models.AppConfigs;
+using ActiveOfficeLife.Application.Models.Responses;
 using ActiveOfficeLife.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
@@ -30,20 +31,20 @@ namespace ActiveOfficeLife.Api.Controllers
                 var chedCategories = _cache.Get<List<CategoryModel>>(cacheKey);
                 if (chedCategories != null)
                 {
-                    return Ok(chedCategories);
+                    return Ok(new ResultSuccess(chedCategories));
                 }
                 var categories = await _categoryService.GetAllCategoriesAsync();
                 if (categories == null || !categories.Any())
                 {
-                    return NotFound(new { message = "No categories found." });
+                    return NotFound(new ResultError("No categories found." ));
                 }
                 _cache.Set(cacheKey, categories, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout)); // Set cache for 30 minutes
-                return Ok(categories);
+                return Ok(new ResultSuccess(categories));
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching categories: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new { message = "Failed to retrieve categories." });
+                return BadRequest(new ResultError("Failed to retrieve categories."));
             }
         }
         // create category using POST method and usint CategoryModel as request body from category service
@@ -52,19 +53,19 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             if (category == null)
             {
-                return BadRequest(new { message = "Invalid category data." });
+                return BadRequest(new ResultError("Invalid category data."));
             }
             try
             {
                 var createdCategory = await _categoryService.CreateCategoryAsync(category);
                 // Clear cache after creating a new category
                 _cache.Clear();
-                return Ok(createdCategory);
+                return Ok(new ResultSuccess(createdCategory));
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error creating category: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new { message = "Failed to create category." });
+                return BadRequest(new ResultError("Failed to create category."));
 
             }
         }
@@ -73,7 +74,7 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             if (id == Guid.Empty)
             {
-                return BadRequest(new { message = "Invalid category ID." });
+                return BadRequest(new ResultError("Invalid category ID."));
             }
             try
             {
@@ -82,14 +83,14 @@ namespace ActiveOfficeLife.Api.Controllers
                 {
                     // Clear cache after deleting a category
                     _cache.Clear();
-                    return Ok(new { message = "Category deleted successfully." });
+                    return Ok(new ResultSuccess("Category deleted successfully."));
                 }
-                return NotFound(new { message = "Category not found." });
+                return NotFound(new ResultError("Category not found."));
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error deleting category: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new { message = "Failed to delete category." });
+                return BadRequest(new ResultError("Failed to delete category."));
             }
         }
         [HttpGet("get/{id}")]
@@ -97,7 +98,7 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             if (id == Guid.Empty)
             {
-                return BadRequest(new { message = "Invalid category ID." });
+                return BadRequest(new ResultError("Invalid category ID."));
             }
             try
             {
@@ -106,21 +107,21 @@ namespace ActiveOfficeLife.Api.Controllers
                 var cachedCategory = _cache.Get<CategoryModel>(cacheKey);
                 if (cachedCategory != null)
                 {
-                    return Ok(cachedCategory);
+                    return Ok(new ResultSuccess(cachedCategory));
                 }
                 var category = await _categoryService.GetCategoryByIdAsync(id);
                 if (category != null)
                 {
                     // Set cache for the category
                     _cache.Set(cacheKey, category, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout));
-                    return Ok(category);
+                    return Ok(new ResultSuccess(category));
                 }
-                return NotFound(new { message = "Category not found." });
+                return NotFound(new ResultError("Category not found."));
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching category: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new { message = "Failed to retrieve category." });
+                return BadRequest(new ResultError("Failed to retrieve category."));
             }
         }
         // update category using PUT method and usint CategoryModel as request body from category service
@@ -129,19 +130,19 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             if (category == null || category.Id == Guid.Empty)
             {
-                return BadRequest(new { message = "Invalid category data." });
+                return BadRequest(new ResultError("Invalid category data."));
             }
             try
             {
                 var updatedCategory = await _categoryService.UpdateCategoryAsync(category);
                 // Clear cache after updating a category
                 _cache.Clear();
-                return Ok(updatedCategory);
+                return Ok(new ResultSuccess(updatedCategory));
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error updating category: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new { message = "Failed to update category." });
+                return BadRequest(new ResultError("Failed to update category."));
             }
         }
     }

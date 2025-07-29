@@ -13,6 +13,9 @@ namespace ActiveOfficeLife.Domain.Interfaces
         Task<User?> GetByUserNameAsync(string username);
         Task<User?> GetByTokenAsync(string token);
         Task<User?> GetByRefreshTokenAsync(string refreshToken);
-
+        // get all users with paging
+        Task<List<User>> GetAllAsync(int index, int pageSize);
+        // search user by keyword and page, order by created date desc
+        Task<List<User>> SearchAsync(string keyword, int index, int pageSize, bool? desc);
     }
 }

@@ -2,6 +2,7 @@
 using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Models;
 using ActiveOfficeLife.Application.Models.Requests;
+using ActiveOfficeLife.Application.Models.Responses;
 using ActiveOfficeLife.Application.Services;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -28,11 +29,12 @@ namespace ActiveOfficeLife.Api.Controllers
             _cache = cache;
         }
 
-        [HttpGet("profile")]
-        public async Task<IActionResult> GetProfile([FromQuery] bool noCache = false) {
+        [HttpGet("getuser")]
+        public async Task<IActionResult> GetProfile([FromQuery] bool noCache = false)
+        {
             var userId = User.Identity.GetUserId();
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new { message = "User not authenticated." });
+                return Unauthorized(new ResultError("User not authenticated."));
 
             var cacheKey = $"UserProfile_{userId}";
 
@@ -42,20 +44,20 @@ namespace ActiveOfficeLife.Api.Controllers
                 {
                     var cachedUser = _cache.Get<UserModel>(cacheKey);
                     if (cachedUser != null)
-                        return Ok(cachedUser);
+                        return Ok(new ResultSuccess(cachedUser));
                 }
 
                 var user = await _userService.GetUser(Guid.Parse(userId));
                 if (user == null)
-                    return NotFound(new { message = "User not found." });
+                    return NotFound(new ResultError("User not found."));
 
                 _cache.Set(cacheKey, user, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout)); // tùy TTL
-                return Ok(user);
+                return Ok(new ResultSuccess(user));
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching user profile: {ex.Message}");
-                return BadRequest(new { message = "Failed to retrieve user profile." });
+                return BadRequest(new ResultError("Failed to retrieve user profile."));
             }
         }
         [AllowAnonymous]
@@ -64,7 +66,7 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             if (request == null || string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
             {
-                return BadRequest(new { message = "Invalid registration data." });
+                return BadRequest(new ResultError("Invalid registration data."));
             }
             try
             {
@@ -72,12 +74,12 @@ namespace ActiveOfficeLife.Api.Controllers
                 request.Username = request.Username.Trim();
                 request.Password = request.Password.Trim();
                 var user = await _userService.Create(request);
-                return Ok(user);
+                return Ok(new ResultSuccess(user));
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error trimming registration data: {ex.Message}");
-                return BadRequest(new { message = "User registration failed." });
+                return BadRequest(new ResultError("User registration failed."));
             }
         }
 
@@ -89,17 +91,91 @@ namespace ActiveOfficeLife.Api.Controllers
                 var userId = User.FindFirst("UserId")?.Value;
                 if (string.IsNullOrEmpty(userId))
                 {
-                    return Unauthorized(new { message = "User not authenticated." });
+                    return Unauthorized(new ResultError("User not authenticated."));
                 }
                 var histories = await _tokenService.GetUserTokensAsync(Guid.Parse(userId));
-                return Ok(histories);
+                return Ok(new ResultSuccess(histories));
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching login history: {ex.Message}");
-                return BadRequest(new { message = "Failed to retrieve login history." });
+                return BadRequest(new ResultError("Failed to retrieve login history."));
             }
 
+        }
+        [HttpGet("getbyid")]
+        public async Task<IActionResult> GetUserById([FromQuery] Guid userId)
+        {
+            if (userId == Guid.Empty)
+                return BadRequest(new ResultError("Invalid user ID."));
+            try
+            {
+                var user = await _userService.GetUser(userId);
+                if (user == null)
+                    return NotFound(new ResultError("User not found."));
+                return Ok(new ResultSuccess(user));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error fetching user by ID: {ex.Message}");
+                return BadRequest(new ResultError("Failed to retrieve user."));
+            }
+        }
+
+        [HttpGet("getall")]
+        public async Task<IActionResult> GetAllUsers([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] string sort = "desc")
+        {
+            try
+            {
+                var isDesc = sort?.ToLower() == "desc";
+                var users = await _userService.GetAll(page, pageSize, isDesc);
+                return Ok(new ResultSuccess(users));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error fetching all users: {ex.Message}");
+                return BadRequest(new ResultError("Failed to retrieve users."));
+            }
+        }
+        [HttpPost("update")]
+        public async Task<IActionResult> UpdateUser([FromBody] UserModel userModel)
+        {
+            if (userModel == null || userModel.Id == Guid.Empty)
+                return BadRequest(new ResultError("Invalid user data."));
+            try
+            {
+                var updatedUser = await _userService.Update(userModel);
+                if (updatedUser == null)
+                    return NotFound(new ResultError("User not found."));
+                // Clear cache for the updated user
+                _cache.Remove($"UserProfile_{userModel.Id}");
+                return Ok(new ResultSuccess(updatedUser));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error updating user: {ex.Message}");
+                return BadRequest(new ResultError("Failed to update user."));
+            }
+        }
+        [HttpDelete("delete")]
+        public async Task<IActionResult> DeleteUser([FromQuery] Guid userId)
+        {
+            if (userId == Guid.Empty)
+                return BadRequest(new ResultError("Invalid user ID."));
+            try
+            {
+                var result = await _userService.Delete(userId);
+                if (!result)
+                    return NotFound(new ResultError("User not found."));
+                // Clear cache for the deleted user
+                _cache.Remove($"UserProfile_{userId}");
+                return Ok(new ResultError("User deleted successfully."));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error deleting user: {ex.Message}");
+                return BadRequest(new ResultError("Failed to delete user."));
+            }
         }
     }
 }

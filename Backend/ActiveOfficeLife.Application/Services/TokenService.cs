@@ -94,7 +94,30 @@ namespace ActiveOfficeLife.Application.Services
             };
         }
 
-
+        public async Task LogoutAsync(Guid userId, string ipAddress)
+        {
+            try
+            {
+                if (userId == Guid.Empty)
+                {
+                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - userId is empty");
+                    throw new ArgumentException("User ID cannot be empty", nameof(userId));
+                }
+                var userToken = await _userTokenRepository.GetByUserIdAsync(userId, ipAddress);
+                if (userToken != null)
+                {
+                    userToken.AccessTokenExpiresAt = DateTime.UtcNow;
+                    userToken.RefreshTokenExpiresAt = DateTime.UtcNow;
+                    _userTokenRepository.UpdateAsync(userToken);
+                    await _unitOfWork.SaveChangesAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                throw new Exception(ex.Message);
+            }
+        }
 
         public string GenerateAccessToken(UserModel user)
         {

@@ -39,5 +39,11 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
                 .FirstOrDefaultAsync(ut => ut.UserId == userId && ut.IpAddress == ipAddress);
             return userToken;
         }
+
+        public async Task<bool> IsValidAccessTokenAsync(string accessToken)
+        {
+            return await _context.UserTokens
+                .AnyAsync(x => x.AccessToken == accessToken && x.AccessTokenExpiresAt > DateTime.UtcNow);
+        }
     }
 }

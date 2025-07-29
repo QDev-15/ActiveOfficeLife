@@ -1,6 +1,13 @@
+using ActiveOfficeLife.Admin.Interfaces;
+using ActiveOfficeLife.Admin.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddHttpClient();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IApiService, ApiService>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

@@ -1,6 +1,7 @@
 ﻿using ActiveOfficeLife.Application.Common;
 using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Models;
+using ActiveOfficeLife.Application.Models.Responses;
 using ActiveOfficeLife.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,29 +28,29 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             if (id == Guid.Empty)
             {
-                return BadRequest(new { message = "Invalid post ID." });
+                return BadRequest(new ResultError("Invalid post ID."));
             }
             // Check if the post is cached
             var cacheKey = $"Post_{id}";
             if (_memoryCache.TryGetValue(cacheKey, out PostModel cachedPost))
             {
-                return Ok(cachedPost);
+                return Ok(new ResultSuccess(cachedPost));
             }
             try
             {
                 var post = await _postService.GetById(id);
                 if (post == null)
                 {
-                    return NotFound(new { message = "Post not found." });
+                    return NotFound(new ResultError("Post not found."));
                 }
                 // Cache the post for future requests
                 _memoryCache.Set(cacheKey, post, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout)); // Cache for 30 minutes
-                return Ok(post);
+                return Ok(new ResultSuccess(post));
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching post by ID: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new { message = "Failed to retrieve post." });
+                return BadRequest(new ResultError("Failed to retrieve post."));
             }
         }
 
@@ -59,29 +60,29 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             if (string.IsNullOrEmpty(slug))
             {
-                return BadRequest(new { message = "Invalid post slug." });
+                return BadRequest(new ResultError("Invalid post slug."));
             }
             // Check if the post is cached
             var cacheKey = $"Post_Slug_{slug}";
             if (_memoryCache.TryGetValue(cacheKey, out PostModel cachedPost))
             {
-                return Ok(cachedPost);
+                return Ok(new ResultSuccess(cachedPost));
             }
             try
             {
                 var post = await _postService.GetByAlias(slug);
                 if (post == null)
                 {
-                    return NotFound(new { message = "Post not found." });
+                    return NotFound(new ResultError("Post not found."));
                 }
                 // Cache the post for future requests
                 _memoryCache.Set(cacheKey, post, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout)); // Cache for 30 minutes
-                return Ok(post);
+                return Ok(new ResultSuccess(post));
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching post by slug: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new { message = "Failed to retrieve post." });
+                return BadRequest(new ResultError("Failed to retrieve post."));
             }
         }
         // get post by category id
@@ -90,29 +91,29 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             if (categoryId == Guid.Empty)
             {
-                return BadRequest(new { message = "Invalid category ID." });
+                return BadRequest(new ResultError("Invalid category ID."));
             }
             // Check if the posts are cached
             var cacheKey = $"Posts_Category_{categoryId}";
             if (_memoryCache.TryGetValue(cacheKey, out List<PostModel> cachedPosts))
             {
-                return Ok(cachedPosts);
+                return Ok(new ResultSuccess(cachedPosts));
             }
             try
             {
                 var posts = await _postService.GetByCategoryId(categoryId, null);
                 if (posts == null || !posts.Any())
                 {
-                    return NotFound(new { message = "No posts found for this category." });
+                    return NotFound(new ResultError("No posts found for this category."));
                 }
                 // Cache the posts for future requests
                 _memoryCache.Set(cacheKey, posts, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout)); // Cache for 30 minutes
-                return Ok(posts);
+                return Ok(new ResultSuccess(posts));
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching posts by category: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new { message = "Failed to retrieve posts." });
+                return BadRequest(new ResultError("Failed to retrieve posts."));
             }
         }
     }
