@@ -51,6 +51,16 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             return await _context.Users.Where(x => x.Username.ToLower() == username.ToLower())
                 .Include(x => x.Roles).FirstOrDefaultAsync();
         }
+        public async Task<User?> GetByEmailAsync(string email)
+        {
+            return await _context.Users.Where(x => x.Email.ToLower() == email.ToLower())
+                .Include(x => x.Roles).FirstOrDefaultAsync();
+        }
+        public async Task<User?> GetByPhoneNumberAsync(string phone)
+        {
+            return await _context.Users.Where(x => x.PhoneNumber !=null && x.PhoneNumber.ToLower() == phone.ToLower())
+                .Include(x => x.Roles).FirstOrDefaultAsync();
+        }
 
         public async Task<User?> GetByUserPassAsync(string userName, string password)
         {

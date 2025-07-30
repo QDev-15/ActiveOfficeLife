@@ -11,6 +11,8 @@ namespace ActiveOfficeLife.Domain.Interfaces
     {
         Task<User?> GetByUserPassAsync(string userName, string password);
         Task<User?> GetByUserNameAsync(string username);
+        Task<User?> GetByEmailAsync(string email);
+        Task<User?> GetByPhoneNumberAsync(string phone);
         Task<User?> GetByTokenAsync(string token);
         Task<User?> GetByRefreshTokenAsync(string refreshToken);
         // get all users with paging

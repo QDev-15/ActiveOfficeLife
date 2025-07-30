@@ -25,12 +25,14 @@ namespace ActiveOfficeLife.Application.Services
         private readonly IUserRepository _userRepository;
         private readonly _IUnitOfWork _unitOfWord;
         private readonly IMemoryCache _memoryCache;
-        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, _IUnitOfWork unitOfWord, IMemoryCache memoryCache)
+        private readonly AppConfigService _appConfigService;
+        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, _IUnitOfWork unitOfWord, IMemoryCache memoryCache, AppConfigService appConfigService)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;
             _unitOfWord = unitOfWord;
             _memoryCache = memoryCache;
+            _appConfigService = appConfigService;
         }
         public async Task<UserModel> GetUser(Guid id)
         {
@@ -220,7 +222,7 @@ namespace ActiveOfficeLife.Application.Services
             }
         }
 
-        public async Task<List<UserModel>> GetAll(int index, int pageSize = 1000, bool desc = true)
+        public async Task<List<UserModel>> GetAll(string searchText, int index = 1, int pageSize = 1000, bool desc = true)
         {
             try
             {
@@ -228,7 +230,7 @@ namespace ActiveOfficeLife.Application.Services
                 {
                     throw new ArgumentException("Index and page size must be greater than 0.");
                 }
-                var users = await _userRepository.SearchAsync(string.Empty, index, pageSize, desc);
+                var users = await _userRepository.SearchAsync(searchText, index, pageSize, desc);
                 if (users == null || !users.Any())
                 {
                     AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - No users found.");
@@ -246,7 +248,159 @@ namespace ActiveOfficeLife.Application.Services
 
         public async Task<List<UserModel>> GetAll(int page, int pageSize)
         {
-           return await GetAll(page, pageSize, true);
+           return await GetAll(string.Empty, page, pageSize, true);
+        }
+
+        public async Task<UserModel> GetByUsername(string username)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(username))
+                {
+                    throw new ArgumentException("Username cannot be null or empty.");
+                }
+                var user = await _userRepository.GetByUserNameAsync(username.Trim());
+                if (user != null)
+                {
+                    return user.ReturnModel();
+                }
+                else
+                {
+                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - username = " + username + " - " + MessageContext.NotFound);
+                    throw new Exception("User " + MessageContext.NotFound);
+                }
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                throw new Exception(ex.Message);
+            }
+
+        }
+        public async Task<UserModel> GetByPhoneNumber(string phone)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(phone))
+                {
+                    throw new ArgumentException("Phone number cannot be null or empty.");
+                }
+                var user = await _userRepository.GetByPhoneNumberAsync(phone.Trim());
+                if (user != null)
+                {
+                    return user.ReturnModel();
+                }
+                else
+                {
+                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - phone = " + phone + " - " + MessageContext.NotFound);
+                    throw new Exception("User " + MessageContext.NotFound);
+                }
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task<UserModel> GetByEmail(string email)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(email))
+                {
+                    throw new ArgumentException("Email cannot be null or empty.");
+                }
+                var user = await _userRepository.GetByEmailAsync(email.Trim());
+                if (user != null)
+                {
+                    return user.ReturnModel();
+                }
+                else
+                {
+                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - email = " + email + " - " + MessageContext.NotFound);
+                    throw new Exception("User " + MessageContext.NotFound);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<bool> ChangePassword(Guid id, ChangePasswordRequest changePasswordRequest)
+        {
+            try
+            {
+                if (id == Guid.Empty || changePasswordRequest == null)
+                {
+                    throw new ArgumentException("Invalid user ID or change password request.");
+                }
+                var user = _userRepository.GetByIdAsync(id).Result;
+                if (user == null)
+                {
+                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - Id = " + id.ToString() + " - " + MessageContext.NotFound);
+                    throw new Exception("User " + MessageContext.NotFound);
+                }
+                if (user.PasswordHash != DomainHelper.HashPassword(changePasswordRequest.OldPassword))
+                {
+                    throw new Exception("Old password is incorrect.");
+                }
+                user.PasswordHash = DomainHelper.HashPassword(changePasswordRequest.NewPassword);
+                _userRepository.UpdateAsync(user);
+                return await _unitOfWord.SaveChangesAsync().ContinueWith(t => true);
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<UserModel> ForgotPassword(ForgotPasswordRequest forgotPasswordRequest)
+        {
+            try
+            {
+                if (forgotPasswordRequest == null || string.IsNullOrEmpty(forgotPasswordRequest.Email))
+                {
+                    throw new ArgumentException("Invalid forgot password request.");
+                }
+                var user = await _userRepository.GetByEmailAsync(forgotPasswordRequest.Email.Trim());
+                if (user == null)
+                {
+                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - email = " + forgotPasswordRequest.Email + " - " + MessageContext.NotFound);
+                    throw new Exception("User " + MessageContext.NotFound);
+                }
+                return user.ReturnModel();
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<bool> ResetPassword(string email, ResetPasswordRequest changePasswordRequest)
+        {
+            try { 
+                if (string.IsNullOrEmpty(email) || changePasswordRequest == null)
+                {
+                    throw new ArgumentException("Invalid user ID or reset password request.");
+                }
+                var user = await _userRepository.GetByEmailAsync(email);
+                if (user == null)
+                {
+                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - Email = " + email + " - " + MessageContext.NotFound);
+                    throw new Exception("User " + MessageContext.NotFound);
+                }
+                user.PasswordHash = DomainHelper.HashPassword(changePasswordRequest.NewPassword);
+                _userRepository.UpdateAsync(user);
+                return await _unitOfWord.SaveChangesAsync().ContinueWith(t => true);
+            } catch(Exception ex)
+            {
+                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                throw new Exception(ex.Message);
+            }
         }
     }
 }

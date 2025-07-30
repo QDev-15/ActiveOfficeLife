@@ -1,4 +1,5 @@
 ﻿using ActiveOfficeLife.Application.Models.AppConfigs;
+using ActiveOfficeLife.Common;
 using Microsoft.Extensions.Configuration;
 
 namespace ActiveOfficeLife.Application.Services
@@ -14,6 +15,8 @@ namespace ActiveOfficeLife.Application.Services
             AppConfigs.JwtTokens = configuration.GetSection("JwtTokens").Get<JwtTokens>();
             AppConfigs.ConnectionStrings = configuration.GetSection("ConnectionStrings").Get<ConnectionStrings>();
             AppConfigs.Sessions = configuration.GetSection("Sessions").Get<Sessions>();
+            AppConfigs.EmailSmtp = configuration.GetSection("Email").Get<EmailSmtp>();
+            AppConfigs.ApiUrl = configuration["ApiUrl"] ?? string.Empty;
             AppConfigs.ApplicationName = configuration["ApplicationName"] ?? string.Empty;
             AppConfigs.Version = configuration["Version"] ?? string.Empty;
             AppConfigs.Environment = configuration["Environment"] ?? string.Empty;

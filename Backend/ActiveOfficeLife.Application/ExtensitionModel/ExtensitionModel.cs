@@ -119,7 +119,11 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
                 PasswordHash = user.PasswordHash,
                 RefreshToken = user.RefreshToken,
                 Roles = user.Roles.Select(a => a.Name).ToList(),
-                Token = user.Token
+                FullName = user.FullName,
+                PhoneNumber = user.PhoneNumber,
+                Status = user.Status,
+                CreatedAt = user.CreatedAt,
+                
             };
         }
         public static CategoryModel ReturnModel(this Category category, bool isParrent = false)

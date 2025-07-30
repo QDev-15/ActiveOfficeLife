@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ActiveOfficeLife.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,10 @@ namespace ActiveOfficeLife.Application.Models.AppConfigs
         public JwtTokens JwtTokens { get; set; } = new JwtTokens();
         public HostingConfigs HostingConfigs { get; set; } = new HostingConfigs();
         public Sessions Sessions { get; set; } = new Sessions();
+        public EmailSmtp EmailSmtp { get; set; } = new EmailSmtp();
+        public string ApiUrl { get; set; } = string.Empty;
+        public string WebAppUrl { get; set; } = string.Empty;
+        public string AdminAppUrl { get; set; } = string.Empty;
         public string ApplicationName { get; set; } = string.Empty;
         public string Version { get; set; } = string.Empty;
         public string Environment { get; set; } = string.Empty;

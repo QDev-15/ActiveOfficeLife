@@ -21,5 +21,6 @@ namespace ActiveOfficeLife.Domain.Entities
         public DateTime RefreshTokenExpiresAt { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public bool IsResetPassword { get; set; } = false;
     }
 }

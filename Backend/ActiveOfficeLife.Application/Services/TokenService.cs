@@ -119,6 +119,21 @@ namespace ActiveOfficeLife.Application.Services
             }
         }
 
+        public async Task<string> GeneratePasswordResetTokenAsync()
+        {
+            string token = Guid.NewGuid().ToString();
+            var newUserToken = new UserToken
+            {
+                UserId = Guid.NewGuid(),
+                AccessToken = token,
+                AccessTokenExpiresAt = DateTime.UtcNow.AddMinutes(30),
+                IsResetPassword = true,
+                CreatedAt = DateTime.UtcNow,
+            };
+            await _userTokenRepository.AddAsync(newUserToken);
+            await _unitOfWork.SaveChangesAsync();
+            return token;
+        }
         public string GenerateAccessToken(UserModel user)
         {
             var authClaims = new List<Claim>
@@ -190,6 +205,24 @@ namespace ActiveOfficeLife.Application.Services
                     IpAddress = ut.IpAddress,
                     CreatedAt = ut.CreatedAt
                 }).ToList();
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                throw new Exception(ex.Message);
+            }
+        }
+        public async Task<UserTokenModel> GetUserTokensAsync(string token)
+        {
+            try
+            {
+                var userToken = await _userTokenRepository.GetByAccessTokenAsync(token);
+                if (userToken == null)
+                {
+                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - token = " + token + " - " + MessageContext.NotFound);
+                    throw new Exception("User tokens not found");
+                }
+                return userToken.ReturnModel();
             }
             catch (Exception ex)
             {

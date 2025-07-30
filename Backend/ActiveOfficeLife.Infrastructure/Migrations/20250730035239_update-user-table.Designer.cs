@@ -4,6 +4,7 @@ using ActiveOfficeLife.Domain.EFCore.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ActiveOfficeLife.Infrastructure.Migrations
 {
     [DbContext(typeof(ActiveOfficeLifeDbContext))]
-    partial class ActiveOfficeLifeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250730035239_update-user-table")]
+    partial class updateusertable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -308,19 +311,19 @@ namespace ActiveOfficeLife.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("dfe041af-5e82-481e-9dc2-c99566e2da96"),
+                            Id = new Guid("be8e8976-ecac-4585-a918-8618da5ce393"),
                             Description = "Quản trị viên hệ thống",
                             Name = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("3f52e74f-6c7b-4b09-b614-20d470bc7821"),
+                            Id = new Guid("52c38ce9-18e0-446f-aed4-7a7e5edc4254"),
                             Description = "Người dùng bình thường",
                             Name = "User"
                         },
                         new
                         {
-                            Id = new Guid("8928f10b-2598-4929-9085-d443b7e8bb4b"),
+                            Id = new Guid("81719807-722f-4305-8419-6d840a6473f7"),
                             Description = "Người đọc chỉ comment",
                             Name = "Comment"
                         });
@@ -442,20 +445,20 @@ namespace ActiveOfficeLife.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("acf87f15-c3b3-4db9-810e-df01600fa54f"),
+                            Id = new Guid("1087f50b-cda5-43ed-858b-345a1e76bdc4"),
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "activeofficelife@gmail.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEN7FaEQD/bDDI3MvRvKoVVhCgtU2mrHAcm7ViWfaeIML5NN4Qo/AgGSaXMWeRpiQAA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEOsfyF9SP1bCUzhMxGZa+P793XNERCHLs9UBJwkZgxqZLSJtYfPEg59NTzQjJBERzQ==",
                             Status = "Active",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Username = "admin"
                         },
                         new
                         {
-                            Id = new Guid("7087c5d0-8dd7-441a-b956-5eddc39a58f8"),
+                            Id = new Guid("3b59f774-fc72-4d92-9a3a-9a31d157ec4b"),
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "activeoffice@gmail.com",
-                            PasswordHash = "AQAAAAIAAYagAAAAEKn/KqklClhSD6cBRkUWfkHFnpXM9MoeSbeo+P1DHB+h2XjZufJVqjx/fLHzmHPiaw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEFVFThictOVGW6REEYz4oXipcrjB5YJ/Y+Ocit6EDpxb6FOmx80qSANmNqndSdJkwQ==",
                             Status = "Active",
                             UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Username = "user"
@@ -481,9 +484,6 @@ namespace ActiveOfficeLife.Infrastructure.Migrations
                     b.Property<string>("IpAddress")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsResetPassword")
-                        .HasColumnType("bit");
 
                     b.Property<string>("RefreshToken")
                         .IsRequired()
@@ -558,7 +558,7 @@ namespace ActiveOfficeLife.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("90f4ef06-32f1-45fc-a047-5edc3e3d809c"),
+                            Id = new Guid("126244e8-dccf-4c0b-a11d-9a72168bbe94"),
                             Name = "Active Office Life"
                         });
                 });
@@ -597,18 +597,18 @@ namespace ActiveOfficeLife.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = new Guid("acf87f15-c3b3-4db9-810e-df01600fa54f"),
-                            RoleId = new Guid("dfe041af-5e82-481e-9dc2-c99566e2da96")
+                            UserId = new Guid("1087f50b-cda5-43ed-858b-345a1e76bdc4"),
+                            RoleId = new Guid("be8e8976-ecac-4585-a918-8618da5ce393")
                         },
                         new
                         {
-                            UserId = new Guid("acf87f15-c3b3-4db9-810e-df01600fa54f"),
-                            RoleId = new Guid("3f52e74f-6c7b-4b09-b614-20d470bc7821")
+                            UserId = new Guid("1087f50b-cda5-43ed-858b-345a1e76bdc4"),
+                            RoleId = new Guid("52c38ce9-18e0-446f-aed4-7a7e5edc4254")
                         },
                         new
                         {
-                            UserId = new Guid("7087c5d0-8dd7-441a-b956-5eddc39a58f8"),
-                            RoleId = new Guid("3f52e74f-6c7b-4b09-b614-20d470bc7821")
+                            UserId = new Guid("3b59f774-fc72-4d92-9a3a-9a31d157ec4b"),
+                            RoleId = new Guid("52c38ce9-18e0-446f-aed4-7a7e5edc4254")
                         });
                 });
 

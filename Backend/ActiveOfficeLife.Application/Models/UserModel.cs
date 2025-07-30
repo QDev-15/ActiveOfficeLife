@@ -14,6 +14,8 @@ namespace ActiveOfficeLife.Application.Models
         public string Username { get; set; } = null!;
         public string Email { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
+        public string? PhoneNumber { get; set; } // Số điện thoại người dùng
+        public string? FullName { get; set; }   // Tên đầy đủ của người dùng
         public UserStatus Status { get; set; } = UserStatus.Active; // Trạng thái người dùng
 
         public string? Token { get; set; }         // AccessToken hoặc RefreshToken

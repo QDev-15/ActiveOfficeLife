@@ -17,8 +17,10 @@ namespace ActiveOfficeLife.Application.Interfaces
         Task<AuthResponse> LoginAsync(LoginRequest loginRequest, string ipAddress);
         Task<AuthResponse> RefreshTokenAsync(string refreshToken, string ipAddress);
         Task<List<UserTokenModel>> GetUserTokensAsync(Guid userId);
+        Task<UserTokenModel> GetUserTokensAsync(string token);
         Task LogoutAsync(Guid userId, string ipAddress);
         string GenerateAccessToken(UserModel user);
+        Task<string> GeneratePasswordResetTokenAsync();
         string GenerateRefreshToken(int daysValid);
     }
 }

@@ -7,10 +7,7 @@ using ActiveOfficeLife.Application.Services;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-using System.Text.Json;
-using System.Threading.Tasks;
+using System.Web;
 
 namespace ActiveOfficeLife.Api.Controllers
 {
@@ -20,13 +17,15 @@ namespace ActiveOfficeLife.Api.Controllers
         private readonly ITokenService _tokenService;
         private readonly CustomMemoryCache _cache;
         private readonly AppConfigService _appConfigService;
+        private readonly IEmailService _emailService;
 
-        public UserController(IUserService userService, ITokenService token, CustomMemoryCache cache, AppConfigService appConfigService)
+        public UserController(IUserService userService, ITokenService token, CustomMemoryCache cache, AppConfigService appConfigService, IEmailService emailService)
         {
             _appConfigService = appConfigService;
             _userService = userService;
             _tokenService = token;
             _cache = cache;
+            _emailService = emailService;
         }
 
         [HttpGet("getuser")]
@@ -58,6 +57,78 @@ namespace ActiveOfficeLife.Api.Controllers
             {
                 AOLLogger.Error($"Error fetching user profile: {ex.Message}");
                 return BadRequest(new ResultError("Failed to retrieve user profile."));
+            }
+        }
+        [HttpGet("getbyid")]
+        public async Task<IActionResult> GetUserById([FromQuery] string userId)
+        {
+            if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out var id))
+                return BadRequest(new ResultError("Invalid user ID."));
+            try
+            {
+                var user = await _userService.GetUser(id);
+                if (user == null)
+                    return NotFound(new ResultError("User not found."));
+                return Ok(new ResultSuccess(user));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error fetching user by ID: {ex.Message}");
+                return BadRequest(new ResultError("Failed to retrieve user."));
+            }
+        }
+        [HttpGet("getbyusername")]
+        public async Task<IActionResult> GetUserByUsername([FromQuery] string username)
+        {
+            if (string.IsNullOrEmpty(username))
+                return BadRequest(new ResultError("Username cannot be empty."));
+            try
+            {
+                var user = await _userService.GetByUsername(username.Trim());
+                if (user == null)
+                    return NotFound(new ResultError("User not found."));
+                return Ok(new ResultSuccess(user));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error fetching user by username: {ex.Message}");
+                return BadRequest(new ResultError("Failed to retrieve user."));
+            }
+        }
+        [HttpGet("getbyemail")]
+        public async Task<IActionResult> GetUserByEmail([FromQuery] string email)
+        {
+            if (string.IsNullOrEmpty(email))
+                return BadRequest(new ResultError("Email cannot be empty."));
+            try
+            {
+                var user = await _userService.GetByEmail(email.Trim());
+                if (user == null)
+                    return NotFound(new ResultError("User not found."));
+                return Ok(new ResultSuccess(user));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error fetching user by email: {ex.Message}");
+                return BadRequest(new ResultError("Failed to retrieve user."));
+            }
+        }
+        [HttpGet("getbyphonenumber")]
+        public async Task<IActionResult> GetUserByPhoneNumber([FromQuery] string phoneNumber)
+        {
+            if (string.IsNullOrEmpty(phoneNumber))
+                return BadRequest(new ResultError("Phone number cannot be empty."));
+            try
+            {
+                var user = await _userService.GetByPhoneNumber(phoneNumber.Trim());
+                if (user == null)
+                    return NotFound(new ResultError("User not found."));
+                return Ok(new ResultSuccess(user));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error fetching user by phone number: {ex.Message}");
+                return BadRequest(new ResultError("Failed to retrieve user."));
             }
         }
         [AllowAnonymous]
@@ -128,7 +199,7 @@ namespace ActiveOfficeLife.Api.Controllers
             try
             {
                 var isDesc = sort?.ToLower() == "desc";
-                var users = await _userService.GetAll(page, pageSize, isDesc);
+                var users = await _userService.GetAll(string.Empty, page, pageSize, isDesc);
                 return Ok(new ResultSuccess(users));
             }
             catch (Exception ex)
@@ -157,6 +228,86 @@ namespace ActiveOfficeLife.Api.Controllers
                 return BadRequest(new ResultError("Failed to update user."));
             }
         }
+        [AllowAnonymous]
+        [HttpPost("forgotpassword")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.Email))
+                return BadRequest(new ResultError("Invalid forgot password request."));
+            try
+            {
+                var user = await _userService.ForgotPassword(request);
+                if (user == null)
+                    return NotFound(new ResultError("Email not found."));
+                // Optionally, you can send an email with the reset link here
+                var token = await _tokenService.GeneratePasswordResetTokenAsync();
+                var encodedToken = HttpUtility.UrlEncode(token);
+
+                var resetLink = $"{_appConfigService.AppConfigs.ApiUrl}/resetpassword?email={request.Email}&token={encodedToken}";
+
+                var emailBody = $@"
+                                <p>Click the link below to reset your password:</p>
+                                <a href='{resetLink}'>Reset Password</a>";
+
+                await _emailService.SendEmailAsync(user.Email, "Reset Your Password", emailBody);
+
+                return Ok(new ResultSuccess("Password reset link sent to your email."));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error processing forgot password: {ex.Message}");
+                return BadRequest(new ResultError("Failed to process forgot password request."));
+            }
+        }
+        [AllowAnonymous]
+        [HttpPost("resetpassword")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Token) || string.IsNullOrEmpty(request.NewPassword))
+                return BadRequest(new ResultError("Invalid reset password request."));
+            if (request.NewPassword != request.ConfirmPassword)
+                return BadRequest(new ResultError("New password and confirm password do not match."));
+            try
+            {
+                var result = await _tokenService.GetUserTokensAsync(request.Token);
+                if (result == null || !result.AccessTokenIsValid)
+                {
+                    return BadRequest(new ResultError("Reset password timeout."));
+                }                 
+                var resetResult = await _userService.ResetPassword(request.Email, request);
+                if (!resetResult)
+                    return BadRequest(new ResultError("Failed to reset password. Invalid token or email."));
+                return Ok(new ResultSuccess("Password reset successfully."));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error resetting password: {ex.Message}");
+                return BadRequest(new ResultError("Failed to reset password."));
+            }
+        }
+        [HttpPost("changepassword")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.OldPassword) || string.IsNullOrEmpty(request.NewPassword))
+                return BadRequest(new ResultError("Invalid password change request."));
+            try
+            {
+                var userId = User.Identity.GetUserId();
+                if (string.IsNullOrEmpty(userId))
+                    return Unauthorized(new ResultError("User not authenticated."));
+                var result = await _userService.ChangePassword(Guid.Parse(userId), request);
+                if (!result)
+                    return BadRequest(new ResultError("Failed to change password."));
+                // Clear cache for the user after password change
+                _cache.Remove($"UserProfile_{userId}");
+                return Ok(new ResultSuccess("Password changed successfully."));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error changing password: {ex.Message}");
+                return BadRequest(new ResultError("Failed to change password."));
+            }
+        }
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteUser([FromQuery] Guid userId)
         {
@@ -175,6 +326,22 @@ namespace ActiveOfficeLife.Api.Controllers
             {
                 AOLLogger.Error($"Error deleting user: {ex.Message}");
                 return BadRequest(new ResultError("Failed to delete user."));
+            }
+        }
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchUsers([FromBody] PagingRequest request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.SearchText))
+                return BadRequest(new ResultError("Invalid search request."));
+            try
+            {
+                var users = await _userService.GetAll(request.SearchText.Trim(), request.PageIndex, request.PageSize, request.SortDirection.ToLower() == "desc");
+                return Ok(new ResultSuccess(users));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error searching users: {ex.Message}");
+                return BadRequest(new ResultError("Failed to search users."));
             }
         }
     }
