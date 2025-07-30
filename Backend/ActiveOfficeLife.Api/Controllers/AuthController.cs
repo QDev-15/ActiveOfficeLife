@@ -3,6 +3,7 @@ using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Models;
 using ActiveOfficeLife.Application.Models.Requests;
 using ActiveOfficeLife.Application.Models.Responses;
+using ActiveOfficeLife.Application.Services;
 using ActiveOfficeLife.Common.Enums;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authorization;
@@ -15,9 +16,11 @@ namespace ActiveOfficeLife.Api.Controllers
     public class AuthController : BaseController
     {
         private readonly ITokenService _tokenService;
-        public AuthController(ITokenService tokenService)
+        private readonly IUserService _userService;
+        public AuthController(ITokenService tokenService, IUserService userService)
         {
             _tokenService = tokenService;
+            _userService = userService;
         }
 
         [AllowAnonymous]
@@ -57,6 +60,32 @@ namespace ActiveOfficeLife.Api.Controllers
                 // Log the exception (optional)
                 AOLLogger.Error($"Error processing refresh token: {ex.Message}", ex.Source, null, ex.StackTrace, IpAddress);
                 return BadRequest(new ResultError($"Error processing refresh token: {ex.Message}"));
+            }
+        }
+        [AllowAnonymous]
+        [HttpPatch("resetpassword")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Token) || string.IsNullOrEmpty(request.NewPassword))
+                return BadRequest(new ResultError("Invalid reset password request."));
+            if (request.NewPassword != request.ConfirmPassword)
+                return BadRequest(new ResultError("New password and confirm password do not match."));
+            try
+            {
+                var result = await _tokenService.GetUserTokensAsync(request.Token);
+                if (result == null || !result.AccessTokenIsValid)
+                {
+                    return BadRequest(new ResultError("Reset password timeout."));
+                }
+                var resetResult = await _userService.ResetPassword(request.Email, request);
+                if (!resetResult)
+                    return BadRequest(new ResultError("Failed to reset password. Invalid token or email."));
+                return Ok(new ResultSuccess("Password reset successfully."));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error resetting password: {ex.Message}");
+                return BadRequest(new ResultError("Failed to reset password."));
             }
         }
         [HttpGet("logout")]

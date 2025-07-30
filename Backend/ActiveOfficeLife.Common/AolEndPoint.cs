@@ -11,6 +11,7 @@ namespace ActiveOfficeLife.Common
         public static string AuthLogin = "/api/Auth/login";
         public static string AuthLogout = "/api/Auth/logout";
         public static string AuthRefresh = "/api/Auth/refresh";
+        public static string AuthResetPassword = "/api/Auth/resetpassword";
         public static string AuthMe = "/api/Auth/me";
         public static string UserRegister = "/api/User/register";
         public static string UserGetUser = "/api/User/getuser";
@@ -21,7 +22,7 @@ namespace ActiveOfficeLife.Common
         public static string UserDelete = "/api/User/delete";
         public static string UserChangePassword = "/api/User/changepassword";
         public static string UserForgotPassword = "/api/User/forgotpassword";
-        public static string UserResetPassword = "/api/User/resetpassword";
+   
         public static string UserGetByEmail = "/api/User/getbyemail";
         public static string UserGetByUsername = "/api/User/getbyusername"; 
         public static string UserGetByPhoneNumber = "/api/User/getbyphonenumber";
