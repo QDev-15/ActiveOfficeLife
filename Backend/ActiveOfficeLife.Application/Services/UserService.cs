@@ -1,21 +1,15 @@
 ﻿using ActiveOfficeLife.Application.Common;
 using ActiveOfficeLife.Application.ExtensitionModel;
 using ActiveOfficeLife.Application.Interfaces;
-using ActiveOfficeLife.Application.Models;
-using ActiveOfficeLife.Application.Models.Requests;
 using ActiveOfficeLife.Common;
 using ActiveOfficeLife.Common.Enums;
+using ActiveOfficeLife.Common.Models;
+using ActiveOfficeLife.Common.Requests;
 using ActiveOfficeLife.Domain;
 using ActiveOfficeLife.Domain.Entities;
 using ActiveOfficeLife.Domain.Interfaces;
 using Microsoft.Extensions.Caching.Memory;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Application.Services
 {

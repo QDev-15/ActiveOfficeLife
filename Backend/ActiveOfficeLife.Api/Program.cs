@@ -1,6 +1,6 @@
 ﻿using ActiveOfficeLife.Api;
 using ActiveOfficeLife.Application;
-using ActiveOfficeLife.Application.Models.AppConfigs;
+using ActiveOfficeLife.Common.AppConfigs;
 using ActiveOfficeLife.Domain.EFCore.DBContext;
 using ActiveOfficeLife.Infrastructure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -23,6 +23,7 @@ builder.Configuration
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddJsonFile($"appsettings.{environment}.json", optional: true, reloadOnChange: true)
     .AddEnvironmentVariables();
+
 
 // Register JwtTokens configuration for dependency injection: ex using IOptions<JwtTokens> on your services
 builder.Services.Configure<JwtTokens>(builder.Configuration.GetSection("JwtTokens"));

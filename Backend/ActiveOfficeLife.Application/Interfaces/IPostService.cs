@@ -1,10 +1,5 @@
-﻿using ActiveOfficeLife.Application.Models;
-using ActiveOfficeLife.Application.Models.Requests;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ActiveOfficeLife.Common.Models;
+using ActiveOfficeLife.Common.Requests;
 
 namespace ActiveOfficeLife.Application.Interfaces
 {

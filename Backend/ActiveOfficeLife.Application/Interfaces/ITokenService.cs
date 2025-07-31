@@ -1,13 +1,6 @@
-﻿using ActiveOfficeLife.Application.Models;
-using ActiveOfficeLife.Application.Models.Requests;
-using ActiveOfficeLife.Application.Models.Responses;
-using ActiveOfficeLife.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
+﻿using ActiveOfficeLife.Common.Models;
+using ActiveOfficeLife.Common.Requests;
+using ActiveOfficeLife.Common.Responses;
 
 namespace ActiveOfficeLife.Application.Interfaces
 {

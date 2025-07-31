@@ -1,14 +1,9 @@
 ﻿using ActiveOfficeLife.Application.Common;
 using ActiveOfficeLife.Application.ExtensitionModel;
 using ActiveOfficeLife.Application.Interfaces;
-using ActiveOfficeLife.Application.Models;
+using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Domain.Entities;
 using ActiveOfficeLife.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Application.Services
 {

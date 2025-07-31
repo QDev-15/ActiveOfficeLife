@@ -1,8 +1,8 @@
 ﻿using ActiveOfficeLife.Application.Common;
 using ActiveOfficeLife.Application.Interfaces;
-using ActiveOfficeLife.Application.Models;
-using ActiveOfficeLife.Application.Models.Responses;
 using ActiveOfficeLife.Application.Services;
+using ActiveOfficeLife.Common.Models;
+using ActiveOfficeLife.Common.Responses;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ActiveOfficeLife.Api.Controllers

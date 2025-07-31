@@ -1,5 +1,5 @@
-﻿using ActiveOfficeLife.Application.Models.AppConfigs;
-using ActiveOfficeLife.Common;
+﻿using ActiveOfficeLife.Common;
+using ActiveOfficeLife.Common.AppConfigs;
 using Microsoft.Extensions.Configuration;
 
 namespace ActiveOfficeLife.Application.Services

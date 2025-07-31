@@ -1,16 +1,10 @@
-﻿using ActiveOfficeLife.Common;
+﻿using ActiveOfficeLife.Application.Common;
 using ActiveOfficeLife.Application.ExtensitionModel;
 using ActiveOfficeLife.Application.Interfaces;
-using ActiveOfficeLife.Application.Models;
-using ActiveOfficeLife.Application.Models.Requests;
 using ActiveOfficeLife.Common.Enums;
+using ActiveOfficeLife.Common.Models;
+using ActiveOfficeLife.Common.Requests;
 using ActiveOfficeLife.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ActiveOfficeLife.Application.Common;
 
 namespace ActiveOfficeLife.Application.Services
 {

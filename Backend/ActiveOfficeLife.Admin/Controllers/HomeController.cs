@@ -1,28 +1,37 @@
 using ActiveOfficeLife.Admin.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace ActiveOfficeLife.Admin.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
-        private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(IConfiguration configuration) : base(configuration)
         {
-            _logger = logger;
         }
 
+        [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
 
+        [HttpGet]
         public IActionResult Privacy()
         {
             return View();
         }
+        [AllowAnonymous]
+        [HttpGet("forgot-password")]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
 
+
+        [HttpGet]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

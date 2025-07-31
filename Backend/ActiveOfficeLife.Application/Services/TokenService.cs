@@ -1,29 +1,22 @@
 ﻿using ActiveOfficeLife.Application.Common;
 using ActiveOfficeLife.Application.ExtensitionModel;
 using ActiveOfficeLife.Application.Interfaces;
-using ActiveOfficeLife.Application.Models;
-using ActiveOfficeLife.Application.Models.AppConfigs;
-using ActiveOfficeLife.Application.Models.Requests;
-using ActiveOfficeLife.Application.Models.Responses;
 using ActiveOfficeLife.Common;
+using ActiveOfficeLife.Common.AppConfigs;
+using ActiveOfficeLife.Common.Models;
+using ActiveOfficeLife.Common.Requests;
+using ActiveOfficeLife.Common.Responses;
 using ActiveOfficeLife.Domain;
 using ActiveOfficeLife.Domain.Entities;
 using ActiveOfficeLife.Domain.Interfaces;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Net;
 using System.Reflection;
 using System.Security;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Application.Services
 {
@@ -85,8 +78,8 @@ namespace ActiveOfficeLife.Application.Services
             await _unitOfWork.SaveChangesAsync();
             return new AuthResponse
             {
-                AccessToken = userToken.AccessToken,
-                RefreshToken = userToken.RefreshToken,
+                AccessToken = newUserToken.AccessToken,
+                RefreshToken = newUserToken.RefreshToken,
                 Email = userModel.Email,
                 Role = string.Join(",", userModel.Roles.ToList()),
                 UserId = userModel.Id.ToString(),

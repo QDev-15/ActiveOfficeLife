@@ -1,6 +1,5 @@
-﻿using ActiveOfficeLife.Application.Models;
-using ActiveOfficeLife.Application.Models.Requests;
-using ActiveOfficeLife.Application.Models.Responses;
+﻿using ActiveOfficeLife.Common.Models;
+using ActiveOfficeLife.Common.Requests;
 
 namespace ActiveOfficeLife.Application.Interfaces
 {
