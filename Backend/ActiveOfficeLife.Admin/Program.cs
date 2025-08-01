@@ -29,12 +29,21 @@ builder.Services.AddControllersWithViews()
     });
 
 var baseApi = builder.Configuration.GetSection("BaseApi").Get<BaseApi>();
-var jwtSettings = builder.Configuration.GetSection("JwtTokens").Get<JwtTokens>();
-var key = Encoding.UTF8.GetBytes(jwtSettings.SecretKey);
+
+builder.Services.AddDistributedMemoryCache(); // ✅ thêm dòng này trước AddSession
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(baseApi.AccessTokenExpireHours);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
         options.LoginPath = "/login";          // Redirect nếu chưa login
+        options.LogoutPath = "/logout";
         options.AccessDeniedPath = "/denied";  // Nếu không có quyền
         options.ExpireTimeSpan = TimeSpan.FromHours(baseApi.AccessTokenExpireHours);
         options.SlidingExpiration = true;      // Tự kéo dài session
@@ -58,11 +67,12 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+// ⚠️ Quan trọng: phải thêm dòng này trước MapController
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseMiddleware<AuthMiddleware>();
+//app.UseMiddleware<AuthMiddleware>();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

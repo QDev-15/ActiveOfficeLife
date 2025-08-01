@@ -11,6 +11,7 @@ using NuGet.Protocol.Plugins;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Admin.Controllers
 {
@@ -32,7 +33,7 @@ namespace ActiveOfficeLife.Admin.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Login(LoginRequest request)
+        public async Task<IActionResult> Index(LoginRequest request)
         {
             var response = await _apiService.PostAsync(AOLEndPoint.AuthLogin, request);
 
@@ -52,24 +53,29 @@ namespace ActiveOfficeLife.Admin.Controllers
                     SameSite = SameSiteMode.Strict,
                     Expires = DateTimeOffset.UtcNow.AddHours(baseApi.AccessTokenExpireHours)
                 });
+                // Lưu thông tin người dùng vào session (nếu muốn dùng server-side)
+                
                 // get user info
-                var userResponse = await _apiService.GetAsync(AOLEndPoint.AuthMe);
+                var userResponse = await _apiService.GetAsync(AOLEndPoint.AuthMe, auth.AccessToken);
                 if (userResponse != null && userResponse.IsSuccessStatusCode)
                 {
                     var userBody = await userResponse.Content.ReadAsStringAsync();
                     var jsonUser = JsonDocument.Parse(userBody);
-                    var userData = jsonDoc.RootElement.GetProperty("data").ToString();
+                    var userData = jsonUser.RootElement.GetProperty("data").ToString();
                     var user = JsonSerializer.Deserialize<UserModel>(userData, new JsonSerializerOptions()
                     {
                         PropertyNameCaseInsensitive = true
                     });
                     // Store user info in session or any other storage as needed
-                    HttpContext.Session.SetString("UserInfo", JsonSerializer.Serialize(user));
+                    HttpContext.Session.SetString("userinfo", JsonSerializer.Serialize(user));
+                    HttpContext.Session.SetString("username", user.Username);
+                    HttpContext.Session.SetString("fullname", user.FullName??user.Username);
+                    HttpContext.Session.SetString("role", string.Join(',', user.Roles));
                     // 3. Tạo claims
                     var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.NameIdentifier, user?.Id.ToString()),
-                        new Claim(ClaimTypes.Name, user.Username),
+                        new Claim(ClaimTypes.Name, user.FullName ?? user.Username),
                         new Claim(ClaimTypes.Email, user.Email),
                         new Claim(ClaimTypes.Role, string.Join(',', user.Roles)) // nếu nhiều role thì dùng multiple claim
                     };
@@ -78,23 +84,14 @@ namespace ActiveOfficeLife.Admin.Controllers
                     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     var principal = new ClaimsPrincipal(identity);
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
+                    return RedirectToAction("Index", "Home");
                 }
-
-               
-
-                return RedirectToAction("Index", "Home");
             }
 
             ViewBag.Error = "Login failed";
             return View("Index", request);
         }
 
-        [HttpPost]
-        public IActionResult Logout()
-        {
-            Response.Cookies.Delete("access_token");
-            return RedirectToAction("Login");
-        }
+        
     }
 }
