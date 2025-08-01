@@ -25,26 +25,7 @@ namespace ActiveOfficeLife.Admin.Controllers
         {
             return View();
         }
-        [AllowAnonymous]
-        [HttpGet("/forgot-password")]
-        public IActionResult ForgotPassword()
-        {
-            return View();
-        }
-        [HttpGet("/logout")]
-        public async Task<IActionResult> Logout()
-        {
-            Response.Cookies.Delete(baseApi.AccessToken);
-            // Xoá thông tin người dùng khỏi session
-            HttpContext.Session.Remove("userinfo");
-            HttpContext.Session.Remove("username");
-            HttpContext.Session.Remove("fullname");
-            HttpContext.Session.Remove("role");
-            // Xoá cookie xác thực
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction("Index", "Login");
-        }
-
+        
         [HttpGet]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

@@ -11,6 +11,7 @@ namespace ActiveOfficeLife.Admin.Controllers
         public BaseController(IConfiguration configuration)
         {
             baseApi = configuration.GetSection("BaseApi").Get<BaseApi>();
+            ViewData["title"] = "AOL Admin";
         }
     }
 }
