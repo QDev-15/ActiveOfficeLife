@@ -48,7 +48,7 @@ namespace ActiveOfficeLife.Admin.Controllers
                 });
                 Response.Cookies.Append(baseApi.AccessToken, auth.AccessToken, new CookieOptions
                 {
-                    HttpOnly = true,
+                    HttpOnly = false,
                     Secure = true,
                     SameSite = SameSiteMode.Strict,
                     Expires = DateTimeOffset.UtcNow.AddHours(baseApi.AccessTokenExpireHours),

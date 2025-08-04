@@ -72,7 +72,7 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-//app.UseMiddleware<AuthMiddleware>();
+app.UseMiddleware<AuthMiddleware>();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

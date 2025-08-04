@@ -2,4 +2,193 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
+    ViewData["Title"] = "Categories";
+    // Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<style>
+    tr:hover {
+        background-color: #f1f1f1;
+        cursor: pointer;
+    }
+
+    tr.selected {
+        background-color: #d0ebff !important;
+    }
+</style>
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Danh sách người dùng</h4>
+        <div>
+            <button class="btn btn-primary me-2" onclick="addUser()">➕ Add</button>
+            <button class="btn btn-secondary" onclick="fetchData()">🔄 Refresh</button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th onclick="onSort('name')" style="cursor:pointer">Name ⬍</th>
+                    <th onclick="onSort('slug')" style="cursor:pointer">Slug ⬍</th>
+                    <th>action</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                <!-- Data sẽ được render ở đây -->
+            </tbody>
+        </table>
+        <nav>
+            <ul class="pagination justify-content-center mt-3" id="pagination">
+                <!-- Pagination buttons sẽ được render ở đây -->
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<script>
+    let selectedRow = null;
+    let selectedData = null;
+
+    let currentPage = 1;
+    let pageSize = 10;
+    let sortField = 'name';
+    let sortDirection = 'asc';
+    let globalData = [];
+    let totalCount = 0;
+    async function loadData() {
+      try {
+        const token = getCookie('AccessToken');
+        const res = await fetch('https://api.aol.tkid.io.vn/api/Category/all', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!res.ok) {
+          throw new Error(`Lỗi ${res.status}: ${res.statusText}`);
+        }
+        const dataJson = await res.json();
+        const data = dataJson.data;
+        renderTable(data);
+        
+      } catch (error) {
+        console.error('Lỗi khi gọi API:', error);
+      }
+    }
+    async function fetchData(sortField = 'name', sortDirection = 'asc', pageIndex = 1, pageSize = 10) {
+      const token = getCookie('AccessToken');
+      try {
+        const url = new URL('https://api.aol.tkid.io.vn/api/Category/all-paging');
+        url.searchParams.append('sortField', sortField);
+        url.searchParams.append('sortDirection', sortDirection);
+        url.searchParams.append('pageIndex', pageIndex);
+        url.searchParams.append('pageSize', pageSize);
+
+        const res = await fetch(url.toString(), {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!res.ok) {
+          throw new Error(`Lỗi ${res.status}: ${res.statusText}`);
+        }
+
+        const result = await res.json();
+        globalData = result.data.items || result.data;         // Giả sử API trả về { data: { items: [], totalCount: 123 } }
+        totalCount = result.data.totalCount || globalData.length;
+        renderTable(globalData);
+        renderPagination(totalCount);
+      } catch (error) {
+        console.error('Lỗi gọi API:', error.message);
+        alert('Không thể tải dữ liệu');
+      }
+    }
+    function renderTable(data) {
+      const tbody = document.getElementById('userTableBody');
+      tbody.innerHTML = '';
+
+      data.forEach((cate, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${(currentPage - 1) * pageSize + index + 1}</td>
+          <td>${cate.name}</td>
+          <td>${cate.slug}</td>
+          <td>
+            <button class="btn btn-success me-2" onclick="editUser(${cate.id})">✏️ Edit</button>
+          </td>
+        `;
+
+        row.onclick = () => {
+          if (selectedRow) selectedRow.classList.remove('selected');
+          row.classList.add('selected');
+          selectedRow = row;
+          selectedData = cate;
+        };
+
+        tbody.appendChild(row);
+      });
+    }
+
+    function changePage(page) {
+      currentPage = page;
+      fetchData(sortField, sortDirection, currentPage, pageSize);
+    }
+    function onSort(field) {
+      if (sortField === field) {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortField = field;
+        sortDirection = 'asc';
+      }
+      currentPage = 1; // reset về trang đầu
+      fetchData(sortField, sortDirection, currentPage, pageSize);
+    }
+
+    function renderPagination(totalItems) {
+      const totalPages = Math.ceil(totalItems / pageSize);
+      const container = document.getElementById('pagination');
+      container.innerHTML = '';
+
+      const prevBtn = `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+        <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">«</a>
+      </li>`;
+      container.innerHTML += prevBtn;
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = `<li class="page-item ${i === currentPage ? 'active' : ''}">
+          <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+        </li>`;
+        container.innerHTML += btn;
+      }
+
+      const nextBtn = `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+        <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">»</a>
+      </li>`;
+      container.innerHTML += nextBtn;
+    }
+
+
+    function getCookie(name) {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match ? match[2] : null;
+    }
+    function addUser() {
+      alert('Hiện popup thêm mới (Add)');
+    }
+
+    function editUser() {
+      if (!selectedData) return alert('Vui lòng chọn dòng để sửa!');
+      alert('Sửa người dùng: ' + selectedData.name);
+    }
+
+    // Load dữ liệu ban đầu
+    fetchData();
+</script>
+

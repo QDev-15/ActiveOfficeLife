@@ -72,6 +72,19 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
+
+// Cho phép tất cả CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", builder =>
+    {
+        builder
+            .AllowAnyOrigin()         // Cho tất cả domain
+            .AllowAnyMethod()         // Cho tất cả method (GET, POST, PUT, DELETE,...)
+            .AllowAnyHeader();        // Cho tất cả header
+    });
+});
+
 builder.Services.AddAuthorization();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -143,7 +156,7 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors("AllowAll"); // Bắt buộc dùng đúng tên policy
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseAuthentication(); // Thêm middleware xác thực trước Authorization

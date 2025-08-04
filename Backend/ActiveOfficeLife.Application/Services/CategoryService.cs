@@ -177,5 +177,29 @@ namespace ActiveOfficeLife.Application.Services
                 throw new Exception("update category faild");
             }
         }
+
+        public async Task<(List<CategoryModel> Categories, int count)> GetAllCategoriesPagingAsync(string sortField, string sortDirection, int pageIndex, int pageSize)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(sortField) || string.IsNullOrEmpty(sortDirection))
+                {
+                    sortField = "Name"; // Default sort field
+                    sortDirection = "asc"; // Default sort direction
+                }
+                var result = await _categoryRepository.GetAllWithPaging(pageIndex, pageSize, sortField, sortDirection); // Get all categories
+                if (result.Categories == null || !result.Categories.Any())
+                {
+                    result.Categories = new List<Category>();
+                }
+                
+                return (result.Categories.Select(x => x.ReturnModel()).ToList(), result.Count);
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-Error: {ex.Message}", ex.Source, "", ex.StackTrace);
+                throw new Exception("Get categories paging failed");
+            }
+        }
     }
 }

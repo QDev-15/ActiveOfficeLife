@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ActiveOfficeLife.Common;
+using Microsoft.AspNetCore.Authorization;
+using System.Configuration;
 
 namespace ActiveOfficeLife.Admin.Middlewares
 {
@@ -11,11 +13,11 @@ namespace ActiveOfficeLife.Admin.Middlewares
             _next = next;
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context, IConfiguration configuration)
         {
-            
 
 
+            BaseApi baseApi = configuration.GetSection("BaseApi").Get<BaseApi>();
             // Lấy endpoint hiện tại
             var endpoint = context.GetEndpoint();
 
@@ -26,9 +28,9 @@ namespace ActiveOfficeLife.Admin.Middlewares
             if (hasAuthorize && !hasAllowAnonymous)
             {
                 var path = context.Request.Path.Value?.ToLower();
-                if (!path.Contains("/login") && !path.Contains("/auth"))
+                if (!path.Contains("/login"))
                 {
-                    var token = context.Request.Cookies["access_token"];
+                    var token = context.Request.Cookies[baseApi.AccessToken];
                     if (string.IsNullOrEmpty(token))
                     {
                         context.Response.Redirect("/login");

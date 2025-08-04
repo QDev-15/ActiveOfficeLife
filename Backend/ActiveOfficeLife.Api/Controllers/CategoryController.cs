@@ -46,53 +46,32 @@ namespace ActiveOfficeLife.Api.Controllers
                 return BadRequest(new ResultError("Failed to retrieve categories."));
             }
         }
-        // create category using POST method and usint CategoryModel as request body from category service
-        [HttpPost("create")]
-        public async Task<IActionResult> CreateCategory([FromBody] CategoryModel category)
-        {
-            if (category == null)
-            {
-                return BadRequest(new ResultError("Invalid category data."));
-            }
-            try
-            {
-                var createdCategory = await _categoryService.CreateCategoryAsync(category);
-                // Clear cache after creating a new category
-                _cache.Clear();
-                return Ok(new ResultSuccess(createdCategory));
-            }
-            catch (Exception ex)
-            {
-                AOLLogger.Error($"Error creating category: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new ResultError("Failed to create category."));
 
-            }
-        }
-        [HttpDelete("delete/{id}")]
-        public async Task<IActionResult> DeleteCategory(Guid id)
+        // get all with paging using GET method and query parameters sortField = 'name', sortDirection = 'asc', pageIndex = 1, pageSize = 10
+        [HttpGet("all-paging")]
+        public async Task<IActionResult> GetAllCategoriesPaging(
+            [FromQuery] string sortField = "name",
+            [FromQuery] string sortDirection = "asc",
+            [FromQuery] int pageIndex = 1,
+            [FromQuery] int pageSize = 10)
         {
-            if (id == Guid.Empty)
-            {
-                return BadRequest(new ResultError("Invalid category ID."));
-            }
             try
             {
-                var result = await _categoryService.DeleteCategoryAsync(id);
-                if (result)
-                {
-                    // Clear cache after deleting a category
-                    _cache.Clear();
-                    return Ok(new ResultSuccess("Category deleted successfully."));
-                }
-                return NotFound(new ResultError("Category not found."));
+                var result = await _categoryService.GetAllCategoriesPagingAsync(sortField, sortDirection, pageIndex, pageSize);
+                return Ok(new ResultSuccess(new {
+                    Items = result.Categories,
+                    TotalCount = result.count,
+                    PageIndex = pageIndex,
+                    PageSize = pageSize
+                }));
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"Error deleting category: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new ResultError("Failed to delete category."));
+                AOLLogger.Error($"Error fetching paginated categories: {ex.Message}", ex.Source, null, ex.StackTrace);
+                return BadRequest(new ResultError("Failed to retrieve paginated categories."));
             }
         }
-        [HttpGet("get/{id}")]
+        [HttpGet("getbyid")]
         public async Task<IActionResult> GetCategoryById(Guid id)
         {
             if (id == Guid.Empty)
@@ -123,6 +102,53 @@ namespace ActiveOfficeLife.Api.Controllers
                 return BadRequest(new ResultError("Failed to retrieve category."));
             }
         }
+        // create category using POST method and usint CategoryModel as request body from category service
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateCategory([FromBody] CategoryModel category)
+        {
+            if (category == null)
+            {
+                return BadRequest(new ResultError("Invalid category data."));
+            }
+            try
+            {
+                var createdCategory = await _categoryService.CreateCategoryAsync(category);
+                // Clear cache after creating a new category
+                _cache.Clear();
+                return Ok(new ResultSuccess(createdCategory));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error creating category: {ex.Message}", ex.Source, null, ex.StackTrace);
+                return BadRequest(new ResultError("Failed to create category."));
+
+            }
+        }
+        [HttpDelete("delete")]
+        public async Task<IActionResult> DeleteCategory(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return BadRequest(new ResultError("Invalid category ID."));
+            }
+            try
+            {
+                var result = await _categoryService.DeleteCategoryAsync(id);
+                if (result)
+                {
+                    // Clear cache after deleting a category
+                    _cache.Clear();
+                    return Ok(new ResultSuccess("Category deleted successfully."));
+                }
+                return NotFound(new ResultError("Category not found."));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error deleting category: {ex.Message}", ex.Source, null, ex.StackTrace);
+                return BadRequest(new ResultError("Failed to delete category."));
+            }
+        }
+
         // update category using PUT method and usint CategoryModel as request body from category service
         [HttpPut("update")]
         public async Task<IActionResult> UpdateCategory([FromForm] CategoryModel category)

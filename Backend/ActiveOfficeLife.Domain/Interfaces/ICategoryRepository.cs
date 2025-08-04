@@ -9,6 +9,7 @@ namespace ActiveOfficeLife.Domain.Interfaces
 {
     public interface ICategoryRepository : _IRepository<Category>
     {
+        Task<(IEnumerable<Category> Categories, int Count)> GetAllWithPaging(int pageIndex, int pageSize, string sortField, string sortDirection);
         Task<IEnumerable<Category>> GetByParrentId(Guid parentId);
     }
 }
