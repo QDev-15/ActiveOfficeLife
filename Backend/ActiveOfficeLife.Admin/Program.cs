@@ -42,11 +42,15 @@ builder.Services.AddSession(options =>
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/login";          // Redirect nếu chưa login
+        options.Cookie.Name = baseApi.AccessToken; // Tên cookie cụ thể
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Nếu bạn dùng HTTPS
+        options.Cookie.SameSite = SameSiteMode.Lax;               // Đảm bảo cookie gửi khi điều hướng
+        options.LoginPath = "/login";
         options.LogoutPath = "/logout";
-        options.AccessDeniedPath = "/denied";  // Nếu không có quyền
+        options.AccessDeniedPath = "/denied";
         options.ExpireTimeSpan = TimeSpan.FromHours(baseApi.AccessTokenExpireHours);
-        options.SlidingExpiration = true;      // Tự kéo dài session
+        options.SlidingExpiration = true;
     });
 
 builder.Services.AddAuthorization();
