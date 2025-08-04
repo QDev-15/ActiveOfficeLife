@@ -51,7 +51,8 @@ namespace ActiveOfficeLife.Admin.Controllers
                     HttpOnly = true,
                     Secure = true,
                     SameSite = SameSiteMode.Strict,
-                    Expires = DateTimeOffset.UtcNow.AddHours(baseApi.AccessTokenExpireHours)
+                    Expires = DateTimeOffset.UtcNow.AddHours(baseApi.AccessTokenExpireHours),
+                    IsEssential = true,
                 });
                 // Lưu thông tin người dùng vào session (nếu muốn dùng server-side)
                 
