@@ -42,7 +42,6 @@ builder.Services.AddSession(options =>
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.Cookie.Name = baseApi.AccessToken; // Tên cookie cụ thể
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Nếu bạn dùng HTTPS
         options.Cookie.SameSite = SameSiteMode.Lax;               // Đảm bảo cookie gửi khi điều hướng
@@ -76,7 +75,7 @@ app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseMiddleware<AuthMiddleware>();
+//app.UseMiddleware<AuthMiddleware>();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

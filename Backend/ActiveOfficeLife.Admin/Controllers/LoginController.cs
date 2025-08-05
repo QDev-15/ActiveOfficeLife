@@ -46,11 +46,12 @@ namespace ActiveOfficeLife.Admin.Controllers
                 {
                     PropertyNameCaseInsensitive = true
                 });
+                
                 Response.Cookies.Append(baseApi.AccessToken, auth.AccessToken, new CookieOptions
                 {
                     HttpOnly = false,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict,
+                    Secure = Request.IsHttps, // ✔ tự động true nếu đang chạy HTTPS
+                    SameSite = SameSiteMode.Lax, // ✔ Cho phép redirect sau login
                     Expires = DateTimeOffset.UtcNow.AddHours(baseApi.AccessTokenExpireHours),
                     IsEssential = true,
                 });
