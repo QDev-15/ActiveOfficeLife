@@ -7,6 +7,7 @@ using ActiveOfficeLife.Common.Responses;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System.Web;
 
 namespace ActiveOfficeLife.Api.Controllers
@@ -190,6 +191,10 @@ namespace ActiveOfficeLife.Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
+            // convert formbody request object to string    
+            var requestString = request != null ? JsonConvert.SerializeObject(request) : "null";
+            //log request data
+            AOLLogger.Info($"Register request received: {request?.Username}, {request?.Email}", requestString);
             if (request == null || string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
             {
                 return BadRequest(new ResultError("Invalid registration data."));
@@ -199,13 +204,13 @@ namespace ActiveOfficeLife.Api.Controllers
                 request.Email = request.Email?.Trim() ?? string.Empty;
                 request.Username = request.Username.Trim();
                 request.Password = request.Password.Trim();
+                request.ConfirmPassword = request.ConfirmPassword.Trim();
                 var user = await _userService.Create(request);
                 return Ok(new ResultSuccess(user));
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"Error trimming registration data: {ex.Message}");
-                return BadRequest(new ResultError("User registration failed."));
+                return BadRequest(new ResultError(ex.Message));
             }
         }
 

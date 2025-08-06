@@ -17,6 +17,12 @@
 
 "use strict";
 const d = document;
+const urlApi = 'https://api.aol.tkid.io.vn';
+const token = getCookie('AccessToken');
+function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    return match ? match[2] : null;
+}
 d.addEventListener("DOMContentLoaded", function(event) {
 
     const swalWithBootstrapButtons = Swal.mixin({

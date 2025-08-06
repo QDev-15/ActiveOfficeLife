@@ -10,5 +10,6 @@ namespace ActiveOfficeLife.Common
     {
         public static string NotFound = "Not Found";
         public static string NotActive = "Not Active";
+        public static string UserAlreadyExists = "User Already Exists";
     }
 }

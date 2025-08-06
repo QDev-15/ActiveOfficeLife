@@ -1,8 +1,11 @@
 ﻿using ActiveOfficeLife.Api;
 using ActiveOfficeLife.Application;
+using ActiveOfficeLife.Application.Common;
+using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Common.AppConfigs;
 using ActiveOfficeLife.Domain.EFCore.DBContext;
 using ActiveOfficeLife.Infrastructure;
+using ActiveOfficeLife.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -95,6 +98,8 @@ builder.Services.AddSingleton<CustomMemoryCache>();
 builder.Services.AddActiveOfficeLifeInfrastructure();
 builder.Services.AddActiveOfficeLifeApplication();
 
+builder.Services.AddHostedService<LogBackgroundService>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -134,7 +139,12 @@ var app = builder.Build();
 // setup ILogService for static helper
 //var logService = app.Services.GetRequiredService<ILogService>();
 //AOLLogger.LogService = logService;
-
+// ✅ ILogService từ DI container
+using (var scope = app.Services.CreateScope())
+{
+    var logService = scope.ServiceProvider.GetRequiredService<ILogService>();
+    AOLLogger.Initialize(logService); // ✅ Gán vào static logger
+}
 // Apply EF Core migrations tự động khi khởi động
 using (var scope = app.Services.CreateScope())
 {

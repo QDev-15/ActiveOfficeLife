@@ -35,6 +35,11 @@ namespace ActiveOfficeLife.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Index(LoginRequest request)
         {
+            if (string.IsNullOrEmpty(request.UserName) || string.IsNullOrEmpty(request.Password))
+            {
+                ViewBag.Error = "Username and password are required.";
+                return View(request);
+            }
             var response = await _apiService.PostAsync(AOLEndPoint.AuthLogin, request);
 
             if (response != null && response.IsSuccessStatusCode)

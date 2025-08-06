@@ -29,6 +29,8 @@ namespace ActiveOfficeLife.Infrastructure.Services
                 var logRepo = scope.ServiceProvider.GetRequiredService<ILogRepository>();
                 if (logRepo.TryDequeue(out var log))
                 {
+                    // Thêm log vào DB
+                    log.Timestamp = DateTime.UtcNow; // Đảm bảo timestamp là UTC
                     dbContext.Logs.Add(log);
                     await dbContext.SaveChangesAsync(stoppingToken);
                 }

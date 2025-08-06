@@ -80,7 +80,6 @@
       }
     }
     async function fetchData(sortField = 'name', sortDirection = 'asc', pageIndex = 1, pageSize = 10) {
-      const token = getCookie('AccessToken');
       try {
         const url = new URL('https://api.aol.tkid.io.vn/api/Category/all-paging');
         url.searchParams.append('sortField', sortField);
@@ -175,10 +174,7 @@
     }
 
 
-    function getCookie(name) {
-      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-      return match ? match[2] : null;
-    }
+
     function addUser() {
       alert('Hiện popup thêm mới (Add)');
     }

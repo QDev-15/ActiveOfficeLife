@@ -20,6 +20,7 @@ namespace ActiveOfficeLife.Application.Services
         private readonly _IUnitOfWork _unitOfWord;
         private readonly IMemoryCache _memoryCache;
         private readonly AppConfigService _appConfigService;
+        private string className = nameof(UserService);
         public UserService(IUserRepository userRepository, IRoleRepository roleRepository, _IUnitOfWork unitOfWord, IMemoryCache memoryCache, AppConfigService appConfigService)
         {
             _userRepository = userRepository;
@@ -30,7 +31,8 @@ namespace ActiveOfficeLife.Application.Services
         }
         public async Task<UserModel> GetUser(Guid id)
         {
-            var cacheKey = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}:{id}";
+            string actionName = className + nameof(GetUser);
+            var cacheKey = $"{this.GetType().Name}-{actionName}:{id}";
 
             if (_memoryCache.TryGetValue(cacheKey, out UserModel cachedUser))
             {
@@ -45,12 +47,12 @@ namespace ActiveOfficeLife.Application.Services
                     return user.ReturnModel();
                 } else
                 {
-                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - Id = " + id.ToString() + " - " + MessageContext.NotFound);
+                    AOLLogger.Error(actionName + " - Id = " + id.ToString() + " - " + MessageContext.NotFound);
                     throw new Exception("User " + MessageContext.NotFound);
                 }
             } catch(Exception ex)
             {
-                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                AOLLogger.Error(actionName + " - error = " + ex);
                 throw new Exception(ex.Message);
             }
         }
@@ -58,13 +60,40 @@ namespace ActiveOfficeLife.Application.Services
         
         public async Task<UserModel> Create(RegisterRequest registerRequest)
         {
+            // Log the method name and class name for debugging
+            string methodName = className + nameof(Create);
             try
             {
+                if (registerRequest == null)
+                {
+                    throw new Exception("Register request cannot be null.");
+                }
+                if (string.IsNullOrEmpty(registerRequest.Username) || string.IsNullOrEmpty(registerRequest.Password) || string.IsNullOrEmpty(registerRequest.Email))
+                {
+                    throw new Exception("Username, password, and email are required.");
+                }
+                if (registerRequest.Password != registerRequest.ConfirmPassword)
+                {
+                    throw new Exception("Passwords do not match.");
+                }
                 if (registerRequest.Username.Length < 6 || registerRequest.Password.Length < 6)
                 {
                     throw new Exception("The username and password must each be at least 6 characters long.");
                 }
 
+                // check if user already exists by username or email
+                var existingUserByUsername = await _userRepository.GetByUserNameAsync(registerRequest.Username.Trim());
+                if (existingUserByUsername != null)
+                {
+                    AOLLogger.Error(methodName + " - username = " + registerRequest.Username + " - " + MessageContext.UserAlreadyExists);
+                    throw new Exception("Username " + MessageContext.UserAlreadyExists);
+                }
+                var existingUserByEmail = await _userRepository.GetByEmailAsync(registerRequest.Email.Trim());
+                if (existingUserByEmail != null)
+                {
+                    AOLLogger.Error(methodName + " - email = " + registerRequest.Email + " - " + MessageContext.UserAlreadyExists);
+                    throw new Exception("Email " + MessageContext.UserAlreadyExists);
+                }
                 var roles = await _roleRepository.GetAllAsync();
                 var user = new User()
                 {
@@ -92,13 +121,14 @@ namespace ActiveOfficeLife.Application.Services
                 return user.ReturnModel();
             } catch(Exception ex)
             {
-                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                AOLLogger.Error(methodName + " - error = " + ex);
                 throw new Exception(ex.Message);
             }
         }
 
         public async Task<UserModel> Update(UserModel model)
         {
+            string actionName = className + nameof(Update);
             try
             {
                 if (model == null || model.Id == Guid.Empty)
@@ -108,7 +138,7 @@ namespace ActiveOfficeLife.Application.Services
                 var user = await _userRepository.GetByIdAsync(model.Id);
                 if (user == null)
                 {
-                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - Id = " + model.Id.ToString() + " - " + MessageContext.NotFound);
+                    AOLLogger.Error(actionName + " - Id = " + model.Id.ToString() + " - " + MessageContext.NotFound);
                     throw new Exception("User " + MessageContext.NotFound);
                 }
                 user.Username = model.Username;
@@ -142,12 +172,13 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                AOLLogger.Error(actionName + " - error = " + ex);
                 throw new Exception("Update failed");
             }
         }
         public async Task<UserModel> GetByRefreshToken(string refreshToken)
         {
+            string actionName = className + nameof(GetByRefreshToken);
             try
             {
                 var user = await _userRepository.GetByRefreshTokenAsync(refreshToken);
@@ -157,19 +188,20 @@ namespace ActiveOfficeLife.Application.Services
                 }
                 else
                 {
-                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - refreshToken = " + refreshToken + " - " + MessageContext.NotFound);
+                    AOLLogger.Error(actionName + " - refreshToken = " + refreshToken + " - " + MessageContext.NotFound);
                     throw new Exception("User " + MessageContext.NotFound);
                 }
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                AOLLogger.Error(actionName + " - error = " + ex);
                 throw new Exception(ex.Message);
             }
         }
 
         public async Task<bool> Delete(Guid id)
         {
+            string actionName = className + nameof(Delete);
             try
             {
                 if (id == Guid.Empty)
@@ -179,7 +211,7 @@ namespace ActiveOfficeLife.Application.Services
                 var user = await _userRepository.GetByIdAsync(id);
                 if (user == null)
                 {
-                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - Id = " + id.ToString() + " - " + MessageContext.NotFound);
+                    AOLLogger.Error(actionName + " - Id = " + id.ToString() + " - " + MessageContext.NotFound);
                     throw new Exception("User " + MessageContext.NotFound);
                 }
                 user.Status = UserStatus.Deleted; // Cập nhật trạng thái người dùng thành Deleted
@@ -189,13 +221,14 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                AOLLogger.Error(actionName + " - error = " + ex);
                 throw new Exception(ex.Message);
             }
         }
 
         public async Task<UserModel> GetByToken(string token)
         {
+            string actionName = className + nameof(GetByToken);
             try
             {
                 var user = await _userRepository.GetByTokenAsync(token);
@@ -205,19 +238,20 @@ namespace ActiveOfficeLife.Application.Services
                 }
                 else
                 {
-                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - token = " + token + " - " + MessageContext.NotFound);
+                    AOLLogger.Error(actionName + " - token = " + token + " - " + MessageContext.NotFound);
                     throw new Exception("User " + MessageContext.NotFound);
                 }
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                AOLLogger.Error(actionName + " - error = " + ex);
                 throw new Exception(ex.Message);
             }
         }
 
         public async Task<List<UserModel>> GetAll(string searchText, int index = 1, int pageSize = 1000, bool desc = true)
         {
+            string actionName = className + nameof(GetAll);
             try
             {
                 if (index < 1 || pageSize < 1)
@@ -227,7 +261,7 @@ namespace ActiveOfficeLife.Application.Services
                 var users = await _userRepository.SearchAsync(searchText, index, pageSize, desc);
                 if (users == null || !users.Any())
                 {
-                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - No users found.");
+                    AOLLogger.Error(actionName + " - No users found.");
                     return new List<UserModel>();
                 }
 
@@ -235,7 +269,7 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                AOLLogger.Error(actionName + " - error = " + ex);
                 throw new Exception(ex.Message);
             }
         }
@@ -247,6 +281,7 @@ namespace ActiveOfficeLife.Application.Services
 
         public async Task<UserModel> GetByUsername(string username)
         {
+            string actionName = className + nameof(GetByUsername);
             try
             {
                 if (string.IsNullOrEmpty(username))
@@ -260,19 +295,20 @@ namespace ActiveOfficeLife.Application.Services
                 }
                 else
                 {
-                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - username = " + username + " - " + MessageContext.NotFound);
+                    AOLLogger.Error(actionName + " - username = " + username + " - " + MessageContext.NotFound);
                     throw new Exception("User " + MessageContext.NotFound);
                 }
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                AOLLogger.Error(actionName + " - error = " + ex);
                 throw new Exception(ex.Message);
             }
 
         }
         public async Task<UserModel> GetByPhoneNumber(string phone)
         {
+            string actionName = className + nameof(GetByPhoneNumber);
             try
             {
                 if (string.IsNullOrEmpty(phone))
@@ -286,18 +322,19 @@ namespace ActiveOfficeLife.Application.Services
                 }
                 else
                 {
-                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - phone = " + phone + " - " + MessageContext.NotFound);
+                    AOLLogger.Error(actionName + " - phone = " + phone + " - " + MessageContext.NotFound);
                     throw new Exception("User " + MessageContext.NotFound);
                 }
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                AOLLogger.Error(actionName + " - error = " + ex);
                 throw new Exception(ex.Message);
             }
         }
         public async Task<UserModel> GetByEmail(string email)
         {
+            string actionName = className + nameof(GetByEmail);
             try
             {
                 if (string.IsNullOrEmpty(email))
@@ -311,7 +348,7 @@ namespace ActiveOfficeLife.Application.Services
                 }
                 else
                 {
-                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - email = " + email + " - " + MessageContext.NotFound);
+                    AOLLogger.Error(actionName + " - email = " + email + " - " + MessageContext.NotFound);
                     throw new Exception("User " + MessageContext.NotFound);
                 }
             }
@@ -324,6 +361,7 @@ namespace ActiveOfficeLife.Application.Services
 
         public async Task<bool> ChangePassword(Guid id, ChangePasswordRequest changePasswordRequest)
         {
+            string actionName = className + nameof(ChangePassword);
             try
             {
                 if (id == Guid.Empty || changePasswordRequest == null)
@@ -333,7 +371,7 @@ namespace ActiveOfficeLife.Application.Services
                 var user = _userRepository.GetByIdAsync(id).Result;
                 if (user == null)
                 {
-                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - Id = " + id.ToString() + " - " + MessageContext.NotFound);
+                    AOLLogger.Error(actionName + " - Id = " + id.ToString() + " - " + MessageContext.NotFound);
                     throw new Exception("User " + MessageContext.NotFound);
                 }
                 if (user.PasswordHash != DomainHelper.HashPassword(changePasswordRequest.OldPassword))
@@ -346,13 +384,14 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                AOLLogger.Error(actionName + " - error = " + ex);
                 throw new Exception(ex.Message);
             }
         }
 
         public async Task<UserModel> ForgotPassword(ForgotPasswordRequest forgotPasswordRequest)
         {
+            string actionName = className + nameof(ForgotPassword);
             try
             {
                 if (forgotPasswordRequest == null || string.IsNullOrEmpty(forgotPasswordRequest.Email))
@@ -362,20 +401,21 @@ namespace ActiveOfficeLife.Application.Services
                 var user = await _userRepository.GetByEmailAsync(forgotPasswordRequest.Email.Trim());
                 if (user == null)
                 {
-                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - email = " + forgotPasswordRequest.Email + " - " + MessageContext.NotFound);
+                    AOLLogger.Error(actionName + " - email = " + forgotPasswordRequest.Email + " - " + MessageContext.NotFound);
                     throw new Exception("User " + MessageContext.NotFound);
                 }
                 return user.ReturnModel();
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                AOLLogger.Error(actionName + " - error = " + ex);
                 throw new Exception(ex.Message);
             }
         }
 
         public async Task<bool> ResetPassword(string email, ResetPasswordRequest changePasswordRequest)
         {
+            string actionName = className + nameof(ResetPassword);
             try { 
                 if (string.IsNullOrEmpty(email) || changePasswordRequest == null)
                 {
@@ -384,7 +424,7 @@ namespace ActiveOfficeLife.Application.Services
                 var user = await _userRepository.GetByEmailAsync(email);
                 if (user == null)
                 {
-                    AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - Email = " + email + " - " + MessageContext.NotFound);
+                    AOLLogger.Error(actionName + " - Email = " + email + " - " + MessageContext.NotFound);
                     throw new Exception("User " + MessageContext.NotFound);
                 }
                 user.PasswordHash = DomainHelper.HashPassword(changePasswordRequest.NewPassword);
@@ -392,7 +432,7 @@ namespace ActiveOfficeLife.Application.Services
                 return await _unitOfWord.SaveChangesAsync().ContinueWith(t => true);
             } catch(Exception ex)
             {
-                AOLLogger.Error(MethodBase.GetCurrentMethod().Name + " - error = " + ex);
+                AOLLogger.Error(actionName + " - error = " + ex);
                 throw new Exception(ex.Message);
             }
         }

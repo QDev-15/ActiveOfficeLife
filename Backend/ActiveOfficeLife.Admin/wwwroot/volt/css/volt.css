@@ -17,6 +17,12 @@
 */
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
 
+.field-error {
+    height: 25px;
+    font-size: 13px;
+    text-align: right;
+    padding: 5px;
+}
 .datepicker {
     display: none;
 }

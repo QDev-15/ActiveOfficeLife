@@ -1,10 +1,12 @@
 ﻿using ActiveOfficeLife.Application.Interfaces;
+using ActiveOfficeLife.Domain.Entities;
 using ActiveOfficeLife.Domain.Interfaces;
 using ActiveOfficeLife.Infrastructure.Repositories;
 using ActiveOfficeLife.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,6 +19,7 @@ namespace ActiveOfficeLife.Infrastructure
         public static IServiceCollection AddActiveOfficeLifeInfrastructure(this IServiceCollection services)
         {
             // Các config khác...
+            services.AddSingleton<ConcurrentQueue<Log>>();
             services.AddScoped<_IUnitOfWork, _UnitOfWork>();
             services.AddScoped<IAdRepository, AdRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
