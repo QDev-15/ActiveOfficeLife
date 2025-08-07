@@ -9,5 +9,10 @@ namespace ActiveOfficeLife.Admin.Controllers
         {
             return View();
         }
+        [HttpGet]
+        public IActionResult Detail(string id)
+        {
+            return View();
+        }
     }
 }

@@ -18,10 +18,10 @@
 
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Danh sách người dùng</h4>
+        <h4>Danh sách danh mục</h4>
         <div>
             <button class="btn btn-primary me-2" onclick="addUser()">➕ Add</button>
-            <button class="btn btn-secondary" onclick="fetchData()">🔄 Refresh</button>
+            <button class="btn btn-secondary" onclick="refreshData()">🔄 Refresh</button>
         </div>
     </div>
 
@@ -57,28 +57,6 @@
     let sortDirection = 'asc';
     let globalData = [];
     let totalCount = 0;
-    async function loadData() {
-      try {
-        const token = getCookie('AccessToken');
-        const res = await fetch('https://api.aol.tkid.io.vn/api/Category/all', {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (!res.ok) {
-          throw new Error(`Lỗi ${res.status}: ${res.statusText}`);
-        }
-        const dataJson = await res.json();
-        const data = dataJson.data;
-        renderTable(data);
-        
-      } catch (error) {
-        console.error('Lỗi khi gọi API:', error);
-      }
-    }
     async function fetchData(sortField = 'name', sortDirection = 'asc', pageIndex = 1, pageSize = 10) {
       try {
         const url = new URL('https://api.aol.tkid.io.vn/api/Category/all-paging');
@@ -104,9 +82,10 @@
         totalCount = result.data.totalCount || globalData.length;
         renderTable(globalData);
         renderPagination(totalCount);
+        showInfo("Dữ liệu đã được cập nhật.");
       } catch (error) {
         console.error('Lỗi gọi API:', error.message);
-        alert('Không thể tải dữ liệu');
+        showError('Không thể tải dữ liệu');
       }
     }
     function renderTable(data) {
@@ -183,8 +162,19 @@
       if (!selectedData) return alert('Vui lòng chọn dòng để sửa!');
       alert('Sửa người dùng: ' + selectedData.name);
     }
-
+    // refresh
+    function refreshData() {
+        showConfirm("Bạn có muốn tiếp tục không?")
+        .then(result => {
+            if (result) {
+               fetchData();
+            } else {
+                console.log("Người dùng đã chọn KHÔNG");
+            }
+        });
+    }
     // Load dữ liệu ban đầu
+    
     fetchData();
 </script>
 

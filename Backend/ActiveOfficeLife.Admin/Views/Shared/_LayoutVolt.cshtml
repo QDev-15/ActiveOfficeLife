@@ -9,6 +9,8 @@
     <meta name="author" content="TKID">
     <meta name="description" content="Tkid description">
     <meta name="keywords" content="Kid tiger" />
+
+
     <link rel="canonical" href="https://themesberg.com/product/admin-dashboard/volt-premium-bootstrap-5-dashboard">
 
     <!-- Open Graph / Facebook -->
@@ -42,20 +44,28 @@
 
     <!-- Volt CSS -->
     <link type="text/css" href="/volt/css/volt.css" rel="stylesheet">
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <script>
+        var token = '@Context.Request.Cookies["AccessToken"]';
+        var urlApiServer = 'https://api.aol.tkid.io.vn';
+        var urlApiLocal = 'https://localhost:7029';
+        var urlApi = urlApiServer;
+    </script>
     <!-- NOTICE: You can use the _analytics.html partial to include production code specific code & trackers -->
 
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
 
     @Html.Partial("/Views/Shared/Partials/_navBar.cshtml")
-    <main class="content">
+    <main class="content flex-fill d-flex flex-column">
         @Html.Partial("/Views/Shared/Partials/_topBar.cshtml")
-        @RenderBody()
-        @Html.Partial("_footer.cshtml")
+        <div class="flex-fill mt-3">
+            @RenderBody()
+        </div>
     </main>
-
+    @Html.Partial("_footer.cshtml")
+    @Html.Partial("_global.cshtml")
     <!-- Core -->
     <script src="/volt/vendor/popperjs/core/dist/umd/popper.min.js"></script>
     <script src="/volt/vendor/bootstrap/dist/js/bootstrap.min.js"></script>
