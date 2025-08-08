@@ -164,7 +164,15 @@ namespace ActiveOfficeLife.Application.Services
                         }
                     }
                 }
-                user.Status = model.Status;
+                // cập nhật trạng thái từ model.status là string sang enum UserStatus
+                if (Enum.TryParse<UserStatus>(model.Status, true, out var userStatus))
+                {
+                    user.Status = userStatus;
+                }
+                else
+                {
+                    user.Status = UserStatus.Active; // Mặc định là Active nếu không parse được
+                }
                 user.UpdatedAt = DateTime.UtcNow;
                 _userRepository.UpdateAsync(user);
                 await _unitOfWord.SaveChangesAsync();

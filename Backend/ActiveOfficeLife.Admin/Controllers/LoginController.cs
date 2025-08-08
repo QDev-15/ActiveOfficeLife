@@ -60,8 +60,9 @@ namespace ActiveOfficeLife.Admin.Controllers
                     Expires = DateTimeOffset.UtcNow.AddHours(baseApi.AccessTokenExpireHours),
                     IsEssential = true,
                 });
+
                 // Lưu thông tin người dùng vào session (nếu muốn dùng server-side)
-                
+
                 // get user info
                 var userResponse = await _apiService.GetAsync(AOLEndPoint.AuthMe, auth.AccessToken);
                 if (userResponse != null && userResponse.IsSuccessStatusCode)
@@ -73,11 +74,16 @@ namespace ActiveOfficeLife.Admin.Controllers
                     {
                         PropertyNameCaseInsensitive = true
                     });
-                    // Store user info in session or any other storage as needed
-                    HttpContext.Session.SetString("userinfo", JsonSerializer.Serialize(user));
-                    HttpContext.Session.SetString("username", user.Username);
-                    HttpContext.Session.SetString("fullname", user.FullName??user.Username);
-                    HttpContext.Session.SetString("role", string.Join(',', user.Roles));
+
+                    Response.Cookies.Append("userinfo", JsonSerializer.Serialize(user), new CookieOptions
+                    {
+                        HttpOnly = false,
+                        Secure = Request.IsHttps, // ✔ tự động true nếu đang chạy HTTPS
+                        SameSite = SameSiteMode.Lax, // ✔ Cho phép redirect sau login
+                        Expires = DateTimeOffset.UtcNow.AddHours(baseApi.AccessTokenExpireHours),
+                        IsEssential = true,
+                    });
+
                     // 3. Tạo claims
                     var claims = new List<Claim>
                     {

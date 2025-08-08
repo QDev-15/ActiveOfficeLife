@@ -17,10 +17,6 @@
 
 "use strict";
 const d = document;
-window.urlApiServer = 'https://api.aol.tkid.io.vn';
-window.urlApiLocal = 'https://localhost:7029';
-window.token = getCookie('AccessToken');
-window.urlApi = urlApiLocal;
 function getCookie(name) {
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
     return match ? match[2] : null;

@@ -1,5 +1,7 @@
-﻿$(document).ready(function () {
-    var urlLog = urlApi + "/api/logs";
+﻿import { ConfigModule } from './modules/config.module.js';
+
+$(document).ready(function () {
+    var urlLog = ConfigModule.urlApi + "/api/logs";
 
     async function fetchData(startDate, endDate, pageIndex = 1, pageSize = 10) {
         

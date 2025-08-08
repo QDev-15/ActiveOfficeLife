@@ -102,8 +102,8 @@ namespace ActiveOfficeLife.Api.Controllers
                 Username = User.Identity?.Name,
                 AvatarUrl = claims.FirstOrDefault(c => c.Type == "AvatarUrl")?.Value,
                 Status = Enum.TryParse<UserStatus>(claims.FirstOrDefault(c => c.Type == "Status")?.Value, out var status)
-                 ? status
-                 : UserStatus.Inactive, // hoặc Default/Fallback,
+                 ? status.ToString()
+                 : UserStatus.Inactive.ToString(), // hoặc Default/Fallback,
                 Email = claims.FirstOrDefault(c => c.Type == "Email")?.Value,
                 Roles = claims.FirstOrDefault(c => c.Type == "Roles")?.Value?.Split(',').ToList(),
                 CreatedAt = DateTime.TryParse(claims.FirstOrDefault(c => c.Type == "CreatedAt")?.Value, out var createdAt) ? createdAt : DateTime.UtcNow

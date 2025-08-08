@@ -62,7 +62,7 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
                         Email = comment.ParentComment.User.Email,
                         AvatarUrl = comment.ParentComment.User.AvatarUrl,
                         Roles = comment.ParentComment.User.Roles.Select(x => x.Name).ToList(),
-                        Status = comment.ParentComment.User.Status
+                        Status = comment.ParentComment.User.Status.ToString()
                     },
                     PostId = comment.ParentComment.PostId
                 } : null,
@@ -74,7 +74,7 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
                     Email = comment.User.Email,
                     AvatarUrl = comment.User.AvatarUrl,
                     Roles = comment.User.Roles.Select(x => x.Name).ToList(),
-                    Status = comment.User.Status
+                    Status = comment.User.Status.ToString()
                 },
                 PostId = comment.PostId,
                 ParentCommentId = comment.ParentCommentId,
@@ -115,7 +115,7 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
                 Roles = user.Roles.Select(a => a.Name).ToList(),
                 FullName = user.FullName,
                 PhoneNumber = user.PhoneNumber,
-                Status = user.Status,
+                Status = user.Status.ToString(),
                 CreatedAt = user.CreatedAt,
                 
             };
