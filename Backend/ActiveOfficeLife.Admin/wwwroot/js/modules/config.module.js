@@ -1,33 +1,38 @@
 ﻿// wwwroot/js/config.js
 export class ConfigModule {
-    static token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('AccessToken='))
-        ?.split('=')[1] || '';
+    constructor() {
+        this.token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('AccessToken='))
+            ?.split('=')[1] || '';
 
-    
+        this.urlApiServer = 'https://api.aol.tkid.io.vn/api';
+        this.urlApiLocal = 'https://localhost:7029/api';
+        this.urlApi = this.urlApiServer;
 
-    static urlApiServer = 'https://api.aol.tkid.io.vn/api';
-    static urlApiLocal = 'https://localhost:7029/api';
-    static urlApi = this.urlApiServer;
+        this.user = {
+            id: null,
+            username: '',
+            fullName: '',
+            email: '',
+            avatarUrl: '',
+            phoneNumber: '',
+            status: null,
+            roles: [],
+            createdAt: null
+        };
 
-    static user = {
-        id: null,
-        username: '',
-        fullName: '',
-        email: '',
-        avatarUrl: '',
-        phoneNumber: '',
-        status: null,
-        roles: [],
-        createdAt: null
-    };
+        this.initUserCookie();
+    }
 
-    static initUserCookie() {
+    initUserCookie() {
+        if (!this.token) {
+            this.logout();
+        }
         var userInfo = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('userinfo='))
-        ?.split('=')[1] || '';
+            .split('; ')
+            .find(row => row.startsWith('userinfo='))
+            ?.split('=')[1] || '';
         if (userInfo) {
             try {
                 // decodeURIComponent vì cookie bị encode
@@ -53,39 +58,41 @@ export class ConfigModule {
                 } else {
                     this.user.roles = [];
                 }
+                updateUI();
 
-                
             } catch (err) {
                 console.warn('Không thể parse userinfo cookie:', err);
             }
         }
     }
-    
-    static setUser(user) {
-        this.user = user;
+    updateUI() {
+        // Thay toàn bộ .aol_fullname bằng tên user
+        if (this.user?.fullName) {
+            document.querySelectorAll('.aol_fullname').forEach(el => {
+                el.textContent = this.user.fullName;
+            });
+        }
     }
 
-    static setToken(token) {
-        this.token = token;
+    clear() {
+        this.user = null;
+        this.token = null;
+        this.updateUI();
     }
 
-    static getUsername() {
-        return this.user.username;
+    logout() {
+        this.clear();
+        // Điều hướng sang trang login
+        window.location.href = '/login';
     }
-
-    static getFullname() {
-        return this.user.fullname;
-    }
-
-    static hasRole(role) {
-        return this.user.roles.includes(role);
-    }
-
-    static getToken() {
-        return this.token;
-    }
+    setUser(user) { this.user = user; }
+    setToken(token) { this.token = token; }
+    getUsername() { return this.user.username; }
+    getFullname() { return this.user.fullname; }
+    hasRole(role) { return this.user.roles.includes(role); }
+    getToken() { return this.token; }
 }
 
-
+export const configInstance = new ConfigModule();
 
 

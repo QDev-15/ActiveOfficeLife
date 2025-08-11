@@ -1,4 +1,5 @@
-﻿export class CategoryModule {
+﻿import { apiInstance } from './api.module.js'
+export class CategoryModule {
     constructor() {
         this.configApp = configInstance;
         this.spinner = spinnerInstance;
@@ -14,43 +15,25 @@
         this.totalCount = 0;
     }
 
-    async fetchData(sortField = 'name', sortDirection = 'asc', pageIndex = 1, pageSize = 10) {
-        try {
-            const url = new URL(this.configApp.urlApi + '/Category/all-paging');
-            url.searchParams.append('sortField', sortField);
-            url.searchParams.append('sortDirection', sortDirection);
-            url.searchParams.append('pageIndex', pageIndex);
-            url.searchParams.append('pageSize', pageSize);
-
-            this.spinner.showFor("table-category");
-            const res = await fetch(url.toString(), {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${this.token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!res.ok) {
-                this.spinner.hideFor("table-category");
-                throw new Error(`Lỗi ${res.status}: ${res.statusText}`);
-            }
-
-            const result = await res.json();
-            this.globalData = result.data.items || result.data;
-            this.totalCount = result.data.totalCount || this.globalData.length;
+    fetchData(sortField = 'name', sortDirection = 'asc', pageIndex = 1, pageSize = 10) {
+        this.spinner.showFor("table-category");
+        apiInstance.get('/Category/all-paging', {
+            sortField: sortField,
+            sortDirection: sortDirection,
+            pageIndex: pageIndex,
+            pageSize: pageSize
+        }).then(result => {
+            this.globalData = result.items || result;
+            this.totalCount = result.totalCount || this.globalData.length;
             this.renderTable(this.globalData);
             this.renderPagination(this.totalCount);
             this.spinner.hideFor("table-category");
-            //this.messageApp.info("Dữ liệu đã được cập nhật.", {
-            //    title: "Thành công",
-            //    fullscreen: true,
-            //    clickOutsideToClose: false
-            //});
-        } catch (error) {
-            console.error('Lỗi gọi API:', error.message);
+        }).catch(error => {
             this.showError('Không thể tải dữ liệu');
-        }
+            throw new Error(`Lỗi ${error.status}: ${error.statusText}`);
+        }).finally(() => {
+            this.spinner.hideFor("table-category");
+        });
     }
 
     renderTable(data) {

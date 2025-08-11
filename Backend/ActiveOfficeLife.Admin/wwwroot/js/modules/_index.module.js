@@ -3,10 +3,9 @@ import { SpinnerModule } from './spinner.module.js';
 import { MessageModule } from './messages.module.js';
 import { CategoryModule } from './category.module.js';
 // import log module    
-import { LogModule } from './log.module.js'; }
+import { LogModule } from './log.module.js';
 
-window.configInstance = ConfigModule;
-configInstance.initUserCookie();
+window.configInstance = new ConfigModule();
 window.spinnerInstance = SpinnerModule;
 window.messageInstance = MessageModule;
 window.categoryInstance = new CategoryModule();

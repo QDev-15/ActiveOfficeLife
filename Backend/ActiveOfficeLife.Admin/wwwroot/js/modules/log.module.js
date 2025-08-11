@@ -2,14 +2,14 @@
 
 export class LogModule {
     constructor() {
-        this.urlLog = configModule.urlApi + "/api/logs";
-        this.messageApp = messageModule;
+        this.config = configInstance;
+        this.messageApp = messageInstance;
     }
 
     async fetchData(startDate, endDate, pageIndex = 1, pageSize = 10) {
 
         try {
-            const url = new URL(this.urlLog + '/all');
+            const url = new URL(this.config.urlApi + '/loger/all');
             url.searchParams.append('startDate', startDate);
             url.searchParams.append('endDate', endDate);
             url.searchParams.append('pageIndex', pageIndex);
@@ -18,7 +18,7 @@ export class LogModule {
             const res = await fetch(url.toString(), {
                 method: 'GET',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${this.config.token}`,
                     'Content-Type': 'application/json'
                 }
             });
