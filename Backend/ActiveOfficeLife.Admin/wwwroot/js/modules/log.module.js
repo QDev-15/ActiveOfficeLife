@@ -1,12 +1,15 @@
-﻿import { ConfigModule } from './modules/config.module.js';
+﻿
 
-$(document).ready(function () {
-    var urlLog = ConfigModule.urlApi + "/api/logs";
+export class LogModule {
+    constructor() {
+        this.urlLog = configModule.urlApi + "/api/logs";
+        this.messageApp = messageModule;
+    }
 
-    async function fetchData(startDate, endDate, pageIndex = 1, pageSize = 10) {
-        
+    async fetchData(startDate, endDate, pageIndex = 1, pageSize = 10) {
+
         try {
-            const url = new URL(urlLog + '/all');
+            const url = new URL(this.urlLog + '/all');
             url.searchParams.append('startDate', startDate);
             url.searchParams.append('endDate', endDate);
             url.searchParams.append('pageIndex', pageIndex);
@@ -31,7 +34,7 @@ $(document).ready(function () {
             renderPagination(totalCount);
         } catch (error) {
             console.error('Lỗi gọi API:', error.message);
-            alert('Không thể tải dữ liệu');
+            this.messageApp.error('Không thể tải dữ liệu');
         }
     }
-});
+}

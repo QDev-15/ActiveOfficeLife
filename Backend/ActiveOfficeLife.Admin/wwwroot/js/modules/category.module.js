@@ -1,10 +1,9 @@
-﻿import { MessageModule } from './messages.module.js';
-import { SpinnerModule } from './spinner.module.js';
-import { ConfigModule } from './config.module.js';
-
-export class CategoryModule {
+﻿export class CategoryModule {
     constructor() {
-        this.token = ConfigModule.token;
+        this.configApp = configInstance;
+        this.spinner = spinnerInstance;
+        this.messageApp = messageInstance;
+        this.token = this.configApp.token;
         this.selectedRow = null;
         this.selectedData = null;
         this.currentPage = 1;
@@ -17,13 +16,13 @@ export class CategoryModule {
 
     async fetchData(sortField = 'name', sortDirection = 'asc', pageIndex = 1, pageSize = 10) {
         try {
-            const url = new URL(ConfigModule.urlApi + '/Category/all-paging');
+            const url = new URL(this.configApp.urlApi + '/Category/all-paging');
             url.searchParams.append('sortField', sortField);
             url.searchParams.append('sortDirection', sortDirection);
             url.searchParams.append('pageIndex', pageIndex);
             url.searchParams.append('pageSize', pageSize);
 
-            SpinnerModule.showFor("table-category");
+            this.spinner.showFor("table-category");
             const res = await fetch(url.toString(), {
                 method: 'GET',
                 headers: {
@@ -33,7 +32,7 @@ export class CategoryModule {
             });
 
             if (!res.ok) {
-                SpinnerModule.hideFor("table-category");
+                this.spinner.hideFor("table-category");
                 throw new Error(`Lỗi ${res.status}: ${res.statusText}`);
             }
 
@@ -42,8 +41,8 @@ export class CategoryModule {
             this.totalCount = result.data.totalCount || this.globalData.length;
             this.renderTable(this.globalData);
             this.renderPagination(this.totalCount);
-            SpinnerModule.hideFor("table-category");
-            //MessageModule.info("Dữ liệu đã được cập nhật.", {
+            this.spinner.hideFor("table-category");
+            //this.messageApp.info("Dữ liệu đã được cập nhật.", {
             //    title: "Thành công",
             //    fullscreen: true,
             //    clickOutsideToClose: false
@@ -129,17 +128,17 @@ export class CategoryModule {
     }
 
     addUser() {
-        MessageModule.info('Hiện popup thêm mới (Add)');
+        this.messageApp.info('Hiện popup thêm mới (Add)');
     }
 
     editUser() {
         if (!this.selectedData) return alert('Vui lòng chọn dòng để sửa!');
-        MessageModule.info('Sửa người dùng: ' + this.selectedData.name);
+        this.messageApp.info('Sửa người dùng: ' + this.selectedData.name);
     }
 
     refreshData() {
         this.fetchData();
-        //MessageModule.confirm("Bạn có muốn tiếp tục không?")
+        //this.messageApp.confirm("Bạn có muốn tiếp tục không?")
         //    .then(result => {
         //        if (result) {
         //            this.fetchData();
@@ -150,6 +149,8 @@ export class CategoryModule {
     }
 
     showError(message) {
-        MessageModule.info(message); // bạn có thể thay bằng Message.error nếu muốn
+        this.messageApp.info(message); // bạn có thể thay bằng Message.error nếu muốn
     }
 }
+
+

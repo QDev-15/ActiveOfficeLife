@@ -86,6 +86,6 @@ export class ConfigModule {
     }
 }
 
-ConfigModule.initUserCookie();
+
 
 

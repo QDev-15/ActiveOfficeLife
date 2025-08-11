@@ -2,7 +2,7 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    ViewData["Title"] = "Categories";
+    ViewData["Title"] = "Logs";
     // Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <style>
@@ -18,20 +18,20 @@
 
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Danh sách danh mục</h4>
+        <h4>Logs</h4>
         <div>
-            <button class="btn btn-primary me-2" onclick="categoryInstance.addUser()">➕ Add</button>
-            <button class="btn btn-secondary" onclick="categoryInstance.refreshData()">🔄 Refresh</button>
+            <button class="btn btn-secondary" onclick="logInstance.fetchLogData()">🔄 Refresh</button>
         </div>
     </div>
 
-    <div id="table-category" class="table-responsive">
+    <div class="table-responsive">
         <table class="table table-hover table-bordered align-middle">
             <thead class="table-light">
                 <tr>
                     <th>#</th>
-                    <th onclick="categoryInstance.onSort('name')" style="cursor:pointer">Name ⬍</th>
-                    <th onclick="categoryInstance.onSort('slug')" style="cursor:pointer">Slug ⬍</th>
+                    <th>Message</th>
+                    <th>Level</th>
+                    <th>Date</th>
                     <th>action</th>
                 </tr>
             </thead>
@@ -46,8 +46,3 @@
         </nav>
     </div>
 </div>
-<script type="module">
-    categoryInstance.fetchData();
-</script>
-
-
