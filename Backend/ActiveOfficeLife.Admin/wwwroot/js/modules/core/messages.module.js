@@ -6,7 +6,7 @@ export const MessageType = {
     Confirm: 'confirm',
 };
 
-export class MessageModule {
+class MessageModule {
     static destroy() {
         const modalEl = document.getElementById("globalMessageModal");
         const modalTitle = document.getElementById("globalMessageModalTitle");
@@ -157,3 +157,5 @@ export class MessageModule {
     }
 }
 
+
+export const messageInstance = MessageModule;

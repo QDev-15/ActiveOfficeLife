@@ -1,7 +1,7 @@
 ﻿// ApiModule.js
 import { configInstance } from './config.module.js';
 
-export class ApiModule {
+class ApiModule {
     request(method, endpoint, params = null, body = null) {
         return new Promise((resolve, reject) => {
             if (!configInstance.token) {
@@ -9,7 +9,9 @@ export class ApiModule {
                 window.location.href = '/login';
                 return;
             }
-
+            if (!endpoint.startsWith("/")) {
+                endpoint = "/" + endpoint;
+            }
             let url = new URL(configInstance.urlApi + endpoint);
 
             if (params && typeof params === 'object') {

@@ -1,4 +1,5 @@
-﻿
+﻿import { configInstance } from "./modules/core/config.module.js";
+
 document.addEventListener('DOMContentLoaded', () => {
     // Lấy fullName từ ConfigModule
     const fullName = configInstance.user.fullName || ConfigModule.user.username || 'Người dùng';

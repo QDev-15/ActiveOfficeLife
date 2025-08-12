@@ -1,5 +1,9 @@
-﻿import { apiInstance } from './api.module.js'
-export class CategoryModule {
+﻿import { apiInstance } from './core/api.module.js';
+import { configInstance } from './core/config.module.js';
+import { messageInstance } from './core/messages.module.js';
+import { spinnerInstance } from './core/spinner.module.js';
+
+class CategoryModule {
     constructor() {
         this.configApp = configInstance;
         this.spinner = spinnerInstance;
@@ -136,4 +140,5 @@ export class CategoryModule {
     }
 }
 
+export const categoryInstance = new CategoryModule();
 

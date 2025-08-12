@@ -1,5 +1,5 @@
 ﻿// wwwroot/js/config.js
-export class ConfigModule {
+class ConfigModule {
     constructor() {
         this.token = document.cookie
             .split('; ')
@@ -48,6 +48,7 @@ export class ConfigModule {
                 this.user.status = userData.Status ?? null;
                 this.user.createdAt = userData.CreatedAt || null;
 
+                this.user.createdAt = this.formatCreatedAt();
                 // Roles xử lý an toàn
                 let rawRoles = userData.Roles || userData.roles || [];
                 if (typeof rawRoles === 'string') {
@@ -58,7 +59,7 @@ export class ConfigModule {
                 } else {
                     this.user.roles = [];
                 }
-                updateUI();
+                this.updateUI();
 
             } catch (err) {
                 console.warn('Không thể parse userinfo cookie:', err);
@@ -73,7 +74,7 @@ export class ConfigModule {
             });
         }
     }
-
+    
     clear() {
         this.user = null;
         this.token = null;

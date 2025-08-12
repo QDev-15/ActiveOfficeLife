@@ -1,6 +1,6 @@
 ﻿// spinner.module.js
 
-export class SpinnerModule {
+class SpinnerModule {
     static globalSpinnerId = 'volt-body';
 
     static showGlobal() {
@@ -72,5 +72,6 @@ export class SpinnerModule {
     }
 }
 
+export const spinnerInstance = SpinnerModule;
 
 

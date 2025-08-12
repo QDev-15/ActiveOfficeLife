@@ -14,6 +14,19 @@
     tr.selected {
         background-color: #d0ebff !important;
     }
+    /* Giới hạn chiều rộng cột Message nhưng vẫn cho xuống dòng */
+    .table-wrap td,
+    .table-wrap th {
+        white-space: normal; /* Cho phép xuống dòng */
+        word-break: break-word; /* Ngắt từ khi quá dài */
+        height: auto; /* Auto co giãn chiều cao */
+        text-overflow: ellipsis; /* Hiển thị ... nếu dài quá */
+    }
+
+    .col-message {
+        max-width: 400px; /* Giới hạn chiều rộng cột Message */
+    }
+
 </style>
 
 <div class="container">
@@ -24,18 +37,18 @@
         </div>
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-hover table-bordered align-middle">
+    <div id="table-log" class="table-responsive">
+        <table class="table table-hover table-bordered align-middle table-wrap">
             <thead class="table-light">
                 <tr>
                     <th>#</th>
-                    <th>Message</th>
+                    <th class="col-message">Message</th>
                     <th>Level</th>
                     <th>Date</th>
                     <th>action</th>
                 </tr>
             </thead>
-            <tbody id="userTableBody">
+            <tbody id="logTableBody">
                 <!-- Data sẽ được render ở đây -->
             </tbody>
         </table>

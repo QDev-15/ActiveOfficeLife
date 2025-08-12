@@ -11,34 +11,19 @@
         this._listeners[eventName].push(callback);
     }
 
-    // Gỡ bỏ lắng nghe
-    off(eventName, callback) {
-        if (!this._listeners[eventName]) return;
-        this._listeners[eventName] = this._listeners[eventName].filter(cb => cb !== callback);
+    off(eventName) {
+        if (this._listeners[eventName]) {
+            delete this._listeners[eventName];
+        }
     }
-
+    clearAllListeners() {
+        this._listeners = {};
+    }
     // Phát sự kiện
     emit(eventName, data) {
         if (this._listeners[eventName]) {
             this._listeners[eventName].forEach(cb => cb(data));
         }
-    }
-
-    // Set token + emit event
-    setToken(token) {
-        this.token = token;
-        this.emit('tokenChanged', token);
-
-        if (!token) {
-            this.user = null;
-            this.emit('userChanged', null);
-        }
-    }
-
-    // Set user + emit event
-    setUser(user) {
-        this.user = user;
-        this.emit('userChanged', user);
     }
 }
 
