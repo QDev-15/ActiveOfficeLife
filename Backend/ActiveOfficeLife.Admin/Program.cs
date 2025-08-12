@@ -27,6 +27,7 @@ builder.Services.AddControllersWithViews()
     {
         fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>();
         fv.RegisterValidatorsFromAssemblyContaining<RegisterRequestValidator>();
+        fv.RegisterValidatorsFromAssemblyContaining<CategoryModelValidator>();
     });
 
 var baseApi = builder.Configuration.GetSection("BaseApi").Get<BaseApi>();

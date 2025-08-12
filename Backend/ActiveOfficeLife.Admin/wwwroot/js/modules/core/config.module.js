@@ -1,4 +1,5 @@
 ﻿// wwwroot/js/config.js
+import { dateHelper } from "./dateHelper.js";
 class ConfigModule {
     constructor() {
         this.token = document.cookie
@@ -48,7 +49,7 @@ class ConfigModule {
                 this.user.status = userData.Status ?? null;
                 this.user.createdAt = userData.CreatedAt || null;
 
-                this.user.createdAt = this.formatCreatedAt();
+                this.user.createdAt = dateHelper.formatDefault(this.user.createdAt);
                 // Roles xử lý an toàn
                 let rawRoles = userData.Roles || userData.roles || [];
                 if (typeof rawRoles === 'string') {

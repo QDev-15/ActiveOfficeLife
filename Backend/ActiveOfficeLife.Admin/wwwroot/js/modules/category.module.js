@@ -1,7 +1,10 @@
 ﻿import { apiInstance } from './core/api.module.js';
+import { mvcInstance } from './core/mvc.module.js';
 import { configInstance } from './core/config.module.js';
 import { messageInstance } from './core/messages.module.js';
 import { spinnerInstance } from './core/spinner.module.js';
+import { broadCastInstance } from './core/broadcast.module.js';
+import { dialogInstance } from './core/dialog.module.js';
 
 class CategoryModule {
     constructor() {
@@ -115,7 +118,51 @@ class CategoryModule {
     }
 
     addUser() {
-        this.messageApp.info('Hiện popup thêm mới (Add)');
+        mvcInstance.get('/Category/Create')
+            .then(html => {
+                dialogInstance.open({
+                    title: 'Thêm mới',
+                    bodyHtml: html,
+                    showSave: true,
+                    saveText: 'Lưu',
+                    showClose: true,
+                    onResult: (result) => {
+                        if (result === 'save') {
+                            // Lấy form
+                            const form = document.getElementById('add_category');
+
+                            // Tạo FormData từ form
+                            const formData = new FormData(form);
+                            let payload = {
+                                name: form.querySelector('[name="Name"]').value,
+                                slug: form.querySelector('[name="Slug"]').value,
+                                description: form.querySelector('[name="Description"]').value,
+                                parentId: form.querySelector('[name="ParentId"]').value || null,
+                                seoMetadata: {
+                                    title: form.querySelector('[name="SeoMetadata.Title"]').value,
+                                    description: form.querySelector('[name="SeoMetadata.Description"]').value,
+                                    keywords: form.querySelector('[name="SeoMetadata.Keywords"]').value
+                                }
+                            };
+                            apiInstance.post('/category/create', payload)
+                                .then(res => {
+                                    messageInstance.info("Thêm mới thành công!");
+                                    this.fetchData();
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    messageInstance.error("Lỗi khi thêm mới!");
+                                });
+                            // Xử lý lưu dữ liệu ở đây
+                            this.messageApp.info('Đã lưu người dùng mới');
+                            this.fetchData();
+                        }
+                    }
+                });
+            }).catch((err) => {
+                console.error('Lỗi tải form thêm mới:', err);
+                messageInstance.error('Không thể tải form thêm mới');
+            });
     }
 
     editUser() {
