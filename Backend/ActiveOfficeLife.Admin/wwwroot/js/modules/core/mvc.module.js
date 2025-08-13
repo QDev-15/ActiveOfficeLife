@@ -1,5 +1,7 @@
-﻿class MvcModule {
+﻿import { configInstance } from "./config.module.js";
+class MvcModule {
     request(method, url, payload = null) {
+        configInstance.checkLogined();
         const options = {
             method: method,
             headers: { 'Content-Type': 'application/json' }

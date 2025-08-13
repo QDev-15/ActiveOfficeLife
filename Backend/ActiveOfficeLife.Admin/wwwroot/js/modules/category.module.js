@@ -117,7 +117,21 @@ class CategoryModule {
         this.fetchData(this.sortField, this.sortDirection, this.currentPage, this.pageSize);
     }
 
-    addUser() {
+    save(payload) {
+        apiInstance.post('/category/create', payload)
+            .then(res => {
+                messageInstance.info("Thêm mới thành công!");
+                this.fetchData();
+            })
+            .catch(err => {
+                console.error(err);
+                messageInstance.error("Lỗi khi thêm mới!");
+            });
+        // Xử lý lưu dữ liệu ở đây
+        this.messageApp.info('Đã lưu người dùng mới');
+        this.fetchData();
+    }
+    addCategory() {
         mvcInstance.get('/Category/Create')
             .then(html => {
                 dialogInstance.open({
@@ -132,7 +146,6 @@ class CategoryModule {
                             const form = document.getElementById('add_category');
 
                             // Tạo FormData từ form
-                            const formData = new FormData(form);
                             let payload = {
                                 name: form.querySelector('[name="Name"]').value,
                                 slug: form.querySelector('[name="Slug"]').value,
@@ -144,21 +157,11 @@ class CategoryModule {
                                     keywords: form.querySelector('[name="SeoMetadata.Keywords"]').value
                                 }
                             };
-                            apiInstance.post('/category/create', payload)
-                                .then(res => {
-                                    messageInstance.info("Thêm mới thành công!");
-                                    this.fetchData();
-                                })
-                                .catch(err => {
-                                    console.error(err);
-                                    messageInstance.error("Lỗi khi thêm mới!");
-                                });
-                            // Xử lý lưu dữ liệu ở đây
-                            this.messageApp.info('Đã lưu người dùng mới');
-                            this.fetchData();
+                            this.save(payload);
                         }
                     }
                 });
+                this.initSelect2();
             }).catch((err) => {
                 console.error('Lỗi tải form thêm mới:', err);
                 messageInstance.error('Không thể tải form thêm mới');
@@ -170,6 +173,23 @@ class CategoryModule {
         this.messageApp.info('Sửa người dùng: ' + this.selectedData.name);
     }
 
+    initSelect2() {
+        const selectElement = document.querySelector('.select2');
+        if (selectElement) {
+            $(selectElement).select2({
+                placeholder: "Chọn danh mục cha",
+                allowClear: true,
+                width: '100%'
+            });
+        }
+
+
+        // Auto select nếu chỉ có 1 option (ngoài None)
+        var options = $('#ParentCategorySelect option').length;
+        if (options === 2) { // None + 1 category
+            $('#ParentCategorySelect').prop('selectedIndex', 1).trigger('change');
+        }
+    }
     refreshData() {
         this.fetchData();
         //this.messageApp.confirm("Bạn có muốn tiếp tục không?")

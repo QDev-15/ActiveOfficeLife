@@ -47,7 +47,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Nếu bạn dùng HTTPS
         options.Cookie.SameSite = SameSiteMode.Lax;               // Đảm bảo cookie gửi khi điều hướng
-        options.LoginPath = "/login";
+        options.LoginPath = "/dashboard";
         options.LogoutPath = "/logout";
         options.AccessDeniedPath = "/denied";
         options.ExpireTimeSpan = TimeSpan.FromHours(baseApi.AccessTokenExpireHours);

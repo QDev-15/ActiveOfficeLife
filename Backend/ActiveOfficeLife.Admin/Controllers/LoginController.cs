@@ -25,7 +25,7 @@ namespace ActiveOfficeLife.Admin.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet]
+        [HttpGet("login")]
         public IActionResult Index()
         {
             return View();
@@ -42,16 +42,9 @@ namespace ActiveOfficeLife.Admin.Controllers
             }
             var response = await _apiService.PostAsync(AOLEndPoint.AuthLogin, request);
 
-            if (response != null && response.IsSuccessStatusCode)
+            var auth = await response.ToModelAsync<AuthResponse>();
+            if (auth != null)
             {
-                var responseBody = await response.Content.ReadAsStringAsync();
-                var jsonDoc = JsonDocument.Parse(responseBody);
-                var data = jsonDoc.RootElement.GetProperty("data").ToString();
-                var auth = JsonSerializer.Deserialize<AuthResponse>(data, new JsonSerializerOptions()
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-                
                 Response.Cookies.Append(baseApi.AccessToken, auth.AccessToken, new CookieOptions
                 {
                     HttpOnly = false,
@@ -65,16 +58,9 @@ namespace ActiveOfficeLife.Admin.Controllers
 
                 // get user info
                 var userResponse = await _apiService.GetAsync(AOLEndPoint.AuthMe, auth.AccessToken);
-                if (userResponse != null && userResponse.IsSuccessStatusCode)
+                var user = await userResponse.ToModelAsync<UserModel>();
+                if (user != null)
                 {
-                    var userBody = await userResponse.Content.ReadAsStringAsync();
-                    var jsonUser = JsonDocument.Parse(userBody);
-                    var userData = jsonUser.RootElement.GetProperty("data").ToString();
-                    var user = JsonSerializer.Deserialize<UserModel>(userData, new JsonSerializerOptions()
-                    {
-                        PropertyNameCaseInsensitive = true
-                    });
-
                     Response.Cookies.Append("userinfo", JsonSerializer.Serialize(user), new CookieOptions
                     {
                         HttpOnly = false,
@@ -96,7 +82,12 @@ namespace ActiveOfficeLife.Admin.Controllers
                     // 4. Tạo identity và đăng nhập
                     var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                     var principal = new ClaimsPrincipal(identity);
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+                    var authProperties = new AuthenticationProperties
+                    {
+                        IsPersistent = true, // Bắt buộc để cookie lưu qua browser restart
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddHours(baseApi.AccessTokenExpireHours)
+                    };
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, authProperties);
                     return RedirectToAction("Index", "Home");
                 }
             }

@@ -67,6 +67,15 @@ class ConfigModule {
             }
         }
     }
+    checkLogined() {
+        const token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('AccessToken='))
+            ?.split('=')[1] || '';
+        if (!token) {
+            this.logout();
+        }
+    }
     updateUI() {
         // Thay toàn bộ .aol_fullname bằng tên user
         if (this.user?.fullName) {

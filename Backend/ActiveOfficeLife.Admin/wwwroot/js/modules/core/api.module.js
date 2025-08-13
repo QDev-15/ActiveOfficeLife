@@ -3,6 +3,7 @@ import { configInstance } from './config.module.js';
 
 class ApiModule {
     request(method, endpoint, params = null, body = null) {
+        configInstance.checkLogined();
         return new Promise((resolve, reject) => {
             if (!configInstance.token) {
                 // Token null -> logout

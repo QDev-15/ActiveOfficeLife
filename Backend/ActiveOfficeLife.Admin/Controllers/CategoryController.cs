@@ -1,12 +1,18 @@
-﻿using ActiveOfficeLife.Common.Models;
+﻿using ActiveOfficeLife.Admin.Interfaces;
+using ActiveOfficeLife.Common;
+using ActiveOfficeLife.Common.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Admin.Controllers
 {
     public class CategoryController : BaseController
     {
-        public CategoryController(IConfiguration configuration) : base(configuration)
+        private readonly IApiService _apiService;
+        public CategoryController(IConfiguration configuration, IApiService apiService) : base(configuration)
         {
+            _apiService = apiService;
         }
 
         [HttpGet]
@@ -20,9 +26,28 @@ namespace ActiveOfficeLife.Admin.Controllers
             return View();
         }
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var response = await _apiService.GetAsync(Common.AOLEndPoint.CategoryGetAll);
+            var parents = await response.ToModelAsync<List<CategoryModel>>() ?? new List<CategoryModel>();
+
+            ViewBag.ParentCategories = parents
+                .Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = c.Name
+                })
+                .ToList();
+
+            var newCategory = new CategoryModel
+            {
+                Id = Guid.NewGuid(),
+                Name = string.Empty,
+                Slug = Guid.NewGuid().ToString(), // Hoặc tạo slug từ tên nếu cần
+                Description = string.Empty,
+                ParentId = null // Hoặc gán giá trị mặc định nếu cần
+            };
+            return View(newCategory);
         }
         [HttpPost]
         public IActionResult Create(CategoryModel model)

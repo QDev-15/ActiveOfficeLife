@@ -15,8 +15,6 @@ namespace ActiveOfficeLife.Admin.Middlewares
 
         public async Task Invoke(HttpContext context, IConfiguration configuration)
         {
-
-
             BaseApi baseApi = configuration.GetSection("BaseApi").Get<BaseApi>();
             // Lấy endpoint hiện tại
             var endpoint = context.GetEndpoint();
@@ -27,8 +25,8 @@ namespace ActiveOfficeLife.Admin.Middlewares
 
             if (hasAuthorize && !hasAllowAnonymous)
             {
-                var path = context.Request.Path.Value?.ToLower();
-                if (!path.Contains("/login"))
+                var pathLogin = context.Request.Path.Value?.ToLower();
+                if (!pathLogin.Contains("/login"))
                 {
                     var token = context.Request.Cookies[baseApi.AccessToken];
                     if (string.IsNullOrEmpty(token))

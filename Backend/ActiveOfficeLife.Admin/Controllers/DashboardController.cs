@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ActiveOfficeLife.Admin.Controllers
 {
@@ -8,9 +9,11 @@ namespace ActiveOfficeLife.Admin.Controllers
         {
         }
 
+        [AllowAnonymous]
         [HttpGet("/dashboard")]
         public IActionResult Index()
         {
+            
             return View();
         }
     }
