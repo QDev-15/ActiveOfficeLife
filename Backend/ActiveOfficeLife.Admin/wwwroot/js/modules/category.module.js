@@ -159,9 +159,23 @@ class CategoryModule {
                             };
                             this.save(payload);
                         }
+                    },
+                    onViewInited: function (dialogBodyEl) {
+                        $.validator.unobtrusive.parse($(dialogBodyEl).find('form'));
+                        // Khởi tạo Select2 với filter
+                        $('#ParentCategorySelect').select2({
+                            placeholder: "-- None --",
+                            allowClear: true,
+                            width: '100%'
+                        });
+
+                        // Auto select nếu chỉ có 1 option (ngoài None)
+                        var options = $('#ParentCategorySelect option').length;
+                        if (options === 2) { // None + 1 category
+                            $('#ParentCategorySelect').prop('selectedIndex', 1).trigger('change');
+                        }
                     }
                 });
-                this.initSelect2();
             }).catch((err) => {
                 console.error('Lỗi tải form thêm mới:', err);
                 messageInstance.error('Không thể tải form thêm mới');
@@ -174,15 +188,12 @@ class CategoryModule {
     }
 
     initSelect2() {
-        const selectElement = document.querySelector('.select2');
-        if (selectElement) {
-            $(selectElement).select2({
-                placeholder: "Chọn danh mục cha",
-                allowClear: true,
-                width: '100%'
-            });
-        }
-
+        // Khởi tạo Select2 với filter
+        $('#ParentCategorySelect').select2({
+            placeholder: "-- None --",
+            allowClear: true,
+            width: '100%'
+        });
 
         // Auto select nếu chỉ có 1 option (ngoài None)
         var options = $('#ParentCategorySelect option').length;

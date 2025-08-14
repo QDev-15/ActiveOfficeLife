@@ -8,7 +8,9 @@
 
 <div class="container mt-4">
 
-    <form asp-action="Create" id="add_category" method="post">
+    <form asp-action="Create" id="add_category" method="post" novalidate>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="SeoMetadataId" />
         @* Name *@
         <div class="mb-3">
             <label asp-for="Name" class="form-label"></label>
@@ -43,7 +45,6 @@
         @* SEO Metadata *@
         <div class="border p-3 rounded mb-3">
             <h5>SEO Metadata</h5>
-            <input type="hidden" asp-for="SeoMetadataId" />
             <div class="mb-3">
                 <label for="SeoTitle" class="form-label">SEO Title</label>
                 <input name="SeoMetadata.Title" id="SeoTitle" class="form-control" />
@@ -61,20 +62,6 @@
         </div>
     </form>
 </div>
-
-
-<script >
-    // Khởi tạo Select2 với filter
-        $('#ParentCategorySelect').select2({
-            placeholder: "-- None --",
-            allowClear: true,
-            width: '100%'
-        });
-
-        // Auto select nếu chỉ có 1 option (ngoài None)
-        var options = $('#ParentCategorySelect option').length;
-        if (options === 2) { // None + 1 category
-            $('#ParentCategorySelect').prop('selectedIndex', 1).trigger('change');
-        }
-    // categoryInstance.initSelect2();
+<script type="module">
+    categoryInstance.initSelect2();
 </script>

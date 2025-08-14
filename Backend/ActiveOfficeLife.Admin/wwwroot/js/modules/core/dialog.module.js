@@ -6,8 +6,11 @@ class DialogModule {
         this.resultCallback = null;
     }
 
+    dialogId = "appDialog";
+    dialogContent = "dialogBody";
+    dialogFooter = "dialogFooter";
+
     open(config) {
-        // Cấu hình mặc định
         const defaultConfig = {
             title: "",
             icon: "",
@@ -19,13 +22,14 @@ class DialogModule {
             showUpdate: false,
             updateText: "Update",
             onSave: null,
-            onUpdate: null
+            onUpdate: null,
+            onResult: null,
+            onViewInited: null // ✅ callback mới
         };
 
-        // Merge config truyền vào với default
         const finalConfig = { ...defaultConfig, ...config };
-
         config = finalConfig;
+
         // Set title & icon
         document.getElementById("dialogTitle").innerText = config.title || "";
         document.getElementById("dialogIcon").innerHTML = config.icon || "";
@@ -36,6 +40,35 @@ class DialogModule {
             document.getElementById("dialogBody").innerHTML = bodyHtml;
         } else if (config.bodyHtml) {
             document.getElementById("dialogBody").innerHTML = config.bodyHtml;
+        }
+
+        // ✅ Auto init sau khi view được load
+        const dialogBodyEl = document.getElementById("dialogBody");
+
+        // 1. Parse lại form validation
+        try {
+            if (window.jQuery && $.validator && $.validator.unobtrusive) {
+                $(dialogBodyEl).find("form").each(function () {
+                    $(this).removeData("validator").removeData("unobtrusiveValidation");
+                    $.validator.unobtrusive.parse($(this));
+                });
+            }
+        } catch (e) {
+            console.warn("Không init được jQuery validation:", e);
+        }
+
+        // 2. Khởi tạo Select2 nếu có
+        try {
+            if (window.jQuery && $.fn.select2) {
+                $(dialogBodyEl).find(".select2").select2();
+            }
+        } catch (e) {
+            console.warn("Không init được Select2:", e);
+        }
+
+        // 3. Gọi callback onViewInited nếu có
+        if (typeof config.onViewInited === "function") {
+            config.onViewInited(dialogBodyEl);
         }
 
         // Set footer buttons
