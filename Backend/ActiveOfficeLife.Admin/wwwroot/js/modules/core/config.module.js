@@ -26,6 +26,10 @@ class ConfigModule {
         this.initUserCookie();
     }
 
+    createModal(id) {
+        const modalEl = document.getElementById(id);
+        return new bootstrap.Modal(modalEl);
+    }
     initUserCookie() {
         if (!this.token) {
             this.logout();

@@ -1,4 +1,5 @@
-﻿using ActiveOfficeLife.Domain.EFCore.DBContext;
+﻿using ActiveOfficeLife.Common.Requests;
+using ActiveOfficeLife.Domain.EFCore.DBContext;
 using ActiveOfficeLife.Domain.Entities;
 using ActiveOfficeLife.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -20,7 +21,7 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
         {
             return await _context.Categories.Where(x => x.IsDeleted == false).Include(x => x.SeoMetadata).ToListAsync();
         }
-        public async Task<(IEnumerable<Category> Categories, int Count)> GetAllWithPaging(int pageIndex, int pageSize, string sortField, string sortDirection)
+        public async Task<(IEnumerable<Category> Categories, int Count)> GetAllWithPaging(PagingRequest request)
         {
             var allowedFields = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
@@ -28,14 +29,23 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
                 { "slug", "Slug" },
                 { "isActive", "IsActive" }
             };
-            if (!allowedFields.TryGetValue(sortField ?? "", out var actualSortField))
+            if (!allowedFields.TryGetValue(request.SortField ?? "", out var actualSortField))
             {
                 actualSortField = "Name"; // fallback nếu không đúng
+                request.SortField = actualSortField;
             }
             IQueryable<Category> query = _context.Categories.Where(x => x.IsDeleted == false);
+            // check and filter by search text igonre case sensitivity
+            if (!string.IsNullOrEmpty(request.SearchText))
+            {
+                var search = $"%{request.SearchText.ToLower()}%";
+                query = query
+                    .Where(c => EF.Functions.Like(c.Name.ToLower(), search) || EF.Functions.Like(c.Slug.ToLower(), search));
+            }
+
             if (!string.IsNullOrEmpty(actualSortField))
             {
-                if (sortDirection.ToLower() == "asc")
+                if (request.SortDirection.ToLower() == "asc")
                 {
                     query = query.OrderBy(x => EF.Property<object>(x, actualSortField));
                 }
@@ -46,7 +56,7 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             }
 
             int count = await query.CountAsync();
-            var categories = await query.Skip((pageIndex - 1) * pageSize).Take(pageSize).Include(x => x.SeoMetadata).ToListAsync();
+            var categories = await query.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize).Include(x => x.SeoMetadata).ToListAsync();
             return (categories, count);
         }
 

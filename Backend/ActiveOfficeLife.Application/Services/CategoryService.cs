@@ -3,6 +3,7 @@ using ActiveOfficeLife.Application.ExtensitionModel;
 using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Common;
 using ActiveOfficeLife.Common.Models;
+using ActiveOfficeLife.Common.Requests;
 using ActiveOfficeLife.Domain.Entities;
 using ActiveOfficeLife.Domain.Interfaces;
 using System.Reflection;
@@ -178,16 +179,16 @@ namespace ActiveOfficeLife.Application.Services
             }
         }
 
-        public async Task<(List<CategoryModel> Categories, int count)> GetAllCategoriesPagingAsync(string sortField, string sortDirection, int pageIndex, int pageSize)
+        public async Task<(List<CategoryModel> Categories, int count)> GetAllCategoriesPagingAsync(PagingRequest request)
         {
             try
             {
-                if (string.IsNullOrEmpty(sortField) || string.IsNullOrEmpty(sortDirection))
+                if (string.IsNullOrEmpty(request.SortField) || string.IsNullOrEmpty(request.SortDirection))
                 {
-                    sortField = "Name"; // Default sort field
-                    sortDirection = "asc"; // Default sort direction
+                    request.SortField = "Name"; // Default sort field
+                    request.SortDirection = "asc"; // Default sort direction
                 }
-                var result = await _categoryRepository.GetAllWithPaging(pageIndex, pageSize, sortField, sortDirection); // Get all categories
+                var result = await _categoryRepository.GetAllWithPaging(request); // Get all categories
                 if (result.Categories == null || !result.Categories.Any())
                 {
                     result.Categories = new List<Category>();

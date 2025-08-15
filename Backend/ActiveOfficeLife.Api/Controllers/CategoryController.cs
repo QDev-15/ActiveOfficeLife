@@ -2,6 +2,7 @@
 using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Services;
 using ActiveOfficeLife.Common.Models;
+using ActiveOfficeLife.Common.Requests;
 using ActiveOfficeLife.Common.Responses;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
@@ -49,20 +50,16 @@ namespace ActiveOfficeLife.Api.Controllers
 
         // get all with paging using GET method and query parameters sortField = 'name', sortDirection = 'asc', pageIndex = 1, pageSize = 10
         [HttpGet("all-paging")]
-        public async Task<IActionResult> GetAllCategoriesPaging(
-            [FromQuery] string sortField = "name",
-            [FromQuery] string sortDirection = "asc",
-            [FromQuery] int pageIndex = 1,
-            [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetAllCategoriesPaging([FromQuery] PagingRequest request)
         {
             try
             {
-                var result = await _categoryService.GetAllCategoriesPagingAsync(sortField, sortDirection, pageIndex, pageSize);
+                var result = await _categoryService.GetAllCategoriesPagingAsync(request);
                 return Ok(new ResultSuccess(new {
                     Items = result.Categories,
                     TotalCount = result.count,
-                    PageIndex = pageIndex,
-                    PageSize = pageSize
+                    PageIndex = request.PageIndex,
+                    PageSize = request.PageSize,
                 }));
             }
             catch (Exception ex)
