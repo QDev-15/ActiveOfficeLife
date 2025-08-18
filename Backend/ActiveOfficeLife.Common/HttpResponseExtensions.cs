@@ -26,9 +26,18 @@ namespace ActiveOfficeLife.Common
 
             using var doc = JsonDocument.Parse(body);
 
-            // Nếu API có dạng { "data": { ... } }
+            // Nếu API có dạng { "data": { "items": [...] } }
             if (doc.RootElement.TryGetProperty("data", out var dataElement))
             {
+                if (dataElement.TryGetProperty("items", out var itemsElement))
+                {
+                    return JsonSerializer.Deserialize<T>(itemsElement.ToString(), new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+                }
+
+                // Nếu chỉ có data (không có items)
                 return JsonSerializer.Deserialize<T>(dataElement.ToString(), new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true

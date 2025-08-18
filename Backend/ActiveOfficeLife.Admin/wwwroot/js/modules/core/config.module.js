@@ -106,6 +106,13 @@ class ConfigModule {
     getFullname() { return this.user.fullname; }
     hasRole(role) { return this.user.roles.includes(role); }
     getToken() { return this.token; }
+    initValidatorForm(formId) {
+        let $form = $("#" + formId).find("form");
+        if ($form.length) {
+            $.validator.unobtrusive.parse($form);
+        }
+        return $form;
+    }
 }
 
 export const configInstance = new ConfigModule();

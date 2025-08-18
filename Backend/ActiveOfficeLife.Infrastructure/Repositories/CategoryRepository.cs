@@ -17,6 +17,19 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
         {
 
         }
+
+        public async Task<bool> CheckExitsByName(string name, Guid id)
+        {
+            bool exists = await _context.Categories.AnyAsync(x => x.Name.ToLower() == name.ToLower() && x.Id != id && x.IsDeleted == false);
+            return exists;
+        }
+
+        public async Task<bool> CheckExitsBySlug(string slug, Guid id)
+        {
+            bool exists = await _context.Categories.AnyAsync(x => x.Slug.ToLower() == slug.ToLower() && x.Id != id && x.IsDeleted == false);
+            return exists;
+        }
+
         public async Task<IEnumerable<Category>> GetAllAsync()
         {
             return await _context.Categories.Where(x => x.IsDeleted == false).Include(x => x.SeoMetadata).ToListAsync();
@@ -60,9 +73,9 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             return (categories, count);
         }
 
-        public async Task<Category?> GetByIdAsync(Guid guidId)
+        public async Task<Category?> GetById(Guid id)
         {
-            return await _context.Categories.Include(x => x.SeoMetadata).FirstOrDefaultAsync(x => x.Id == guidId);
+            return await _context.Categories.Include(x => x.SeoMetadata).Include(x => x.Parent).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<IEnumerable<Category>> GetByParrentId(Guid parentId)

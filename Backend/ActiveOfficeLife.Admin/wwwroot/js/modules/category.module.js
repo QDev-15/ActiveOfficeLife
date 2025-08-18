@@ -21,6 +21,7 @@ class CategoryModule {
         this.globalData = [];
         this.totalCount = 0;
 
+        this.form = null;
         this.modalCategory = null;
         this.tableId = "categoryTable";
         this.tableInstance = null;
@@ -33,6 +34,7 @@ class CategoryModule {
             timeout = setTimeout(() => func.apply(this, args), delay);
         };
     }
+    // init DataTable
     initTable() {
         this.tableInstance = $(`#${this.tableId}`).DataTable({
             processing: true,
@@ -59,7 +61,7 @@ class CategoryModule {
                     sortDirection: d.order.length > 0 ? d.order[0].dir : "desc"
                 };
 
-                apiInstance.get('/Category/all-paging', params)
+                apiInstance.get('/Category/all', params)
                     .then(response => {
                         this.pageSize = response.pageSize;
                         this.pageIndex = response.pageIndex;
@@ -112,11 +114,11 @@ class CategoryModule {
                     orderable: false,
                     render: function (data, type, row) {
                         return `<button class="btn btn-sm btn-warning btn-edit"
-                                    onclick="categoryInstance.edit(${row.id}, '${row.name}')"
+                                    onclick="categoryInstance.edit('${row.id}', '${row.name}')"
                                     data-id="${row.id}"
                                     data-name="${row.name}">Edit</button>
                                 <button class="btn btn-sm btn-danger btn-delete"
-                                    onclick="categoryInstance.delete(${row.id}, '${row.name}')"
+                                    onclick="categoryInstance.delete('${row.id}', '${row.name}')"
                                     data-id="${row.id}"
                                     data-name="${row.name}">Delete</button>
                                 `;
@@ -127,8 +129,9 @@ class CategoryModule {
         });
 
     }
-
+    
     save() {
+        if (!this.validate()) return;
         const form = document.getElementById('form_add_category');
         // Tạo FormData từ form
         let payload = {
@@ -147,6 +150,7 @@ class CategoryModule {
         apiInstance.post('/category/create', payload)
             .then(res => {
                 messageInstance.info("Thêm mới thành công!");
+                this.modalCategory.hide();
                 this.refreshData();
             })
             .catch(err => {
@@ -159,79 +163,78 @@ class CategoryModule {
     }
 
     add() {
-        this.modalCategory = this.configApp.createModal("categpryModal");
+        this.modalCategory = this.configApp.createModal("categoryModal");
         $('#categoryBody').html(''); // Xóa nội dung cũ trong dialog
         // set title    
         $('#categoryTitle').text('Thêm mới danh mục');
         mvcInstance.get('/Category/Create')
             .then(html => {
                 $('#categoryBody').html(html);
-                let $form = $("#categoryBody").find("form");
-                if ($form.length) {
-                    $.validator.unobtrusive.parse($form);
-                }
-                document.addEventListener('shown.bs.modal', function (e) {
-                    if ($(e.target).find('.select2').length) {
-                        document.removeEventListener('focusin', bootstrap.Modal.prototype._handleFocusin);
-                    }
-                });
-                $('#ParentCategorySelect').select2({
-                    placeholder: "-- None --",
-                    allowClear: true,
-                    width: '100%',
-                    minimumResultsForSearch: 0,
-                    dropdownParent: $('#categoryModal') // modal chứa select
-                });
-
-                // Auto select nếu chỉ có 1 option ngoài None
-                var options = $('#ParentCategorySelect option').length;
-                if (options === 2) {
-                    $('#ParentCategorySelect').prop('selectedIndex', 1).trigger('change');
-                }
-
-
-                $('#categoryModal').on('shown.bs.modal', function () {
-                    $('#ParentCategorySelect').select2({
-                        placeholder: "-- None --",
-                        allowClear: true,
-                        width: '100%',
-                        minimumResultsForSearch: 0,
-                        dropdownParent: $('#categoryModal')
-                    });
-                });
+                this.form = configInstance.initValidatorForm("categoryBody");
+                this.modalCategory.show();
             }).catch((err) => {
                 console.error('Lỗi tải form thêm mới:', err);
                 messageInstance.error('Không thể tải form thêm mới');
             });
-        this.modalCategory.show();
+        
+    }
+   
+    validate() {
+        return this.form?.valid();
     }
     edit(id, name) {
         console.log("id = ", id);
-        this.messageApp.info('Sửa danh mục: ', name);
+        this.modalCategory = this.configApp.createModal("categoryModal");
+        $('#categoryBody').html(''); // Xóa nội dung cũ trong dialog
+        // set title    
+        $('#categoryTitle').text('Cập nhật danh mục');
+        mvcInstance.get('/Category/Edit/' + id)
+            .then(html => {
+                $('#categoryBody').html(html);
+                this.form = configInstance.initValidatorForm("categoryBody");
+                this.modalCategory.show();
+            }).catch((err) => {
+                console.error('Lỗi tải form thêm mới:', err);
+                messageInstance.error('Không thể tải form thêm mới');
+            });
+
     }
     delete(id, name) {
         console.log("id = ", id);
         this.messageApp.info('Xóa Bản ghi: ' + name);
     }
 
-    initSelect2() {
-        // Khởi tạo Select2 với filter
-        $('#ParentCategorySelect').select2({
-            placeholder: "-- None --",
-            allowClear: true,
-            width: '100%'
-        });
-
-        // Auto select nếu chỉ có 1 option (ngoài None)
-        var options = $('#ParentCategorySelect option').length;
-        if (options === 2) { // None + 1 category
-            $('#ParentCategorySelect').prop('selectedIndex', 1).trigger('change');
-        }
-    }
     refreshData() {
         this.tableInstance?.ajax.reload();
     }
 }
 
-export const categoryInstance = new CategoryModule();
+export const categoryInstance = new CategoryModule(); 
 
+// init modal on show
+$(document).on('shown.bs.modal', '#categoryModal', function () {
+    // nếu select2 đã được gắn trước đó thì destroy để tránh xung đột
+    if ($('#ParentCategorySelect').hasClass("select2-hidden-accessible")) {
+        $('#ParentCategorySelect').select2('destroy');
+    }
+    $('#ParentCategorySelect').select2({
+        placeholder: "-- None --",
+        allowClear: true,
+        width: '100%',
+        minimumResultsForSearch: 0,
+        dropdownParent: $('#categoryModal')
+    });
+
+    // Auto select nếu chỉ có 1 option ngoài None
+    var options = $('#ParentCategorySelect option').length;
+    if (options === 2) {
+        $('#ParentCategorySelect').prop('selectedIndex', 1).trigger('change');
+    }
+});
+// Khi đóng modal -> destroy Select2 (tránh init chồng nhiều lần)
+$(document).on('hidden.bs.modal', '#categoryModal', function () {
+    if ($('#ParentCategorySelect').hasClass("select2-hidden-accessible")) {
+        $('#ParentCategorySelect').select2('destroy');
+    }
+    $('#ParentCategorySelect').val(null); // reset về None
+});

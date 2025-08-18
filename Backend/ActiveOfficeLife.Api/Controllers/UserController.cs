@@ -33,7 +33,7 @@ namespace ActiveOfficeLife.Api.Controllers
         public async Task<IActionResult> SearchUsers([FromBody] PagingRequest request)
         {
             if (request == null || string.IsNullOrEmpty(request.SearchText))
-                return BadRequest(new ResultError("Invalid search request."));
+                return BadRequest(new ResultError("Invalid search request.", "400"));
             try
             {
                 var users = await _userService.GetAll(request.SearchText.Trim(), request.PageIndex, request.PageSize, request.SortDirection.ToLower() == "desc");
@@ -42,7 +42,7 @@ namespace ActiveOfficeLife.Api.Controllers
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error searching users: {ex.Message}");
-                return BadRequest(new ResultError("Failed to search users."));
+                return BadRequest(new ResultError("Failed to search users.", "400"));
             }
         }
         [HttpGet("getuser")]
@@ -50,7 +50,7 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             var userId = User.Identity.GetUserId();
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized(new ResultError("User not authenticated."));
+                return Unauthorized(new ResultError("User not authenticated.", "401"));
 
             var cacheKey = $"UserProfile_{userId}";
 
@@ -65,7 +65,7 @@ namespace ActiveOfficeLife.Api.Controllers
 
                 var user = await _userService.GetUser(Guid.Parse(userId));
                 if (user == null)
-                    return NotFound(new ResultError("User not found."));
+                    return NotFound(new ResultError("User not found.", "404"));
 
                 _cache.Set(cacheKey, user, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout)); // tùy TTL
                 return Ok(new ResultSuccess(user));
@@ -73,7 +73,7 @@ namespace ActiveOfficeLife.Api.Controllers
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching user profile: {ex.Message}");
-                return BadRequest(new ResultError("Failed to retrieve user profile."));
+                return BadRequest(new ResultError("Failed to retrieve user profile.", "400"));
             }
         }
 
@@ -81,54 +81,54 @@ namespace ActiveOfficeLife.Api.Controllers
         public async Task<IActionResult> GetUserByUsername([FromQuery] string username)
         {
             if (string.IsNullOrEmpty(username))
-                return BadRequest(new ResultError("Username cannot be empty."));
+                return BadRequest(new ResultError("Username cannot be empty.", "400"));
             try
             {
                 var user = await _userService.GetByUsername(username.Trim());
                 if (user == null)
-                    return NotFound(new ResultError("User not found."));
+                    return NotFound(new ResultError("User not found.", "404"));
                 return Ok(new ResultSuccess(user));
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching user by username: {ex.Message}");
-                return BadRequest(new ResultError("Failed to retrieve user."));
+                return BadRequest(new ResultError("Failed to retrieve user.", "400"));
             }
         }
         [HttpGet("getbyemail")]
         public async Task<IActionResult> GetUserByEmail([FromQuery] string email)
         {
             if (string.IsNullOrEmpty(email))
-                return BadRequest(new ResultError("Email cannot be empty."));
+                return BadRequest(new ResultError("Email cannot be empty.", "400"));
             try
             {
                 var user = await _userService.GetByEmail(email.Trim());
                 if (user == null)
-                    return NotFound(new ResultError("User not found."));
+                    return NotFound(new ResultError("User not found.", "404"));
                 return Ok(new ResultSuccess(user));
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching user by email: {ex.Message}");
-                return BadRequest(new ResultError("Failed to retrieve user."));
+                return BadRequest(new ResultError("Failed to retrieve user.", "400"));
             }
         }
         [HttpGet("getbyphonenumber")]
         public async Task<IActionResult> GetUserByPhoneNumber([FromQuery] string phoneNumber)
         {
             if (string.IsNullOrEmpty(phoneNumber))
-                return BadRequest(new ResultError("Phone number cannot be empty."));
+                return BadRequest(new ResultError("Phone number cannot be empty.", "400"));
             try
             {
                 var user = await _userService.GetByPhoneNumber(phoneNumber.Trim());
                 if (user == null)
-                    return NotFound(new ResultError("User not found."));
+                    return NotFound(new ResultError("User not found.", "404"));
                 return Ok(new ResultSuccess(user));
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching user by phone number: {ex.Message}");
-                return BadRequest(new ResultError("Failed to retrieve user."));
+                return BadRequest(new ResultError("Failed to retrieve user.", "400"));
             }
         }
         
@@ -140,7 +140,7 @@ namespace ActiveOfficeLife.Api.Controllers
                 var userId = User.FindFirst("UserId")?.Value;
                 if (string.IsNullOrEmpty(userId))
                 {
-                    return Unauthorized(new ResultError("User not authenticated."));
+                    return Unauthorized(new ResultError("User not authenticated.", "400"));
                 }
                 var histories = await _tokenService.GetUserTokensAsync(Guid.Parse(userId));
                 return Ok(new ResultSuccess(histories));
@@ -148,7 +148,7 @@ namespace ActiveOfficeLife.Api.Controllers
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching login history: {ex.Message}");
-                return BadRequest(new ResultError("Failed to retrieve login history."));
+                return BadRequest(new ResultError("Failed to retrieve login history.", "400"));
             }
 
         }
@@ -156,18 +156,18 @@ namespace ActiveOfficeLife.Api.Controllers
         public async Task<IActionResult> GetUserById([FromQuery] Guid userId)
         {
             if (userId == Guid.Empty)
-                return BadRequest(new ResultError("Invalid user ID."));
+                return BadRequest(new ResultError("Invalid user ID.", "400"));
             try
             {
                 var user = await _userService.GetUser(userId);
                 if (user == null)
-                    return NotFound(new ResultError("User not found."));
+                    return NotFound(new ResultError("User not found.", "404"));
                 return Ok(new ResultSuccess(user));
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching user by ID: {ex.Message}");
-                return BadRequest(new ResultError("Failed to retrieve user."));
+                return BadRequest(new ResultError("Failed to retrieve user.", "400"));
             }
         }
 
@@ -183,7 +183,7 @@ namespace ActiveOfficeLife.Api.Controllers
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching all users: {ex.Message}");
-                return BadRequest(new ResultError("Failed to retrieve users."));
+                return BadRequest(new ResultError("Failed to retrieve users.", "400"));
             }
         }
        
@@ -197,7 +197,7 @@ namespace ActiveOfficeLife.Api.Controllers
             AOLLogger.Info($"Register request received: {request?.Username}, {request?.Email}", requestString);
             if (request == null || string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
             {
-                return BadRequest(new ResultError("Invalid registration data."));
+                return BadRequest(new ResultError("Invalid registration data.", "400"));
             }
             try
             {
@@ -210,7 +210,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new ResultError(ex.Message));
+                return BadRequest(new ResultError(ex.Message, "400"));
             }
         }
 
@@ -219,12 +219,12 @@ namespace ActiveOfficeLife.Api.Controllers
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest request)
         {
             if (request == null || string.IsNullOrEmpty(request.Email))
-                return BadRequest(new ResultError("Invalid forgot password request."));
+                return BadRequest(new ResultError("Invalid forgot password request.", "400"));
             try
             {
                 var user = await _userService.ForgotPassword(request);
                 if (user == null)
-                    return NotFound(new ResultError("Email not found."));
+                    return NotFound(new ResultError("Email not found.", "404"));
                 // Optionally, you can send an email with the reset link here
                 var token = await _tokenService.GeneratePasswordResetTokenAsync();
                 var encodedToken = HttpUtility.UrlEncode(token);
@@ -237,24 +237,24 @@ namespace ActiveOfficeLife.Api.Controllers
 
                 await _emailService.SendEmailAsync(user.Email, "Reset Your Password", emailBody);
 
-                return Ok(new ResultSuccess("Password reset link sent to your email."));
+                return Ok(new ResultSuccess());
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error processing forgot password: {ex.Message}");
-                return BadRequest(new ResultError("Failed to process forgot password request."));
+                return BadRequest(new ResultError("Failed to process forgot password request.", "400"));
             }
         }
         [HttpPut("update")]
         public async Task<IActionResult> UpdateUser([FromBody] UserModel userModel)
         {
             if (userModel == null || userModel.Id == Guid.Empty)
-                return BadRequest(new ResultError("Invalid user data."));
+                return BadRequest(new ResultError("Invalid user data.", "400"));
             try
             {
                 var updatedUser = await _userService.Update(userModel);
                 if (updatedUser == null)
-                    return NotFound(new ResultError("User not found."));
+                    return NotFound(new ResultError("User not found.", "404"));
                 // Clear cache for the updated user
                 _cache.Remove($"UserProfile_{userModel.Id}");
                 return Ok(new ResultSuccess(updatedUser));
@@ -262,7 +262,7 @@ namespace ActiveOfficeLife.Api.Controllers
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error updating user: {ex.Message}");
-                return BadRequest(new ResultError("Failed to update user."));
+                return BadRequest(new ResultError("Failed to update user.", "400"));
             }
         }
         
@@ -270,43 +270,43 @@ namespace ActiveOfficeLife.Api.Controllers
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequest request)
         {
             if (request == null || string.IsNullOrEmpty(request.OldPassword) || string.IsNullOrEmpty(request.NewPassword))
-                return BadRequest(new ResultError("Invalid password change request."));
+                return BadRequest(new ResultError("Invalid password change request.", "400"));
             try
             {
                 var userId = User.Identity.GetUserId();
                 if (string.IsNullOrEmpty(userId))
-                    return Unauthorized(new ResultError("User not authenticated."));
+                    return Unauthorized(new ResultError("User not authenticated.", "400"));
                 var result = await _userService.ChangePassword(Guid.Parse(userId), request);
                 if (!result)
-                    return BadRequest(new ResultError("Failed to change password."));
+                    return BadRequest(new ResultError("Failed to change password.", "400"));
                 // Clear cache for the user after password change
                 _cache.Remove($"UserProfile_{userId}");
-                return Ok(new ResultSuccess("Password changed successfully."));
+                return Ok(new ResultSuccess());
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error changing password: {ex.Message}");
-                return BadRequest(new ResultError("Failed to change password."));
+                return BadRequest(new ResultError("Failed to change password.", "400"));
             }
         }
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteUser([FromQuery] Guid userId)
         {
             if (userId == Guid.Empty)
-                return BadRequest(new ResultError("Invalid user ID."));
+                return BadRequest(new ResultError("Invalid user ID.", "400"));
             try
             {
                 var result = await _userService.Delete(userId);
                 if (!result)
-                    return NotFound(new ResultError("User not found."));
+                    return NotFound(new ResultError("User not found.", "404"));
                 // Clear cache for the deleted user
                 _cache.Remove($"UserProfile_{userId}");
-                return Ok(new ResultError("User deleted successfully."));
+                return Ok(new ResultSuccess());
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error deleting user: {ex.Message}");
-                return BadRequest(new ResultError("Failed to delete user."));
+                return BadRequest(new ResultError("Failed to delete user.", "400"));
             }
         }
         

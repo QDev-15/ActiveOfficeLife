@@ -24,7 +24,6 @@
         public static string UserGetByPhoneNumber = "/api/User/getbyphonenumber";
         // Category Endpoints
         public static string CategoryGetAll = "/api/category/all";
-        public static string CategoryGetAllPaging = "/api/category/all-paging";
         public static string CategoryGetById = "/api/category/getbyid";
         public static string CategoryCreate = "/api/category/create";
         public static string CategoryUpdate = "/api/category/update";

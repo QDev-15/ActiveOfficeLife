@@ -58,7 +58,7 @@ class ApiModule {
                         return;
                     }
 
-                    if (!result.isSuccess) {
+                    if (!result.success) {
                         reject({
                             status: res.status,
                             message: result?.data?.message || res.statusText,

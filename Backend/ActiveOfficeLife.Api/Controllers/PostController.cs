@@ -28,7 +28,7 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             if (id == Guid.Empty)
             {
-                return BadRequest(new ResultError("Invalid post ID."));
+                return BadRequest(new ResultError("Invalid post ID.", "400"));
             }
             // Check if the post is cached
             var cacheKey = $"Post_{id}";
@@ -41,7 +41,7 @@ namespace ActiveOfficeLife.Api.Controllers
                 var post = await _postService.GetById(id);
                 if (post == null)
                 {
-                    return NotFound(new ResultError("Post not found."));
+                    return NotFound(new ResultError("Post not found.", "404"));
                 }
                 // Cache the post for future requests
                 _memoryCache.Set(cacheKey, post, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout)); // Cache for 30 minutes
@@ -50,7 +50,7 @@ namespace ActiveOfficeLife.Api.Controllers
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching post by ID: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new ResultError("Failed to retrieve post."));
+                return BadRequest(new ResultError("Failed to retrieve post.", "400"));
             }
         }
 
@@ -60,7 +60,7 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             if (string.IsNullOrEmpty(slug))
             {
-                return BadRequest(new ResultError("Invalid post slug."));
+                return BadRequest(new ResultError("Invalid post slug.", "400"));
             }
             // Check if the post is cached
             var cacheKey = $"Post_Slug_{slug}";
@@ -73,7 +73,7 @@ namespace ActiveOfficeLife.Api.Controllers
                 var post = await _postService.GetByAlias(slug);
                 if (post == null)
                 {
-                    return NotFound(new ResultError("Post not found."));
+                    return NotFound(new ResultError("Post not found.", "404"));
                 }
                 // Cache the post for future requests
                 _memoryCache.Set(cacheKey, post, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout)); // Cache for 30 minutes
@@ -82,7 +82,7 @@ namespace ActiveOfficeLife.Api.Controllers
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching post by slug: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new ResultError("Failed to retrieve post."));
+                return BadRequest(new ResultError("Failed to retrieve post.", "400"));
             }
         }
         // get post by category id
@@ -91,7 +91,7 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             if (categoryId == Guid.Empty)
             {
-                return BadRequest(new ResultError("Invalid category ID."));
+                return BadRequest(new ResultError("Invalid category ID.", "400"));
             }
             // Check if the posts are cached
             var cacheKey = $"Posts_Category_{categoryId}";
@@ -104,7 +104,7 @@ namespace ActiveOfficeLife.Api.Controllers
                 var posts = await _postService.GetByCategoryId(categoryId, null);
                 if (posts == null || !posts.Any())
                 {
-                    return NotFound(new ResultError("No posts found for this category."));
+                    return NotFound(new ResultError("No posts found for this category.", "404"));
                 }
                 // Cache the posts for future requests
                 _memoryCache.Set(cacheKey, posts, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout)); // Cache for 30 minutes
@@ -113,7 +113,7 @@ namespace ActiveOfficeLife.Api.Controllers
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching posts by category: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new ResultError("Failed to retrieve posts."));
+                return BadRequest(new ResultError("Failed to retrieve posts.", "400"));
             }
         }
     }

@@ -20,36 +20,9 @@ namespace ActiveOfficeLife.Api.Controllers
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _appConfigService = appConfigService;
         }
-        [HttpGet("all")]
-        public async Task<IActionResult> GetAllCategories()
-        {
-            // cache key for categories
-            string cacheKey = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}";
-
-            try
-            {
-                var chedCategories = _cache.Get<List<CategoryModel>>(cacheKey);
-                if (chedCategories != null)
-                {
-                    return Ok(new ResultSuccess(chedCategories));
-                }
-                var categories = await _categoryService.GetAllCategoriesAsync();
-                if (categories == null || !categories.Any())
-                {
-                    return NotFound(new ResultError("No categories found." ));
-                }
-                _cache.Set(cacheKey, categories, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout)); // Set cache for 30 minutes
-                return Ok(new ResultSuccess(categories));
-            }
-            catch (Exception ex)
-            {
-                AOLLogger.Error($"Error fetching categories: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new ResultError("Failed to retrieve categories."));
-            }
-        }
 
         // get all with paging using GET method and query parameters sortField = 'name', sortDirection = 'asc', pageIndex = 1, pageSize = 10
-        [HttpGet("all-paging")]
+        [HttpGet("all")]
         public async Task<IActionResult> GetAllCategoriesPaging([FromQuery] PagingRequest request)
         {
             try
@@ -65,7 +38,7 @@ namespace ActiveOfficeLife.Api.Controllers
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching paginated categories: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new ResultError("Failed to retrieve paginated categories."));
+                return BadRequest(new ResultError("Failed to retrieve paginated categories.", "400"));
             }
         }
         [HttpGet("getbyid")]
@@ -73,7 +46,7 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             if (id == Guid.Empty)
             {
-                return BadRequest(new ResultError("Invalid category ID."));
+                return BadRequest(new ResultError("Invalid category ID.", "400"));
             }
             try
             {
@@ -91,12 +64,12 @@ namespace ActiveOfficeLife.Api.Controllers
                     _cache.Set(cacheKey, category, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout));
                     return Ok(new ResultSuccess(category));
                 }
-                return NotFound(new ResultError("Category not found."));
+                return NotFound(new ResultError("Category not found.", "404"));
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error fetching category: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new ResultError("Failed to retrieve category."));
+                return BadRequest(new ResultError("Failed to retrieve category.", "400"));
             }
         }
         // create category using POST method and usint CategoryModel as request body from category service
@@ -105,7 +78,7 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             if (category == null)
             {
-                return BadRequest(new ResultError("Invalid category data."));
+                return BadRequest(new ResultError("Invalid category data.", "400"));
             }
             try
             {
@@ -117,16 +90,17 @@ namespace ActiveOfficeLife.Api.Controllers
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error creating category: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new ResultError("Failed to create category."));
+                return BadRequest(new ResultError(ex.Message));
 
             }
         }
+    
         [HttpDelete("delete")]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {
             if (id == Guid.Empty)
             {
-                return BadRequest(new ResultError("Invalid category ID."));
+                return BadRequest(new ResultError("Invalid category ID.", "400"));
             }
             try
             {
@@ -137,12 +111,12 @@ namespace ActiveOfficeLife.Api.Controllers
                     _cache.Clear();
                     return Ok(new ResultSuccess("Category deleted successfully."));
                 }
-                return NotFound(new ResultError("Category not found."));
+                return NotFound(new ResultError("Category not found.", "404"));
             }
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error deleting category: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new ResultError("Failed to delete category."));
+                return BadRequest(new ResultError("Failed to delete category.", "400"));
             }
         }
 
@@ -152,7 +126,7 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             if (category == null || category.Id == Guid.Empty)
             {
-                return BadRequest(new ResultError("Invalid category data."));
+                return BadRequest(new ResultError("Invalid category data.", "400"));
             }
             try
             {
@@ -164,7 +138,7 @@ namespace ActiveOfficeLife.Api.Controllers
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error updating category: {ex.Message}", ex.Source, null, ex.StackTrace);
-                return BadRequest(new ResultError("Failed to update category."));
+                return BadRequest(new ResultError("Failed to update category.", "400"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   ));
             }
         }
     }

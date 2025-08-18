@@ -28,7 +28,7 @@ namespace ActiveOfficeLife.Api.Controllers
             // Validate khoảng ngày
             if (startDate > endDate)
             {
-                return BadRequest(new ResultError("Start date cannot be after end date."));
+                return BadRequest(new ResultError("Start date cannot be after end date.", "400"));
             }
 
             // Lấy dữ liệu

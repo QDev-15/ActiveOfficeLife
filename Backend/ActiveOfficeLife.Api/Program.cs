@@ -160,6 +160,40 @@ using (var scope = app.Services.CreateScope())
         // Log lỗi hoặc throw lại
     }
 }
+app.Use(async (context, next) =>
+{
+    // Chống sniff MIME
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+
+    // Chống clickjacking
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+
+    // Strict-Transport-Security (chỉ cho phép HTTPS, bật preload)
+    // Chỉ nên bật khi site của bạn luôn dùng HTTPS
+    context.Response.Headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains; preload";
+
+    // Content Security Policy (CSP) - chặn XSS, kiểm soát nguồn load script/style
+    context.Response.Headers["Content-Security-Policy"] =
+        "default-src 'self'; " +
+        "script-src 'self' https://cdn.jsdelivr.net; " +
+        "style-src 'self' https://cdn.jsdelivr.net; " +
+        "img-src 'self' data:; " +
+        "font-src 'self' https://fonts.gstatic.com; " +
+        "connect-src 'self'; " +
+        "frame-ancestors 'none'; " +   // Ngăn nhúng iframe
+        "upgrade-insecure-requests;";  // Chuyển HTTP → HTTPS tự động
+
+    // Referrer Policy (giới hạn thông tin referrer gửi đi)
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+
+    // Permissions Policy (giới hạn API của browser có thể dùng)
+    context.Response.Headers["Permissions-Policy"] =
+        "geolocation=(), microphone=(), camera=()";
+
+    await next();
+});
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {

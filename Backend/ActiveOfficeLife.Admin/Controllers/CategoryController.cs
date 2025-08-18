@@ -35,7 +35,7 @@ namespace ActiveOfficeLife.Admin.Controllers
                 .Select(c => new SelectListItem
                 {
                     Value = c.Id.ToString(),
-                    Text = c.Name
+                    Text = c.Name ?? "-None-"
                 })
                 .ToList();
 
@@ -47,7 +47,32 @@ namespace ActiveOfficeLife.Admin.Controllers
                 Description = string.Empty,
                 ParentId = null // Hoặc gán giá trị mặc định nếu cần
             };
-            return View(newCategory);
+            return View("CreateOrUpdate", newCategory);
+        }
+        [HttpGet]
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return NotFound();
+            }
+            var response = await _apiService.GetAsync($"{Common.AOLEndPoint.CategoryGetById}?id={id}");
+            var category = await response.ToModelAsync<CategoryModel>();
+            if (category == null)
+            {
+                return NotFound();
+            }
+            var parentsResponse = await _apiService.GetAsync(Common.AOLEndPoint.CategoryGetAll + "?pageSize=1000");
+            var parents = await parentsResponse.ToModelAsync<List<CategoryModel>>() ?? new List<CategoryModel>();
+            ViewBag.ParentCategories = parents
+                .Select(c => new SelectListItem
+                {
+                    Value = c.Id.ToString(),
+                    Text = c.Name ?? "-None-",
+                    Selected = c.Id == category.ParentId // Chọn category cha nếu có
+                })
+                .ToList();
+            return View("~/Views/Category/CreateOrUpdate.cshtml", category);
         }
         [HttpPost]
         public IActionResult Create(CategoryModel model)

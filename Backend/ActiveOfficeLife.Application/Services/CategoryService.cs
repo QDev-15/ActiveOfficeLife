@@ -26,7 +26,31 @@ namespace ActiveOfficeLife.Application.Services
             {
                 if (category == null)
                 {
-                    throw new ArgumentNullException(nameof(category), "Category cannot be null");
+                    throw new Exception("Category cannot be null");
+                }
+                if (category.Name == null || category.Name.Length < 3)
+                {
+                    throw new ArgumentException("Category name must be at least 3 characters long", nameof(category.Name));
+                }
+                var checkCategoryByName = await _categoryRepository.CheckExitsByName(category.Name, category.Id);
+                if (checkCategoryByName)
+                {
+                    throw new Exception($"Category with name '{category.Name}' already exists");
+                }
+                var checkCategoryBySlug = await _categoryRepository.CheckExitsBySlug(category.Slug, category.Id);
+                if (checkCategoryBySlug)
+                {
+                    category.Slug = Helper.GenerateSlug(category.Name);
+                    checkCategoryBySlug = await _categoryRepository.CheckExitsBySlug(category.Slug, category.Id);
+                    if (checkCategoryBySlug)
+                    {
+                        category.Slug = category.Slug + "-" + DateTime.UtcNow.Ticks; // Append a unique identifier to the slug
+                        checkCategoryBySlug = await _categoryRepository.CheckExitsBySlug(category.Slug, category.Id);
+                        if (checkCategoryBySlug)
+                        {
+                            throw new Exception($"Category with slug for '{category.Name}' already exists");
+                        }
+                    }  
                 }
                 // Map CategoryModel to domain entity if necessary
                 var categoryEntity = new Category
@@ -152,6 +176,30 @@ namespace ActiveOfficeLife.Application.Services
                 {
                     AOLLogger.Error(msg + $"-Error category Id:{category.Id.ToString()}-not found");
                     throw new KeyNotFoundException("not found category update");
+                }
+                if (category.Name == null || category.Name.Length < 3)
+                {
+                    throw new ArgumentException("Category name must be at least 3 characters long", nameof(category.Name));
+                }
+                var checkCategoryByName = await _categoryRepository.CheckExitsByName(category.Name, category.Id);
+                if (checkCategoryByName)
+                {
+                    throw new Exception($"Category with name '{category.Name}' already exists");
+                }
+                var checkCategoryBySlug = await _categoryRepository.CheckExitsBySlug(category.Slug, category.Id);
+                if (checkCategoryBySlug)
+                {
+                    category.Slug = Helper.GenerateSlug(category.Name);
+                    checkCategoryBySlug = await _categoryRepository.CheckExitsBySlug(category.Slug, category.Id);
+                    if (checkCategoryBySlug)
+                    {
+                        category.Slug = category.Slug + "-" + DateTime.UtcNow.Ticks; // Append a unique identifier to the slug
+                        checkCategoryBySlug = await _categoryRepository.CheckExitsBySlug(category.Slug, category.Id);
+                        if (checkCategoryBySlug)
+                        {
+                            throw new Exception($"Category with slug for '{category.Name}' already exists");
+                        }
+                    }
                 }
                 cat.Slug = category.Slug;
                 cat.ParentId = category.ParentId;
