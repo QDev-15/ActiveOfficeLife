@@ -73,7 +73,6 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-// ⚠️ Quan trọng: phải thêm dòng này trước MapController
 app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();

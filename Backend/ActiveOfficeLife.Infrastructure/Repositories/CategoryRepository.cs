@@ -56,7 +56,7 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             }
 
             int count = await query.CountAsync();
-            var categories = await query.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize).Include(x => x.SeoMetadata).ToListAsync();
+            var categories = await query.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize).Include(x => x.Parent).Include(x => x.SeoMetadata).ToListAsync();
             return (categories, count);
         }
 
