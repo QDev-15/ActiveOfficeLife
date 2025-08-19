@@ -35,7 +35,7 @@ namespace ActiveOfficeLife.Admin.Controllers
                 .Select(c => new SelectListItem
                 {
                     Value = c.Id.ToString(),
-                    Text = c.Name ?? "-None-"
+                    Text = c.Name
                 })
                 .ToList();
 
@@ -68,11 +68,11 @@ namespace ActiveOfficeLife.Admin.Controllers
                 .Select(c => new SelectListItem
                 {
                     Value = c.Id.ToString(),
-                    Text = c.Name ?? "-None-",
+                    Text = c.Name,
                     Selected = c.Id == category.ParentId // Chọn category cha nếu có
                 })
                 .ToList();
-            return View("~/Views/Category/CreateOrUpdate.cshtml", category);
+            return View("CreateOrUpdate", category);
         }
         [HttpPost]
         public IActionResult Create(CategoryModel model)

@@ -5,6 +5,7 @@ import { messageInstance } from './core/messages.module.js';
 import { spinnerInstance } from './core/spinner.module.js';
 import { broadCastInstance } from './core/broadcast.module.js';
 import { dialogInstance } from './core/dialog.module.js';
+import { utilities } from './core/utilities.module.js';
 
 class CategoryModule {
     constructor() {
@@ -162,6 +163,37 @@ class CategoryModule {
         this.refreshData();
     }
 
+    update() {
+        if (!this.validate()) return;
+        const form = document.getElementById('form_add_category');
+        // Tạo FormData từ form
+        let payload = {
+            id: form.querySelector('[name="Id"]').value || null,
+            name: form.querySelector('[name="Name"]').value,
+            slug: form.querySelector('[name="Slug"]').value,
+            description: form.querySelector('[name="Description"]').value,
+            parentId: form.querySelector('[name="ParentId"]').value || null,
+            seoMetadataId: form.querySelector('[name="SeoMetadataId"]').value || null,
+            seoMetadata: {
+                title: form.querySelector('[name="SeoMetadata.Title"]').value,
+                description: form.querySelector('[name="SeoMetadata.Description"]').value,
+                keywords: form.querySelector('[name="SeoMetadata.Keywords"]').value
+            }
+        };
+        apiInstance.put('/category/update', payload)
+            .then(res => {
+                messageInstance.info("Cập nhật thành công!");
+                this.modalCategory.hide();
+                this.refreshData();
+            })
+            .catch(err => {
+                console.error(err);
+                messageInstance.error("Lỗi khi cập nhật!");
+            });
+        // Xử lý lưu dữ liệu ở đây
+        this.messageApp.info('Đã cập nhật người dùng');
+        this.refreshData();
+    }
     add() {
         this.modalCategory = this.configApp.createModal("categoryModal");
         $('#categoryBody').html(''); // Xóa nội dung cũ trong dialog
@@ -170,6 +202,9 @@ class CategoryModule {
         mvcInstance.get('/Category/Create')
             .then(html => {
                 $('#categoryBody').html(html);
+                // set button create show, hide update
+                $('.btn-update').hide();
+                $('.btn-create').show();
                 this.form = configInstance.initValidatorForm("categoryBody");
                 this.modalCategory.show();
             }).catch((err) => {
@@ -191,6 +226,8 @@ class CategoryModule {
         mvcInstance.get('/Category/Edit/' + id)
             .then(html => {
                 $('#categoryBody').html(html);
+                $('.btn-update').show();
+                $('.btn-create').hide();
                 this.form = configInstance.initValidatorForm("categoryBody");
                 this.modalCategory.show();
             }).catch((err) => {
@@ -211,6 +248,9 @@ class CategoryModule {
 
 export const categoryInstance = new CategoryModule(); 
 
+$(document).change('#category-name', function () {
+    $('#category-slug').val(utilities.slugify($('#category-name').val()));
+});
 // init modal on show
 $(document).on('shown.bs.modal', '#categoryModal', function () {
     // nếu select2 đã được gắn trước đó thì destroy để tránh xung đột

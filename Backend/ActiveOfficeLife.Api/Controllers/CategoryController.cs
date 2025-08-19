@@ -122,7 +122,7 @@ namespace ActiveOfficeLife.Api.Controllers
 
         // update category using PUT method and usint CategoryModel as request body from category service
         [HttpPut("update")]
-        public async Task<IActionResult> UpdateCategory([FromForm] CategoryModel category)
+        public async Task<IActionResult> UpdateCategory([FromBody] CategoryModel category)
         {
             if (category == null || category.Id == Guid.Empty)
             {

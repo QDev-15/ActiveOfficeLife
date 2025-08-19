@@ -14,14 +14,14 @@
         @* Name *@
         <div class="mb-3">
             <label asp-for="Name" class="form-label"></label>
-            <input asp-for="Name" class="form-control" required/>
+            <input asp-for="Name" id="category-name" class="form-control" required/>
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
 
         @* Slug *@
         <div class="mb-3">
             <label asp-for="Slug" class="form-label"></label>
-            <input asp-for="Slug" class="form-control"/>
+            <input asp-for="Slug" id="category-slug" class="form-control"/>
         </div>
 
         @* Description *@
