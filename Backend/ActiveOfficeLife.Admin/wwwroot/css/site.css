@@ -26,3 +26,12 @@ body {
 }
 
 
+.select2-selection {
+    height: 40px;
+    padding: 5px;
+    border-radius: 5px;
+}
+    .select2-selection .select2-selection__arrow {
+        height: 40px;
+        top: 0px;
+    }

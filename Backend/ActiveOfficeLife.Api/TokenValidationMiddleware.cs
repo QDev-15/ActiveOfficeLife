@@ -14,6 +14,13 @@ namespace ActiveOfficeLife.Api
 
         public async Task Invoke(HttpContext context, IUserTokenRepository tokenRepository)
         {
+            // ✅ Bỏ qua preflight CORS request
+            if (context.Request.Method.Equals(HttpMethods.Options, StringComparison.OrdinalIgnoreCase))
+            {
+                await _next(context);
+                return;
+            }
+
             // Lấy endpoint hiện tại
             var endpoint = context.GetEndpoint();
 
@@ -24,6 +31,7 @@ namespace ActiveOfficeLife.Api
             if (hasAuthorize && !hasAllowAnonymous)
             {
                 var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
+
                 if (!string.IsNullOrEmpty(token))
                 {
                     var tokenExists = await tokenRepository.IsValidAccessTokenAsync(token);
@@ -33,6 +41,12 @@ namespace ActiveOfficeLife.Api
                         await context.Response.WriteAsync("Token is revoked or invalid");
                         return;
                     }
+                }
+                else
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    await context.Response.WriteAsync("Missing Authorization header");
+                    return;
                 }
             }
 

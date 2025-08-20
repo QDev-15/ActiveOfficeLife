@@ -84,7 +84,7 @@ namespace ActiveOfficeLife.Admin.Controllers
                     var principal = new ClaimsPrincipal(identity);
                     var authProperties = new AuthenticationProperties
                     {
-                        IsPersistent = true, // Bắt buộc để cookie lưu qua browser restart
+                        IsPersistent = request.Remember, // Bắt buộc để cookie lưu qua browser restart
                         ExpiresUtc = DateTimeOffset.UtcNow.AddHours(baseApi.AccessTokenExpireHours)
                     };
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, authProperties);

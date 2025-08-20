@@ -200,13 +200,13 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseCors("AllowAll"); // Bắt buộc dùng đúng tên policy
-app.UseHttpsRedirection();
-app.UseRouting();
-app.UseAuthentication(); // Thêm middleware xác thực trước Authorization
-app.UseAuthorization();
 
-app.MapControllers();
+app.UseHttpsRedirection();
+app.UseRouting();           // Xác định endpoint
+app.UseCors("AllowAll");    // Gắn header CORS cho response
+app.UseAuthentication();    // Xác thực (JWT, cookie, v.v.)
+app.UseAuthorization();     // Phân quyền
+app.MapControllers();       // Map đến controller
 app.UseMiddleware<TokenValidationMiddleware>();
 
 app.Run();
