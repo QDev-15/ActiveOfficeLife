@@ -152,7 +152,7 @@ namespace ActiveOfficeLife.Application.Services
         {
             try
             {
-                var cat = await _categoryRepository.GetByIdAsync(id);
+                var cat = await _categoryRepository.GetById(id);
                 if (cat == null)
                 {
                     AOLLogger.Error($"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-{MessageContext.NotFound}");

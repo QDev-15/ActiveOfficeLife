@@ -14,8 +14,10 @@ namespace ActiveOfficeLife.Api.Controllers
     {
         private readonly ITokenService _tokenService;
         private readonly IUserService _userService;
-        public AuthController(ITokenService tokenService, IUserService userService)
+        private readonly CustomMemoryCache _cache;
+        public AuthController(ITokenService tokenService, IUserService userService, CustomMemoryCache cache)
         {
+            _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _tokenService = tokenService;
             _userService = userService;
         }
@@ -24,7 +26,7 @@ namespace ActiveOfficeLife.Api.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            try 
+            try
             {
                 if (request == null || string.IsNullOrEmpty(request.UserName) || string.IsNullOrEmpty(request.Password))
                 {
@@ -53,7 +55,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                
+
                 // Log the exception (optional)
                 AOLLogger.Error($"Error processing refresh token: {ex.Message}", ex.Source, null, ex.StackTrace, IpAddress);
                 return BadRequest(new ResultError($"Error processing refresh token: {ex.Message}", "400"));
@@ -111,5 +113,11 @@ namespace ActiveOfficeLife.Api.Controllers
             return Ok(new ResultSuccess(userInfo));
         }
 
+        [HttpGet("clearCache")]
+        public IActionResult ClearCache()
+        {
+            _cache.Clear();
+            return Ok(new ResultSuccess("Cache cleared successfully."));
+        }
     }
 }

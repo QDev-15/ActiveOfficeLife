@@ -32,7 +32,7 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
 
         public async Task<IEnumerable<Category>> GetAllAsync()
         {
-            return await _context.Categories.Where(x => x.IsDeleted == false).Include(x => x.SeoMetadata).ToListAsync();
+            return await _context.Categories.Where(x => x.IsDeleted == false).Include(x => x.SeoMetadata).Include(x => x.Children).Include(x=> x.Parent).ToListAsync();
         }
         public async Task<(IEnumerable<Category> Categories, int Count)> GetAllWithPaging(PagingRequest request)
         {
@@ -75,12 +75,12 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
 
         public async Task<Category?> GetById(Guid id)
         {
-            return await _context.Categories.Include(x => x.SeoMetadata).Include(x => x.Parent).FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.Categories.Include(x => x.SeoMetadata).Include(x => x.Parent).Include(x => x.Children).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<IEnumerable<Category>> GetByParrentId(Guid parentId)
         {
-            return await _context.Categories.Where(x => x.ParentId == parentId).Include(x => x.SeoMetadata).ToListAsync();
+            return await _context.Categories.Where(x => x.ParentId == parentId).Include(x => x.SeoMetadata).Include(x => x.Children).ToListAsync();
         }
     }
 }

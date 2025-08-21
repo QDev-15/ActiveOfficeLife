@@ -67,6 +67,8 @@
     <script>
         dayjs.extend(window.dayjs_plugin_utc);
         dayjs.extend(window.dayjs_plugin_timezone);
+        window.apiUrl = "@ViewData["apiUrl"]" + "/api";
+        window.accesstokenKey = "@ViewData["accessTokenKey"]";
     </script>
 
     <!-- NOTICE: You can use the _analytics.html partial to include production code specific code & trackers -->

@@ -2,14 +2,14 @@
 import { dateHelper } from "./dateHelper.js";
 class ConfigModule {
     constructor() {
-        this.token = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('AccessToken='))
-            ?.split('=')[1] || '';
-
         this.urlApiServer = 'https://api.aol.tkid.io.vn/api';
         this.urlApiLocal = 'https://localhost:7029/api';
-        this.urlApi = this.urlApiServer;
+        this.urlApi = window.apiUrl;
+        this.accesstokenKey = window.accesstokenKey;
+        this.token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith(this.accesstokenKey))
+            ?.split('=')[1] || '';
 
         this.user = {
             id: null,
@@ -74,7 +74,7 @@ class ConfigModule {
     checkLogined() {
         const token = document.cookie
             .split('; ')
-            .find(row => row.startsWith('AccessToken='))
+            .find(row => row.startsWith(this.accesstokenKey))
             ?.split('=')[1] || '';
         if (!token) {
             this.logout();

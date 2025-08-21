@@ -12,7 +12,14 @@ namespace ActiveOfficeLife.Admin.Controllers
         public BaseController(IConfiguration configuration)
         {
             baseApi = configuration.GetSection("BaseApi").Get<BaseApi>();
+        }
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
             ViewData["title"] = "AOL Admin";
+            ViewData["apiUrl"] = baseApi?.Url;
+            ViewData["accessTokenKey"] = baseApi?.AccessToken;
+
+            base.OnActionExecuting(context);
         }
     }
 }

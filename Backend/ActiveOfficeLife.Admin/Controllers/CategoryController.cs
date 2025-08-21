@@ -31,13 +31,18 @@ namespace ActiveOfficeLife.Admin.Controllers
             var response = await _apiService.GetAsync(Common.AOLEndPoint.CategoryGetAll);
             var parents = await response.ToModelAsync<List<CategoryModel>>() ?? new List<CategoryModel>();
 
-            ViewBag.ParentCategories = parents
+            var selectList = new List<SelectListItem>() { new SelectListItem()
+            {
+                Value = null,
+                Text = "--None--"
+            } };
+            ViewBag.ParentCategories = selectList.Concat(parents
                 .Select(c => new SelectListItem
                 {
                     Value = c.Id.ToString(),
                     Text = c.Name
                 })
-                .ToList();
+                .ToList());
 
             var newCategory = new CategoryModel
             {
@@ -64,14 +69,19 @@ namespace ActiveOfficeLife.Admin.Controllers
             }
             var parentsResponse = await _apiService.GetAsync(Common.AOLEndPoint.CategoryGetAll + "?pageSize=1000");
             var parents = await parentsResponse.ToModelAsync<List<CategoryModel>>() ?? new List<CategoryModel>();
-            ViewBag.ParentCategories = parents
+            var selectList = new List<SelectListItem>() { new SelectListItem()
+            {
+                Value = "0",
+                Text = "--None--"
+            } };
+            ViewBag.ParentCategories =  selectList.Concat(parents.Where(x => x.Id != category.Id && !category.AllChildrenIds.Contains(x.Id))
                 .Select(c => new SelectListItem
                 {
                     Value = c.Id.ToString(),
                     Text = c.Name,
                     Selected = c.Id == category.ParentId // Chọn category cha nếu có
                 })
-                .ToList();
+                .ToList());
             return View("CreateOrUpdate", category);
         }
         [HttpPost]

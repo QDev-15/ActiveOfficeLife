@@ -43,6 +43,7 @@ namespace ActiveOfficeLife.Admin.Controllers
             var response = await _apiService.PostAsync(AOLEndPoint.AuthLogin, request);
 
             var auth = await response.ToModelAsync<AuthResponse>();
+            TempData["refresh_token"] = auth?.RefreshToken;
             if (auth != null)
             {
                 Response.Cookies.Append(baseApi.AccessToken, auth.AccessToken, new CookieOptions
@@ -70,6 +71,7 @@ namespace ActiveOfficeLife.Admin.Controllers
                         IsEssential = true,
                     });
 
+                    TempData["UserInfo"] = JsonSerializer.Serialize(user);
                     // 3. Tạo claims
                     var claims = new List<Claim>
                     {

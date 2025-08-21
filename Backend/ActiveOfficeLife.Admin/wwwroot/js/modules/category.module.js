@@ -180,6 +180,7 @@ class CategoryModule {
                 keywords: form.querySelector('[name="SeoMetadata.Keywords"]').value
             }
         };
+        payload.parentId = payload.parentId === "0" ? null : payload.parentId;
         apiInstance.put('/category/update', payload)
             .then(res => {
                 messageInstance.info("Cập nhật thành công!");
