@@ -33,7 +33,7 @@ namespace ActiveOfficeLife.Admin.Controllers
 
             var selectList = new List<SelectListItem>() { new SelectListItem()
             {
-                Value = null,
+                Value = "0",
                 Text = "--None--"
             } };
             ViewBag.ParentCategories = selectList.Concat(parents

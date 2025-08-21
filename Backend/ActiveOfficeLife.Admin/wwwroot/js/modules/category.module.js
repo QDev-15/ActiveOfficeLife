@@ -110,6 +110,19 @@ class CategoryModule {
                 },
                 {
                     data: null, // null để lấy toàn bộ row
+                    title: "Parent name",
+                    className: "text-center",
+                    orderable: false,
+                    render: function (data, type, row) {
+                        if (data.parent && data.parent.name) {
+                            return data.parent.name;
+                        } else {
+                            return '----';
+                        }
+                    }
+                },
+                {
+                    data: null, // null để lấy toàn bộ row
                     title: "Actions",
                     className: "text-center",
                     orderable: false,
@@ -148,6 +161,7 @@ class CategoryModule {
                 keywords: form.querySelector('[name="SeoMetadata.Keywords"]').value
             }
         };
+        payload.parentId = payload.parentId === "0" ? null : payload.parentId;
         apiInstance.post('/category/create', payload)
             .then(res => {
                 messageInstance.info("Thêm mới thành công!");
@@ -158,9 +172,6 @@ class CategoryModule {
                 console.error(err);
                 messageInstance.error("Lỗi khi thêm mới!");
             });
-        // Xử lý lưu dữ liệu ở đây
-        this.messageApp.info('Đã lưu người dùng mới');
-        this.refreshData();
     }
 
     update() {
@@ -191,9 +202,6 @@ class CategoryModule {
                 console.error(err);
                 messageInstance.error("Lỗi khi cập nhật!");
             });
-        // Xử lý lưu dữ liệu ở đây
-        this.messageApp.info('Đã cập nhật người dùng');
-        this.refreshData();
     }
     add() {
         this.modalCategory = this.configApp.createModal("categoryModal");

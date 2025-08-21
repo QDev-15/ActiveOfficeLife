@@ -35,3 +35,7 @@ body {
         height: 40px !important;
         top: 0px;
     }
+
+.table tbody tr td {
+    vertical-align: middle;
+}
