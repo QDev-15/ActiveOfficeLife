@@ -175,8 +175,14 @@ app.UseRouting();           // Xác định endpoint
 app.UseCors("AllowAll");    // Gắn header CORS cho response
 app.Use(async (context, next) =>
 {
+    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation("➡️ Request path: {Path}", context.Request.Path);
+    logger.LogInformation("➡️ Request method: {Method}", context.Request.Method);
     if (context.Request.Method == HttpMethods.Options)
     {
+        
+        logger.LogInformation("➡️ Preflight OPTIONS request detected: {Path}", context.Request.Path);
+
         context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
         context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
         context.Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Authorization");
