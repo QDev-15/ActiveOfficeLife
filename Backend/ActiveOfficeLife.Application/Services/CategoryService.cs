@@ -13,12 +13,14 @@ namespace ActiveOfficeLife.Application.Services
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
+        private readonly IPostRepository _postRepository;
         private readonly _IUnitOfWork _unitOfWork;
        
-        public CategoryService(ICategoryRepository categoryRepository, _IUnitOfWork unitOfWork)
+        public CategoryService(ICategoryRepository categoryRepository, _IUnitOfWork unitOfWork, IPostRepository postRepository)
         {
             _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
             _unitOfWork = unitOfWork;
+            _postRepository = postRepository;
         }
         public async Task<CategoryModel> CreateCategoryAsync(CategoryModel category)
         {
@@ -95,13 +97,22 @@ namespace ActiveOfficeLife.Application.Services
                 {
                     throw new ArgumentException("Category ID cannot be empty", nameof(id));
                 }
-                var category = await _categoryRepository.GetByIdAsync(id);
+                var category = await _categoryRepository.GetById(id);
                 if (category == null)
                 {
                     throw new KeyNotFoundException($"Category with ID {id} not found");
                 }
-                category.IsDeleted = true;
-                _categoryRepository.UpdateAsync(category);
+                var checkUsing = await _categoryRepository.CheckUsing(id);
+                if (checkUsing)
+                {
+                    category.IsActive = false; // If the category is being used, just deactivate it instead of deleting
+                    _categoryRepository.UpdateAsync(category);
+                }
+                else
+                {
+                    // If the category is not being used, perform a soft delete
+                    _categoryRepository.RemoveAsync(category);
+                }
                 await _unitOfWork.SaveChangesAsync();
                 return true; // Return true if deletion was successful
             }

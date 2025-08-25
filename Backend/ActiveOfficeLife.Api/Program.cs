@@ -7,6 +7,7 @@ using ActiveOfficeLife.Domain.EFCore.DBContext;
 using ActiveOfficeLife.Infrastructure;
 using ActiveOfficeLife.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -75,7 +76,11 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
-
+//builder.Services.Configure<ApiBehaviorOptions>(options =>
+//{
+//    // Tắt hành vi mặc định của ASP.NET Core khi model state không hợp lệ
+//    options.SuppressModelStateInvalidFilter = true;
+//});
 // Cho phép tất cả CORS
 builder.Services.AddCors(options =>
 {

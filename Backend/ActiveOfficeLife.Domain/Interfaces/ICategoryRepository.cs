@@ -15,5 +15,6 @@ namespace ActiveOfficeLife.Domain.Interfaces
         Task<Category?> GetById(Guid id);
         Task<bool> CheckExitsByName(string name, Guid id);
         Task<bool> CheckExitsBySlug(string slug, Guid id);
+        Task<bool> CheckUsing(Guid id);
     }
 }

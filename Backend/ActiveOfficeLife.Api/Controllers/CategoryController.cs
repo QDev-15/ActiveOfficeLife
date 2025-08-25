@@ -124,8 +124,14 @@ namespace ActiveOfficeLife.Api.Controllers
         [HttpPut("update")]
         public async Task<IActionResult> UpdateCategory([FromBody] CategoryModel category)
         {
-            if (category == null || category.Id == Guid.Empty)
+            // Nếu parse sai kiểu, ASP.NET Core sẽ để giá trị default (null hoặc 0)
+            if (!ModelState.IsValid)
             {
+                return BadRequest(new ResultError("Invalid model state.", "400"));
+
+            }
+            if (category == null || category.Id == Guid.Empty)
+            {       
                 return BadRequest(new ResultError("Invalid category data.", "400"));
             }
             try

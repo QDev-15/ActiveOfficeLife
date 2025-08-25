@@ -30,7 +30,41 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             return exists;
         }
 
-        public async Task<IEnumerable<Category>> GetAllAsync()
+        public async Task<bool> CheckUsing(Guid id)
+        {
+            // check xem Category này có được sử dụng trong các bài viết, hay có con được sử dụng trong các bài viết khác không
+            // nếu có thì trả về true, ngược lại trả về false
+            var category  = await _context.Categories
+                .Include(x => x.Posts)
+                .Include(x => x.Children)
+                .FirstOrDefaultAsync(x => x.Id == id);
+                        
+            bool exists = CheckCategoryExistsPosts(category);
+            return exists;
+        }
+        private bool CheckCategoryExistsPosts(Category? category)
+        {
+            if (category == null)
+            {
+                return false;
+            }
+            bool exists = false;
+            // Kiểm tra xem Category có bài viết nào không
+            if (category.Posts != null && category.Posts.Any())
+            {
+                exists = true;
+            }
+            // Kiểm tra xem Category có con nào có bài viết không
+            foreach (var child in category.Children)
+            {
+                if (CheckCategoryExistsPosts(child))
+                {
+                    exists = true;
+                }
+            }
+            return exists;
+        }
+        public new async Task<IEnumerable<Category>> GetAllAsync()
         {
             return await _context.Categories.Where(x => x.IsDeleted == false).Include(x => x.SeoMetadata).Include(x => x.Children).Include(x=> x.Parent).ToListAsync();
         }
@@ -77,6 +111,25 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
         {
             return await _context.Categories.Include(x => x.SeoMetadata).Include(x => x.Parent).Include(x => x.Children).FirstOrDefaultAsync(x => x.Id == id);
         }
+        // override RemoveAsync method to set IsDeleted = true instead of removing from database
+        public new void RemoveAsync(Category entity)
+        {
+            if (entity.SeoMetadata != null)
+            {
+                _context.SeoMetadata.Remove(entity.SeoMetadata);
+            }
+            if (entity.Children != null && entity.Children.Any())
+            {
+                // remove all children categories
+                foreach (var child in entity.Children)
+                {
+                    RemoveAsync(child);
+                }
+            }
+            // set IsDeleted = true instead of removing from database
+            _context.Categories.Remove(entity);
+        }
+        
 
         public async Task<IEnumerable<Category>> GetByParrentId(Guid parentId)
         {

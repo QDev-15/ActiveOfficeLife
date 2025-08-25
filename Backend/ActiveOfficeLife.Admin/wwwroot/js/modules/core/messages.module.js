@@ -1,5 +1,6 @@
 ﻿// messages.module.js
 export const MessageType = {
+    Success: 'success',
     Info: 'info',
     Warning: 'warning',
     Error: 'error',
@@ -54,6 +55,12 @@ class MessageModule {
         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
 
         const config = {
+            [MessageType.Success]: {
+                title: 'Thành công',
+                color: 'bg-success',
+                icon: 'bi-check-circle-fill',
+                btn: 'btn-success'
+            },
             [MessageType.Info]: {
                 title: 'Thông báo',
                 color: 'bg-info',
@@ -138,6 +145,11 @@ class MessageModule {
         });
     }
 
+    static success(message, opts = {}) {
+        return this.show({
+            type: MessageType.Success, message, ...opts
+        });
+    }
     static info(message, opts = {}) {
         return this.show({
             type: MessageType.Info, message, ...opts

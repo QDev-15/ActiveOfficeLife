@@ -123,6 +123,19 @@ class CategoryModule {
                 },
                 {
                     data: null, // null để lấy toàn bộ row
+                    title: "Status",
+                    className: "text-center",
+                    orderable: false,
+                    render: function (data, type, row) {
+                        if (data.isActive) {
+                            return '<span class="badge bg-success">Active</span>';
+                        } else {
+                            return '<span class="badge bg-secondary">Deactivated</span>';
+                        }
+                    }
+                },
+                {
+                    data: null, // null để lấy toàn bộ row
                     title: "Actions",
                     className: "text-center",
                     orderable: false,
@@ -164,7 +177,7 @@ class CategoryModule {
         payload.parentId = payload.parentId === "0" ? null : payload.parentId;
         apiInstance.post('/category/create', payload)
             .then(res => {
-                messageInstance.info("Thêm mới thành công!");
+                messageInstance.success("Thêm mới thành công!");
                 this.modalCategory.hide();
                 this.refreshData();
             })
@@ -194,7 +207,7 @@ class CategoryModule {
         payload.parentId = payload.parentId === "0" ? null : payload.parentId;
         apiInstance.put('/category/update', payload)
             .then(res => {
-                messageInstance.info("Cập nhật thành công!");
+                messageInstance.success("Cập nhật thành công!");
                 this.modalCategory.hide();
                 this.refreshData();
             })
@@ -246,8 +259,20 @@ class CategoryModule {
 
     }
     delete(id, name) {
-        console.log("id = ", id);
-        this.messageApp.info('Xóa Bản ghi: ' + name);
+        var message = "Bạn có chắc chắn muốn xóa danh mục <strong>" + name + "</strong> không?";
+        this.messageApp.confirm(message).then((result) => {
+            if (result) {
+                apiInstance.delete('/category/delete?id=' + id)
+                    .then(res => {
+                        this.messageApp.success("Xóa thành công!");
+                        this.refreshData();
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        this.messageApp.error("Lỗi khi xóa danh mục!");
+                    });
+            };
+        });
     }
 
     refreshData() {

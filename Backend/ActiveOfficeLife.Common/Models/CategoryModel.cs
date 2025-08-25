@@ -6,6 +6,8 @@
         public string Name { get; set; } = null!;
         public string Slug { get; set; } = null!;
         public string? Description { get; set; }
+        public bool IsActive { get; set; } = true; // Trạng thái hoạt động của chuyên mục
+        public bool IsDeleted { get; set; } = false; // Trạng thái đã xóa (soft delete)
 
         // SEO
         public Guid? SeoMetadataId { get; set; }
