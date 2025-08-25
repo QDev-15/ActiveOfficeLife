@@ -17,5 +17,4 @@
     <ProjectReference Include="..\ActiveOfficeLife.Domain\ActiveOfficeLife.Domain.csproj" />
     <ProjectReference Include="..\ActiveOfficeLife.Infrastructure\ActiveOfficeLife.Infrastructure.csproj" />
   </ItemGroup>
-
 </Project>

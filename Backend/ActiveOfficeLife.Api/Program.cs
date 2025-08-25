@@ -141,9 +141,7 @@ builder.Services.AddSwaggerGen(c =>
 
 
 var app = builder.Build();
-// setup ILogService for static helper
-//var logService = app.Services.GetRequiredService<ILogService>();
-//AOLLogger.LogService = logService;
+
 // ✅ ILogService từ DI container
 using (var scope = app.Services.CreateScope())
 {
@@ -166,8 +164,6 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
@@ -178,27 +174,6 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 app.UseHttpsRedirection();
 app.UseRouting();           // Xác định endpoint
 app.UseCors("AllowAll");    // Gắn header CORS cho response
-app.Use(async (context, next) =>
-{
-    var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-    logger.LogInformation("➡️ Request path: {Path}", context.Request.Path);
-    logger.LogInformation("➡️ Request method: {Method}", context.Request.Method);
-    if (context.Request.Method == HttpMethods.Options)
-    {
-        
-        logger.LogInformation("➡️ Preflight OPTIONS request detected: {Path}", context.Request.Path);
-
-        context.Response.Headers.Add("Access-Control-Allow-Origin", "*");
-        context.Response.Headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        context.Response.Headers.Add("Access-Control-Allow-Headers", "Content-Type, Authorization");
-        context.Response.StatusCode = 200;
-        await context.Response.CompleteAsync();
-    }
-    else
-    {
-        await next();
-    }
-});
 app.UseAuthentication();    // Xác thực (JWT, cookie, v.v.)
 app.UseAuthorization();     // Phân quyền
 app.MapControllers();       // Map đến controller

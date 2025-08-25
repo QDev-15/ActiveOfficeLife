@@ -14,13 +14,6 @@ namespace ActiveOfficeLife.Api
 
         public async Task Invoke(HttpContext context, IUserTokenRepository tokenRepository)
         {
-            // ✅ Bỏ qua preflight CORS request
-            if (context.Request.Method.Equals(HttpMethods.Options, StringComparison.OrdinalIgnoreCase))
-            {
-                await _next(context);
-                return;
-            }
-
             // Lấy endpoint hiện tại
             var endpoint = context.GetEndpoint();
 
