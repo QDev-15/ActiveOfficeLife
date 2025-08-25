@@ -1,4 +1,5 @@
 ﻿using ActiveOfficeLife.Common.Models;
+using ActiveOfficeLife.Common.Requests;
 using ActiveOfficeLife.Common.Responses;
 using ActiveOfficeLife.Domain.Entities;
 using ActiveOfficeLife.Domain.Interfaces;
@@ -15,31 +16,27 @@ namespace ActiveOfficeLife.Api.Controllers
             _logRepository = logRepository ?? throw new ArgumentNullException(nameof(logRepository));
         }
         [HttpGet("all")]
-        public async Task<IActionResult> Index(
-            [FromQuery] DateTime? startDate,
-            [FromQuery] DateTime? endDate,
-            [FromQuery] int pageIndex = 1,
-            [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> Index([FromQuery] PagingRequest request)
         {
             // Gán mặc định nếu không có giá trị
-            startDate ??= DateTime.MinValue;
-            endDate ??= DateTime.MaxValue;
+            request.StartDate ??= DateTime.MinValue;
+            request.EndDate ??= DateTime.MaxValue;
 
             // Validate khoảng ngày
-            if (startDate > endDate)
+            if (request.StartDate > request.EndDate)
             {
                 return BadRequest(new ResultError("Start date cannot be after end date.", "400"));
             }
 
             // Lấy dữ liệu
-            var logs = await _logRepository.GetAllAsync(startDate.Value, endDate.Value, pageIndex, pageSize);
+            var logs = await _logRepository.GetAllAsync(request);
 
             return Ok(new ResultSuccess(new
             {
                 Items = logs.Items ?? new List<LogModel>(),
                 TotalCount = logs.totalCount,
-                PageIndex = pageIndex,
-                PageSize = pageSize
+                PageIndex = request.PageIndex,
+                PageSize = request.PageSize
             }));
         }
 

@@ -76,11 +76,11 @@ builder.Services.AddAuthentication(options =>
         }
     };
 });
-//builder.Services.Configure<ApiBehaviorOptions>(options =>
-//{
-//    // Tắt hành vi mặc định của ASP.NET Core khi model state không hợp lệ
-//    options.SuppressModelStateInvalidFilter = true;
-//});
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    // Tắt hành vi mặc định của ASP.NET Core khi model state không hợp lệ
+    options.SuppressModelStateInvalidFilter = true;
+});
 // Cho phép tất cả CORS
 builder.Services.AddCors(options =>
 {

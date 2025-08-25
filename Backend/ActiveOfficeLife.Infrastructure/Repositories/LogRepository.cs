@@ -1,4 +1,5 @@
 ﻿using ActiveOfficeLife.Common.Models;
+using ActiveOfficeLife.Common.Requests;
 using ActiveOfficeLife.Domain.EFCore.DBContext;
 using ActiveOfficeLife.Domain.Entities;
 using ActiveOfficeLife.Domain.Interfaces;
@@ -24,14 +25,26 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
 
         public void Enqueue(Log log) => _queue.Enqueue(log);
 
-        public async Task<(IEnumerable<LogModel> Items, int totalCount)> GetAllAsync(int pageNumber = 1, int pageSize = 10)
+        public async Task<(IEnumerable<LogModel> Items, int totalCount)> GetAllAsync(PagingRequest request)
         {
-           var logs = await _context.Logs
-                .OrderByDescending(log => log.Timestamp)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+            var query = _context.Logs.OrderByDescending(log => log.Timestamp).AsQueryable();
+
+            if (request.StartDate.HasValue && request.EndDate.HasValue)
+            {
+                query = query.Where(log => log.Timestamp >= request.StartDate.Value && log.Timestamp <= request.EndDate.Value);
+            }
+            if (request.SearchText != null)
+            {
+                query = query.Where(log => log.Message.Contains(request.SearchText) || log.UserId!.Contains(request.SearchText) 
+                        || log.IpAddress!.Contains(request.SearchText) || log.RequestPath!.Contains(request.SearchText) 
+                        || log.Source!.Contains(request.SearchText) || log.StackTrace!.Contains(request.SearchText));
+            }
+
+            var logs = await query
+                .Skip((request.PageIndex - 1) * request.PageSize)
+                .Take(request.PageSize)
                 .ToListAsync();
-            var totalCount = await _context.Logs.CountAsync();
+            var totalCount = await query.CountAsync();
             return (logs.Select(log => new LogModel()
             {
                 Id = log.Id.ToString(),
@@ -45,30 +58,6 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
                 StackTrace = log.StackTrace
             }), totalCount);
         }
-
-        public async Task<(IEnumerable<LogModel> Items, int totalCount)> GetAllAsync(DateTime startDate, DateTime endDate, int pageNumber, int pageSize)
-        {
-            var logs = await _context.Logs
-                .Where(log => log.Timestamp >= startDate && log.Timestamp <= endDate)
-                .OrderByDescending(log => log.Timestamp)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-            var totalCount = await _context.Logs.CountAsync(log => log.Timestamp >= startDate && log.Timestamp <= endDate);
-            return (logs.Select(log => new LogModel()
-            {
-                Id = log.Id.ToString(),
-                Message = log.Message,
-                Level = log.Level.ToString(),
-                Timestamp = log.Timestamp,
-                UserId = log.UserId,
-                IpAddress = log.IpAddress,
-                RequestPath = log.RequestPath,
-                Source = log.Source,
-                StackTrace = log.StackTrace
-            }), totalCount);
-        }
-
         public bool TryDequeue(out Log log) => _queue.TryDequeue(out log);
     }
 }

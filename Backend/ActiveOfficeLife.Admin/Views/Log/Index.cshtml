@@ -33,32 +33,15 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4>Logs</h4>
         <div>
-            <button class="btn btn-secondary" onclick="logInstance.fetchData()">🔄 Refresh</button>
+            <button class="btn btn-secondary" onclick="logInstance.refesh()">🔄 Refresh</button>
         </div>
     </div>
 
     <div id="table-log" class="table-responsive">
-        <table class="table table-hover table-bordered align-middle table-wrap">
-            <thead class="table-light">
-                <tr>
-                    <th>#</th>
-                    <th class="col-message">Message</th>
-                    <th>Level</th>
-                    <th>Date</th>
-                    <th>action</th>
-                </tr>
-            </thead>
-            <tbody id="logTableBody">
-                <!-- Data sẽ được render ở đây -->
-            </tbody>
-        </table>
-        <nav>
-            <ul class="pagination justify-content-center mt-3" id="pagination">
-                <!-- Pagination buttons sẽ được render ở đây -->
-            </ul>
-        </nav>
+        <!-- Table -->
+        <table id="logsTable" class="table table-bordered table-striped table-hover table-wrap" style="width:100%"></table>
     </div>
 </div>
 <script type="module">
-    logInstance.fetchData();
+    logInstance.initTable();
 </script>
