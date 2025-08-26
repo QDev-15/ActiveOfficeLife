@@ -28,7 +28,7 @@ namespace ActiveOfficeLife.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var response = await _apiService.GetAsync(Common.AOLEndPoint.CategoryGetAll);
+            var response = await _apiService.GetAsync(Common.AOLEndPoint.CategoryGetAll + "?pageSize=1000");
             var parents = await response.ToModelAsync<List<CategoryModel>>() ?? new List<CategoryModel>();
 
             var selectList = new List<SelectListItem>() { new SelectListItem()

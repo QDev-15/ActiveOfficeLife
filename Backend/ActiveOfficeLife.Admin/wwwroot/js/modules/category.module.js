@@ -59,7 +59,7 @@ class CategoryModule {
                     pageIndex: (d.start / d.length) + 1,
                     pageSize: d.length,
                     keySearch: d.search.value || "",
-                    sortField: d.order.length > 0 ? d.columns[d.order[0].column].data : "name",
+                    sortField: d.order.length > 0 ? d.columns[d.order[0].column].name : "name",
                     sortDirection: d.order.length > 0 ? d.order[0].dir : "desc"
                 };
 
@@ -95,12 +95,14 @@ class CategoryModule {
                 },
                 {
                     data: "name",
+                    name: "name",
                     title: "Category Name",
                     className: "fw-bold text-primary",
                     orderable: true
                 },
                 {
                     data: "slug",
+                    name: "slug",
                     title: "Slug",
                     className: "text-center",
                     orderable: true,
@@ -111,9 +113,10 @@ class CategoryModule {
                 },
                 {
                     data: null, // null để lấy toàn bộ row
+                    name: "parent",
                     title: "Parent name",
                     className: "text-center",
-                    orderable: false,
+                    orderable: true,
                     render: function (data, type, row) {
                         if (data.parent && data.parent.name) {
                             return data.parent.name;

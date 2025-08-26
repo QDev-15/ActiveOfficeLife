@@ -25,7 +25,7 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
 
         public void Enqueue(Log log) => _queue.Enqueue(log);
 
-        public async Task<(IEnumerable<LogModel> Items, int totalCount)> GetAllAsync(PagingRequest request)
+        public async Task<(IEnumerable<LogModel> Items, int totalCount)> GetAllAsync(PagingLogRequest request)
         {
             var query = _context.Logs.OrderByDescending(log => log.Timestamp).AsQueryable();
 

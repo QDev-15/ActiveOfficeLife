@@ -9,6 +9,6 @@ namespace ActiveOfficeLife.Domain.Interfaces
         void Enqueue(Log log);
         bool TryDequeue(out Log log);
         // get all logs paginated
-        Task<(IEnumerable<LogModel> Items, int totalCount)> GetAllAsync(PagingRequest request);
+        Task<(IEnumerable<LogModel> Items, int totalCount)> GetAllAsync(PagingLogRequest request);
     }
 }

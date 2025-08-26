@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Api.Controllers
 {
-    public class LogerController : BaseController
+    public class LogsController : BaseController
     {
         private readonly ILogRepository _logRepository;
-        public LogerController(ILogRepository logRepository)
+        public LogsController(ILogRepository logRepository)
         {
             _logRepository = logRepository ?? throw new ArgumentNullException(nameof(logRepository));
         }
         [HttpGet("all")]
-        public async Task<IActionResult> Index([FromQuery] PagingRequest request)
+        public async Task<IActionResult> Index([FromQuery] PagingLogRequest request)
         {
             // Gán mặc định nếu không có giá trị
             request.StartDate ??= DateTime.MinValue;

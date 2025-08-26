@@ -46,10 +46,11 @@ class LogModule {
                     endDate: $("#endDate").val() || null      
                 };
 
-                apiInstance.get('/loger/all', params)
+                apiInstance.get('/logs/all', params)
                     .then(response => {
                         this.pageSize = response.pageSize;
                         this.pageIndex = response.pageIndex;
+                        window.logItems = response.items; // Lưu tạm để xem chi tiết
                         callback({
                             data: response.items || [],
                             recordsTotal: response.totalCount || 0,
@@ -103,7 +104,7 @@ class LogModule {
                     className: "text-center",
                     orderable: false,
                     render: function (data, type, row) {
-                        return `<button class="btn btn-success me-2" logInstance.view('${data.id}'">View</button>`;
+                        return `<button class="btn btn-success me-2" onclick="logInstance.view('${data.id}')">View</button>`;
                     }
                 }
             ],
@@ -113,7 +114,16 @@ class LogModule {
     }
 
     view(id) {
-        
+        var modal = new bootstrap.Modal(document.getElementById('logDetailModal'));
+        var log = window.logItems.find(x => x.id === id);
+        // show log details in modal body show by json format
+        if (log) {
+            var modalBody = document.getElementById('logDetailModalBody');
+            modalBody.innerHTML = `<pre>${JSON.stringify(log, null, 2)}</pre>`;
+            modal.show();
+        } else {
+            this.messageApp.error("Log not found");
+        }
     }
 
     refesh() {

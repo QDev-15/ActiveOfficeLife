@@ -23,7 +23,7 @@ namespace ActiveOfficeLife.Api.Controllers
 
         // get all with paging using GET method and query parameters sortField = 'name', sortDirection = 'asc', pageIndex = 1, pageSize = 10
         [HttpGet("all")]
-        public async Task<IActionResult> GetAllCategoriesPaging([FromQuery] PagingRequest request)
+        public async Task<IActionResult> GetAllCategoriesPaging([FromQuery] PagingCategoryRequest request)
         {
             try
             {

@@ -66,6 +66,6 @@
         public static string AnalyticsGetPostEngagement = "/api/analytics/postengagement";
         public static string AnalyticsGetCategoryPerformance = "/api/analytics/categoryperformance";
         // log Endpoints
-        public static string LogGetAll = "/api/logger/all";
+        public static string LogGetAll = "/api/logs/all";
     }
 }

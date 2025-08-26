@@ -21,9 +21,5 @@ namespace ActiveOfficeLife.Common.Requests
         public string? search { set; get; } = null;
         public string? keySearch { set; get; } = null;
         public string? keyWord { set; get; } = null;
-
-        public DateTime? StartDate { set; get; } = null;
-
-        public DateTime? EndDate { set; get; } = null;
     }
 }

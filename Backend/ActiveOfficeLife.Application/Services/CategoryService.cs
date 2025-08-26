@@ -238,7 +238,7 @@ namespace ActiveOfficeLife.Application.Services
             }
         }
 
-        public async Task<(List<CategoryModel> Categories, int count)> GetAllCategoriesPagingAsync(PagingRequest request)
+        public async Task<(List<CategoryModel> Categories, int count)> GetAllCategoriesPagingAsync(PagingCategoryRequest request)
         {
             try
             {

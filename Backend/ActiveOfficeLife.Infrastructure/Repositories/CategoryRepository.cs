@@ -68,13 +68,15 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
         {
             return await _context.Categories.Where(x => x.IsDeleted == false).Include(x => x.SeoMetadata).Include(x => x.Children).Include(x=> x.Parent).ToListAsync();
         }
-        public async Task<(IEnumerable<Category> Categories, int Count)> GetAllWithPaging(PagingRequest request)
+        public async Task<(IEnumerable<Category> Categories, int Count)> GetAllWithPaging(PagingCategoryRequest request)
         {
             var allowedFields = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 { "name", "Name" },
                 { "slug", "Slug" },
-                { "isActive", "IsActive" }
+                { "isActive", "IsActive" },
+                { "parent", "parent" },
+                
             };
             if (!allowedFields.TryGetValue(request.SortField ?? "", out var actualSortField))
             {
@@ -82,15 +84,21 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
                 request.SortField = actualSortField;
             }
             IQueryable<Category> query = _context.Categories.Where(x => x.IsDeleted == false);
+            
+
             // check and filter by search text igonre case sensitivity
             if (!string.IsNullOrEmpty(request.SearchText))
             {
                 var search = $"%{request.SearchText.ToLower()}%";
                 query = query
-                    .Where(c => EF.Functions.Like(c.Name.ToLower(), search) || EF.Functions.Like(c.Slug.ToLower(), search));
+                    .Where(c => (c.Parent != null && EF.Functions.Like(c.Parent.Name.ToLower(), search)) || EF.Functions.Like(c.Name.ToLower(), search) || EF.Functions.Like(c.Slug.ToLower(), search));
             }
 
-            if (!string.IsNullOrEmpty(actualSortField))
+            if (actualSortField == "parent")
+            {
+                //sort category first with parent null, and group by parent category
+                query = query.OrderBy(c => c.ParentId == null ? 0 : 1).ThenBy(c => c.ParentId).ThenBy(c => c.Name);
+            } else if (!string.IsNullOrEmpty(actualSortField))
             {
                 if (request.SortDirection.ToLower() == "asc")
                 {

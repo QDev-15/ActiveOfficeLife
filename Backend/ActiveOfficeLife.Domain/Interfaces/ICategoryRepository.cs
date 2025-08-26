@@ -10,7 +10,7 @@ namespace ActiveOfficeLife.Domain.Interfaces
 {
     public interface ICategoryRepository : _IRepository<Category>
     {
-        Task<(IEnumerable<Category> Categories, int Count)> GetAllWithPaging(PagingRequest request);
+        Task<(IEnumerable<Category> Categories, int Count)> GetAllWithPaging(PagingCategoryRequest request);
         Task<IEnumerable<Category>> GetByParrentId(Guid parentId);
         Task<Category?> GetById(Guid id);
         Task<bool> CheckExitsByName(string name, Guid id);
