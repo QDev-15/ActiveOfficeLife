@@ -5,29 +5,7 @@
     ViewData["Title"] = "Logs";
     // Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<style>
-    tr:hover {
-        background-color: #f1f1f1;
-        cursor: pointer;
-    }
 
-    tr.selected {
-        background-color: #d0ebff !important;
-    }
-    /* Giới hạn chiều rộng cột Message nhưng vẫn cho xuống dòng */
-    .table-wrap td,
-    .table-wrap th {
-        white-space: normal; /* Cho phép xuống dòng */
-        word-break: break-word; /* Ngắt từ khi quá dài */
-        height: auto; /* Auto co giãn chiều cao */
-        text-overflow: ellipsis; /* Hiển thị ... nếu dài quá */
-    }
-
-    .col-message {
-        max-width: 400px; /* Giới hạn chiều rộng cột Message */
-    }
-
-</style>
 
 <div class="container">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -38,6 +16,14 @@
     </div>
 
     <div id="table-log" class="table-responsive">
+        <div class="row mb-3 justify-content-sm-center">
+            <div class="col-md-3">
+                <input type="date" id="startDate" onchange="logInstance.refesh()" class="form-control" placeholder="Start Date">
+            </div>
+            <div class="col-md-3">
+                <input type="date" id="endDate" onchange="logInstance.refesh()" class="form-control" placeholder="End Date">
+            </div>
+        </div>
         <!-- Table -->
         <table id="logsTable" class="table table-bordered table-striped table-hover table-wrap" style="width:100%"></table>
     </div>

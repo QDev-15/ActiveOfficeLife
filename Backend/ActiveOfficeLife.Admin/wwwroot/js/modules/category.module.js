@@ -45,6 +45,7 @@ class CategoryModule {
             searchDelay: 500, // searchDelay mặc định sau 0.5s mới search
             order: [[1, 'desc']],
             pagingType: "full_numbers", // để hiển thị First, Prev, Next, Last
+            mark: true, // ✅ Bật highlight search
             language: {
                 paginate: {
                     first: '<i class="bi bi-chevron-double-left"></i>',

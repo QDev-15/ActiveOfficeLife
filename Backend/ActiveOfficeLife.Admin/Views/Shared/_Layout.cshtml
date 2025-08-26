@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <!-- Primary Meta Tags -->
@@ -55,6 +55,8 @@
 
     <!-- Css Custom site -->
     <link type="text/css" href="~/css/site.css" rel="stylesheet" />
+
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
    
     <!-- Moment.js (để format ngày) -->
@@ -80,11 +82,11 @@
     @Html.Partial("/Views/Shared/Partials/_navBar.cshtml")
     <main class="content flex-fill d-flex flex-column">
         @Html.Partial("/Views/Shared/Partials/_topBar.cshtml")
-        <div class="flex-fill mt-3">
+        <div class="main-body-container flex-fill pt-3">
             @RenderBody()
         </div>
+        @Html.Partial("_footer.cshtml")
     </main>
-    @Html.Partial("_footer.cshtml")
     @Html.Partial("_global.cshtml")
     <!-- Core -->
     <script src="/volt/vendor/popperjs/core/dist/umd/popper.min.js"></script>
@@ -92,6 +94,10 @@
     <!-- DataTables JS -->
     <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.8/js/dataTables.bootstrap5.min.js"></script>
+    @* datatable plugin heighlight search *@
+    <script src="https://cdn.jsdelivr.net/npm/mark.js@8.11.1/dist/jquery.mark.min.js"></script>
+    <script src="https://cdn.datatables.net/plug-ins/1.13.6/features/mark.js/datatables.mark.js"></script>
+
     <!-- Vendor JS -->
     <script src="/volt/vendor/onscreen/dist/on-screen.umd.min.js"></script>
 
@@ -133,5 +139,6 @@
 
     <!-- JS Select2 -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
 </body>
 </html>

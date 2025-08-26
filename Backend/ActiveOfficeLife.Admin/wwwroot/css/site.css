@@ -17,10 +17,26 @@ html {
   min-height: 100%;
 }
 
-body {
-  margin-bottom: 60px;
+main.content {
+    height: 100vh;
+    padding: 0;
 }
 
+    main.content nav {
+        padding: 15px !important;
+        border-radius: 0;
+        box-shadow: 0 1px 4px 0 rgb(0 0 0 / 38%);
+    }
+    main.content .main-body-container {
+        overflow: auto;
+    }
+    main.content footer {
+        border-radius: 0 !important;
+        box-shadow: 0 1px 4px 0 rgb(0 0 0 / 38%) !important;
+    }
+    .main-body-container {
+        display: block;
+    }
 .dataTables_length select.form-select {
     min-width: 70px;
 }
@@ -39,3 +55,31 @@ body {
 .table tbody tr td {
     vertical-align: middle;
 }
+mark {
+    background: yellow;
+    color: black;
+    padding: 0 2px;
+    border-radius: 3px;
+}
+.table {
+    font-size: 0.9rem;
+}
+.table tr:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+}
+
+.table tr.selected {
+    background-color: #d0ebff !important;
+}
+/* Giới hạn chiều rộng cột Message nhưng vẫn cho xuống dòng */
+    .table.table-wrap td, .table.table-wrap th {
+        white-space: normal; /* Cho phép xuống dòng */
+        word-break: break-word; /* Ngắt từ khi quá dài */
+        height: auto; /* Auto co giãn chiều cao */
+        text-overflow: ellipsis; /* Hiển thị ... nếu dài quá */
+    }
+
+    .table .col-message {
+        max-width: 400px; /* Giới hạn chiều rộng cột Message */
+    }

@@ -26,6 +26,7 @@ class LogModule {
             searchDelay: 500, // searchDelay mặc định sau 0.5s mới search
             order: [[1, 'desc']],
             pagingType: "full_numbers", // để hiển thị First, Prev, Next, Last
+            mark: true, // ✅ Bật highlight search
             language: {
                 paginate: {
                     first: '<i class="bi bi-chevron-double-left"></i>',
@@ -40,7 +41,9 @@ class LogModule {
                     pageSize: d.length,
                     keySearch: d.search.value || "",
                     sortField: d.order.length > 0 ? d.columns[d.order[0].column].data : "name",
-                    sortDirection: d.order.length > 0 ? d.order[0].dir : "desc"
+                    sortDirection: d.order.length > 0 ? d.order[0].dir : "desc",
+                    startDate: $("#startDate").val() || null, 
+                    endDate: $("#endDate").val() || null      
                 };
 
                 apiInstance.get('/loger/all', params)

@@ -12,10 +12,14 @@ using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Configuration;
+using System.Globalization;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var cultureInfo = new CultureInfo("vi-VN");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 // Add services to the container.
 
 builder.Services.AddHttpClient();

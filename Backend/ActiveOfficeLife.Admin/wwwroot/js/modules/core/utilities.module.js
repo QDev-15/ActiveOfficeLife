@@ -2,6 +2,7 @@
 
 class Utilities {
     slugify(text) {
+        if (!text) return '';
         return text
             .toString()                    // ensure string
             .normalize('NFD')               // split accented chars
