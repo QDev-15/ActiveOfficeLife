@@ -4,9 +4,15 @@ using ActiveOfficeLife.Common.Enums;
 using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Common.Requests;
 using ActiveOfficeLife.Common.Responses;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.Auth.OAuth2.Responses;
+using Google.Apis.Drive.v3;
+using Google.Apis.Services;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace ActiveOfficeLife.Api.Controllers
 {
@@ -15,6 +21,9 @@ namespace ActiveOfficeLife.Api.Controllers
         private readonly ITokenService _tokenService;
         private readonly IUserService _userService;
         private readonly CustomMemoryCache _cache;
+        private readonly string clientSecretPath = "credentials.json"; // file tải từ Google Cloud
+        private readonly string tokenPath = "google-oauth-token.json"; // nơi lưu access + refresh token
+        private readonly string appName = "MyWebApp";
         public AuthController(ITokenService tokenService, IUserService userService, CustomMemoryCache cache)
         {
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
@@ -119,5 +128,7 @@ namespace ActiveOfficeLife.Api.Controllers
             _cache.Clear();
             return Ok(new ResultSuccess("Cache cleared successfully."));
         }
+
+        
     }
 }

@@ -6,6 +6,7 @@ using ActiveOfficeLife.Common.AppConfigs;
 using ActiveOfficeLife.Domain.EFCore.DBContext;
 using ActiveOfficeLife.Infrastructure;
 using ActiveOfficeLife.Infrastructure.Services;
+using GoogleApi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -110,6 +111,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
+    c.OperationFilter<FileUploadOperationFilter>();
     c.SwaggerDoc("v1", new() { Title = "AOL API", Version = "v1" });
 
     // Thêm phần cấu hình xác thực Bearer token
