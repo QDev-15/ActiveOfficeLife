@@ -9,6 +9,7 @@ namespace ActiveOfficeLife.Common.AppConfigs
     public class GoogleDriveAPI
     {
         public string? FolderID {set;get; } = null;
+        public string TokenFilePath { set;get; } = string.Empty;
         public bool AccountService {set;get; } = false;
         public bool OAuthClientService {set;get; } = false;
         public string AccountCredentialFileName {set;get; } = string.Empty;

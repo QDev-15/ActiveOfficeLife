@@ -403,3 +403,5 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+/Backend/ActiveOfficeLife.Api/aol-attachment-account-credentials.json
+/Backend/ActiveOfficeLife.Api/aol-attachment-OAuthClient-credentials.json

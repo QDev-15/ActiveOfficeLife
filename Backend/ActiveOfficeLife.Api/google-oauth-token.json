@@ -1,0 +1,11 @@
+{
+  "access_token": "ya29.A0AS3H6NzPXYCa-LqaSNXVVZi21M-V9BM31hg6h6KnnZil6NMEiyn2cgd0zJSJpC2eX9UlO-RtsZEmWgML2PteSKYDhgxVwdXbeTWR2OsMagep5W1x_4wQBbH9oCUfuZIqZCQpMm75Ob_BS0SuyLnWpAmsu6UAQK9FHvPDQ9uBLKJ2--aJJ5CUoYId75A0AXt3rSNnQ6kaCgYKAbQSARYSFQHGX2MiK9bncg23Vff5lESydEhHzg0206",
+  "token_type": "Bearer",
+  "expires_in": 3599,
+  "refresh_token": "1//0gLFmnPdjKG2hCgYIARAAGBASNgF-L9IrZOISzwQwin4umEh5NE2CydmMV4tMa4dgGI2Y3VvgvmQWcQw_DwpepJt5P6xgJp7Zjg",
+  "scope": "https://www.googleapis.com/auth/drive.file",
+  "id_token": null,
+  "expireTime": null,
+  "Issued": "2025-08-28T14:22:45.9639416+07:00",
+  "IssuedUtc": "2025-08-28T07:22:45.9639416Z"
+}

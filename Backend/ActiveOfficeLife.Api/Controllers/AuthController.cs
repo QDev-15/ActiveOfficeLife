@@ -21,9 +21,6 @@ namespace ActiveOfficeLife.Api.Controllers
         private readonly ITokenService _tokenService;
         private readonly IUserService _userService;
         private readonly CustomMemoryCache _cache;
-        private readonly string clientSecretPath = "credentials.json"; // file tải từ Google Cloud
-        private readonly string tokenPath = "google-oauth-token.json"; // nơi lưu access + refresh token
-        private readonly string appName = "MyWebApp";
         public AuthController(ITokenService tokenService, IUserService userService, CustomMemoryCache cache)
         {
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));

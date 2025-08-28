@@ -6,6 +6,7 @@ using Google.Apis.Drive.v3;
 using Google.Apis.Services;
 using GoogleApi;
 using GoogleApi.GoogleDrive;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Newtonsoft.Json;
@@ -18,6 +19,10 @@ namespace ActiveOfficeLife.Api.Controllers
         private readonly GoogleDriveOAuth2Service _googleOAuthClientDrive;
         private readonly GoogleDriveAccountService _googleAccountDrive;
         private readonly AppConfigService _appConfigService;
+
+        private const string RedirectUriLocal = "https://localhost:7029/api/ftp/callback";
+        private const string RedirectUriServer = "https://api.aol.tkid.io.vn/api/ftp/callback";
+        private const string FolderId = "16zz3OdwYgz4HlSBvtm9KRSaSU6qo91C-";
         public FTPController(IWebHostEnvironment env, AppConfigService appConfigService)
         {
             _appConfigService = appConfigService;
@@ -26,39 +31,26 @@ namespace ActiveOfficeLife.Api.Controllers
             _googleOAuthClientDrive = new GoogleDriveOAuth2Service(oAuthClientCredentialPath);
             //_googleAccountDrive = new GoogleDriveAccountService(accountCredentialPath);
         }
+        [AllowAnonymous]
+        [HttpGet("login")]
+        public IActionResult Login()
+        {
+            // Khi chạy local thì dùng RedirectUriLocal, khi chạy server thì dùng RedirectUriServer
+            var url = _googleOAuthClientDrive.GetAuthorizationUrl(RedirectUriLocal);
+            return Redirect(url);
+        }
+        [AllowAnonymous]
         [HttpGet("callback")]
         public async Task<IActionResult> Callback(string code, string state)
         {
             if (string.IsNullOrEmpty(code))
                 return BadRequest("Missing code");
 
-            // 1. Load client secret
-            GoogleClientSecrets clientSecrets;
-            using (var stream = new FileStream(_appConfigService.AppConfigs.GoogleDriveAPI.OAuthClienCredentialFileName, FileMode.Open, FileAccess.Read))
-            {
-                clientSecrets = GoogleClientSecrets.FromStream(stream);
-            }
-
-            // 2. Exchange code lấy token
-            // Exchange code lấy token
-            var flow = new GoogleAuthorizationCodeFlow(
-                new GoogleAuthorizationCodeFlow.Initializer
-                {
-                    ClientSecrets = clientSecrets.Secrets,
-                    Scopes = new[] { DriveService.ScopeConstants.DriveFile }
-                });
-
-            var tokenResponse = await flow.ExchangeCodeForTokenAsync(
-                userId: "user",
-                code: code,
-                redirectUri: $"{Request.Scheme}://{Request.Host}/ftp/callback",
-                taskCancellationToken: CancellationToken.None);
-
-            // 3. Save token vào file JSON
-            System.IO.File.WriteAllText("oauthclient-credentials-token-usercallback.json", JsonConvert.SerializeObject(tokenResponse));
+            await _googleOAuthClientDrive.ExchangeCodeForTokenAsync(code, $"{Request.Scheme}://{Request.Host}/ftp/callback");
 
             return Ok("Google OAuth2 Login Success! Token saved.");
         }
+        
 
        
         // upload file to web api using form-data with key 'file'
@@ -107,14 +99,14 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             if (request.File == null || request.File.Length == 0) return BadRequest("File empty");
             string urlResult = string.Empty;
-            if (_appConfigService.AppConfigs.GoogleDriveAPI.AccountService)
-            {
-                urlResult = await UploadToAccountDrive(request.File);
-            }
-            //else if (_appConfigService.AppConfigs.GoogleDriveAPI.OAuthClientService)
+            //if (_appConfigService.AppConfigs.GoogleDriveAPI.AccountService)
             //{
-            //    urlResult = await UploadToOAuthClientDrive(request.File);
+            //    urlResult = await UploadToAccountDrive(request.File);
             //}
+            if (_appConfigService.AppConfigs.GoogleDriveAPI.OAuthClientService)
+            {
+                urlResult = await UploadToOAuthClientDrive(request.File);
+            }
             return Ok(new { Url = urlResult });
         }
 
@@ -158,8 +150,8 @@ namespace ActiveOfficeLife.Api.Controllers
         }
         private async Task<string> UploadToOAuthClientDrive(IFormFile file)
         {
-            using var stream = file.OpenReadStream();
-            var url = await _googleOAuthClientDrive.UploadFileAsync(stream, file.FileName, file.ContentType, _appConfigService.AppConfigs.GoogleDriveAPI.FolderID);
+            var url = await _googleOAuthClientDrive.UploadFileAndMakePublicAsync(file, FolderId);
+
             return url;
         }
         #endregion
