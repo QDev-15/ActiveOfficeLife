@@ -15,5 +15,14 @@ namespace ActiveOfficeLife.Admin.Helpers
 
             return (controller.ToLower() == routeController) ? "active" : "";
         }
+        public static bool IsMenuOpen(this IHtmlHelper html, string controllers = null)
+        {
+            var routeData = html.ViewContext.RouteData;
+            var currentController = routeData.Values["controller"]?.ToString();
+
+            var acceptedControllers = string.IsNullOrEmpty(controllers) ? new[] { currentController } : controllers.Split(',');
+
+            return acceptedControllers.Contains(currentController) ? true : false;
+        }
     }
 }
