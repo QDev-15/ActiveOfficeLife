@@ -7,6 +7,8 @@ using ActiveOfficeLife.Domain.EFCore.DBContext;
 using ActiveOfficeLife.Infrastructure;
 using ActiveOfficeLife.Infrastructure.Services;
 using GoogleApi;
+using GoogleApi.Adapter;
+using GoogleApi.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -103,6 +105,7 @@ builder.Services.AddSingleton<CustomMemoryCache>();
 // Thêm các dịch vụ ứng dụng
 builder.Services.AddActiveOfficeLifeInfrastructure();
 builder.Services.AddActiveOfficeLifeApplication();
+builder.Services.AddScoped<IGoogleDriveInterface, GoogleDriveAdapter>();
 
 builder.Services.AddHostedService<LogBackgroundService>();
 

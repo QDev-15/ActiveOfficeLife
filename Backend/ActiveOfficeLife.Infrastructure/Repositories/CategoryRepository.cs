@@ -119,8 +119,8 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
         {
             return await _context.Categories.Include(x => x.SeoMetadata).Include(x => x.Parent).Include(x => x.Children).FirstOrDefaultAsync(x => x.Id == id);
         }
-        // override RemoveAsync method to set IsDeleted = true instead of removing from database
-        public new void RemoveAsync(Category entity)
+        // override Remove method to set IsDeleted = true instead of removing from database
+        public new void Remove(Category entity)
         {
             if (entity.SeoMetadata != null)
             {
@@ -131,7 +131,7 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
                 // remove all children categories
                 foreach (var child in entity.Children)
                 {
-                    RemoveAsync(child);
+                    Remove(child);
                 }
             }
             // set IsDeleted = true instead of removing from database

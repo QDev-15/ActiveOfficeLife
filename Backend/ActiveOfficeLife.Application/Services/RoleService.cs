@@ -53,7 +53,7 @@ namespace ActiveOfficeLife.Application.Services
                     AOLLogger.Error($"{msg} - Role not found by Id: {id.ToString()}");
                     throw new Exception($"Role not found");
                 }
-                _roleRepository.RemoveAsync(deleteRole);
+                _roleRepository.Remove(deleteRole);
                 await _iUnitOfWork.SaveChangesAsync();
                 return true;
             }
@@ -77,7 +77,7 @@ namespace ActiveOfficeLife.Application.Services
                 }
                 updateRole.Description = role.Description;
                 updateRole.Name = role.Name;
-                _roleRepository.UpdateAsync(updateRole);
+                _roleRepository.Update(updateRole);
                 await _iUnitOfWork.SaveChangesAsync();
                 return updateRole.ReturnModel();
             } catch(Exception ex)

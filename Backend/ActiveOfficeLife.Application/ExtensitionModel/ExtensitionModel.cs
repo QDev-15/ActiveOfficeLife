@@ -168,5 +168,21 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
                 UpdatedAt = seo.UpdatedAt
             };
         }
+        public static SettingModel ReturnModel(this Setting setting)
+        {
+            return new SettingModel()
+            {
+                Id = setting.Id,
+                Name = setting.Name,
+                Logo = setting.Logo,
+                PhoneNumber = setting.PhoneNumber,
+                Email = setting.Email,
+                Address = setting.Address,
+                GoogleClientId = setting.GoogleClientId,
+                GoogleClientSecretId = setting.GoogleClientSecretId,
+                GoogleFolderId = setting.GoogleFolderId,
+                GoogleToken = setting.GoogleToken
+            };
+        }
     }
 }

@@ -23,11 +23,11 @@ namespace ActiveOfficeLife.Domain.Interfaces
         Task<IEnumerable<T>> GetAllAsync();
         Task AddAsync(T entity);
         Task AddRangeAsync(IEnumerable<T> entities);
-        void UpdateAsync(T entity);
-        void UpdateRangeAsync(T entities);
+        void Update(T entity);
+        void UpdateRange(T entities);
 
-        void RemoveAsync(T entity);
-        void RemoveRangeAsync(IEnumerable<T> entities);
+        void Remove(T entity);
+        void RemoveRange(IEnumerable<T> entities);
 
     }
 }

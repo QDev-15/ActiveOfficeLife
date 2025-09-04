@@ -46,22 +46,22 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             return await _dbSet.FindAsync(guidId);
         }
 
-        public void RemoveAsync(T entity)
+        public void Remove(T entity)
         {
             _dbSet.Remove(entity);
         }
 
-        public void RemoveRangeAsync(IEnumerable<T> entities)
+        public void RemoveRange(IEnumerable<T> entities)
         {
             _dbSet.RemoveRange(entities);
         }
 
-        public void UpdateAsync(T entity)
+        public void Update(T entity)
         {
             _dbSet.Update(entity);
         }
 
-        public void UpdateRangeAsync(T entities)
+        public void UpdateRange(T entities)
         {
             _dbSet.UpdateRange(entities);
         }

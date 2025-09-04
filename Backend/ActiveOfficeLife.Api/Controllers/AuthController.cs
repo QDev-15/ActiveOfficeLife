@@ -1,5 +1,6 @@
 ﻿using ActiveOfficeLife.Application.Common;
 using ActiveOfficeLife.Application.Interfaces;
+using ActiveOfficeLife.Application.Services;
 using ActiveOfficeLife.Common.Enums;
 using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Common.Requests;
@@ -9,6 +10,7 @@ using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
 using Google.Apis.Drive.v3;
 using Google.Apis.Services;
+using GoogleApi.Interfaces;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,13 +23,43 @@ namespace ActiveOfficeLife.Api.Controllers
         private readonly ITokenService _tokenService;
         private readonly IUserService _userService;
         private readonly CustomMemoryCache _cache;
-        public AuthController(ITokenService tokenService, IUserService userService, CustomMemoryCache cache)
+        private readonly IGoogleDriveInterface _googleDriveInterface;
+        private readonly ISettingService _settingService;
+        private readonly AppConfigService _appConfigService;
+        public AuthController(ISettingService settingService, ITokenService tokenService, IUserService userService,
+            CustomMemoryCache cache, IGoogleDriveInterface googleDriveInterface, AppConfigService appConfigService)
         {
+            _appConfigService = appConfigService ?? throw new ArgumentNullException(nameof(appConfigService));
+            _settingService = settingService ?? throw new ArgumentNullException(nameof(settingService));
+            _googleDriveInterface = googleDriveInterface ?? throw new ArgumentNullException(nameof(googleDriveInterface));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _tokenService = tokenService;
             _userService = userService;
         }
+        [AllowAnonymous]
+        [HttpGet("callback")]
+        public async Task<IActionResult> Callback(string code, string state, string orgId)
+        {
+            var parsed = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(Request.Query["state"].ToString());
 
+            orgId = parsed.ContainsKey("orgId") ? parsed["orgId"].ToString() : null;
+            state = parsed.ContainsKey("state") ? parsed["state"].ToString() : null;
+            if (string.IsNullOrEmpty(code))
+                return BadRequest("Missing code");
+            if (string.IsNullOrEmpty(orgId))
+                return BadRequest("Missing orgId");
+            var setting = await _settingService.GetDefault(orgId);
+
+            var token = await _googleDriveInterface.ExchangeCodeForTokenAsync(new ClientSecrets()
+            {
+                ClientId = setting.GoogleClientId,
+                ClientSecret = setting.GoogleClientSecretId
+            }, code, _appConfigService.AppConfigs.ApiUrl + "/api/auth/callback");
+            setting.GoogleToken = JsonConvert.SerializeObject(token);
+            await _settingService.Update(setting);
+
+            return Ok("Google OAuth2 Login Success! Token saved.");
+        }
         [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)

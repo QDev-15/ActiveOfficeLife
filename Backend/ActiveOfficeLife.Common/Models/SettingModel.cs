@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ActiveOfficeLife.Domain.Entities
+namespace ActiveOfficeLife.Common.Models
 {
-    public class Setting
+    public class SettingModel
     {
         public Guid Id { get; set; }
-        public string Name { get; set; } = "Active Office Life";
+        public string? Name { get; set; }
         public string? Logo { get; set; }
         public string? PhoneNumber { get; set; }
         public string? Email { get; set; }

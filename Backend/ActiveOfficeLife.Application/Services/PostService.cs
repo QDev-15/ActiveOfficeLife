@@ -63,7 +63,7 @@ namespace ActiveOfficeLife.Application.Services
                     AOLLogger.Error($"{msgHdr}: Post with id {id} not found.");
                     return false; // Post not found
                 }
-                _postRepository.RemoveAsync(post);
+                _postRepository.Remove(post);
                 await _unitOfWork.SaveChangesAsync();
                 // Logic to delete the post by id
                 return true;
@@ -177,7 +177,7 @@ namespace ActiveOfficeLife.Application.Services
                 existingPost.Summary = post.Summary;
                 existingPost.Status = post.Status ?? PostStatus.Draft;
                 existingPost.UpdatedAt = DateTime.UtcNow;
-                _postRepository.UpdateAsync(existingPost);
+                _postRepository.Update(existingPost);
                 await _unitOfWork.SaveChangesAsync();
                 
                 return existingPost.ReturnModel();

@@ -106,12 +106,12 @@ namespace ActiveOfficeLife.Application.Services
                 if (checkUsing)
                 {
                     category.IsActive = false; // If the category is being used, just deactivate it instead of deleting
-                    _categoryRepository.UpdateAsync(category);
+                    _categoryRepository.Update(category);
                 }
                 else
                 {
                     // If the category is not being used, perform a soft delete
-                    _categoryRepository.RemoveAsync(category);
+                    _categoryRepository.Remove(category);
                 }
                 await _unitOfWork.SaveChangesAsync();
                 return true; // Return true if deletion was successful
@@ -227,7 +227,7 @@ namespace ActiveOfficeLife.Application.Services
                         UpdatedAt = category.SeoMetadata.UpdatedAt,
                     };
                 };
-                _categoryRepository.UpdateAsync(cat);
+                _categoryRepository.Update(cat);
                 await _unitOfWork.SaveChangesAsync();
                 return cat.ReturnModel();
 

@@ -22,6 +22,7 @@ namespace ActiveOfficeLife.Application
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<ISettingService, SettingService>();
             return services;
 
         }

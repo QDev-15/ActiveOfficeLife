@@ -48,7 +48,7 @@ namespace ActiveOfficeLife.Application.Services
                 userToken.RefreshToken = GenerateRefreshToken();
                 userToken.RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays); // Set refresh token expiration
                 userToken.IpAddress = ipAddress;
-                _userTokenRepository.UpdateAsync(userToken);
+                _userTokenRepository.Update(userToken);
                 await _unitOfWork.SaveChangesAsync();
 
                 // If a token already exists for this user and IP address, return it
@@ -101,7 +101,7 @@ namespace ActiveOfficeLife.Application.Services
                 {
                     userToken.AccessTokenExpiresAt = DateTime.UtcNow;
                     userToken.RefreshTokenExpiresAt = DateTime.UtcNow;
-                    _userTokenRepository.UpdateAsync(userToken);
+                    _userTokenRepository.Update(userToken);
                     await _unitOfWork.SaveChangesAsync();
                 }
             }
@@ -281,7 +281,7 @@ namespace ActiveOfficeLife.Application.Services
             userToken.RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationDays);
             userToken.IpAddress = ipAddress;
             userToken.CreatedAt = DateTime.UtcNow;
-            _userTokenRepository.UpdateAsync(userToken);
+            _userTokenRepository.Update(userToken);
             await _unitOfWork.SaveChangesAsync();
             return new AuthResponse
             {

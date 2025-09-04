@@ -11,14 +11,21 @@ using System.Threading.Tasks;
 
 namespace GoogleApi.Interfaces
 {
-    public interface GoogleDriveInterface
+    public interface IGoogleDriveInterface
     {
         
         Task<bool> CheckIsExpiredToken(string jsonToken, ClientSecrets clientSecrets);
-        Task<TokenResponse> GetToken(string jsonToken);
+        string GetAuthorizationUrl(ClientSecrets clientSecrets, string redirectUri, string? state, string? orgId);
+        Task<TokenResponse> ExchangeCodeForTokenAsync(ClientSecrets clientSecrets,string code, string redirectUri, string userId = "user");
+        TokenResponse GetToken(string jsonToken);
         Task<TokenResponse> RefreshToken(string jsonToken, ClientSecrets clientSecrets);
         Task<UserCredential> GetUserCredentialAsync(string jsonToken, ClientSecrets clientSecrets);
         Task<DriveService> GetDriveServiceAsync(string jsonToken, ClientSecrets clientSecrets, string appName);
         Task<UpLoadResponse> UploadFileAndMakePublicAsync(IFormFile file, string folderId, string jsonToken, ClientSecrets clientSecrets, string appName);
+        Task<Stream> DownloadFileAsync(string fileId, string jsonToken, ClientSecrets clientSecrets, string appName);
+        Task<ResultResponse> DeleteFileAsync(string fileId, string jsonToken, ClientSecrets clientSecrets, string appName);
+
+
+
     }
 }

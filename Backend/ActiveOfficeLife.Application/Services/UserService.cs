@@ -174,7 +174,7 @@ namespace ActiveOfficeLife.Application.Services
                     user.Status = UserStatus.Active; // Mặc định là Active nếu không parse được
                 }
                 user.UpdatedAt = DateTime.UtcNow;
-                _userRepository.UpdateAsync(user);
+                _userRepository.Update(user);
                 await _unitOfWord.SaveChangesAsync();
                 return user.ReturnModel();
             }
@@ -223,7 +223,7 @@ namespace ActiveOfficeLife.Application.Services
                     throw new Exception("User " + MessageContext.NotFound);
                 }
                 user.Status = UserStatus.Deleted; // Cập nhật trạng thái người dùng thành Deleted
-                _userRepository.UpdateAsync(user);
+                _userRepository.Update(user);
                 await _unitOfWord.SaveChangesAsync();
                 return true;
             }
@@ -387,7 +387,7 @@ namespace ActiveOfficeLife.Application.Services
                     throw new Exception("Old password is incorrect.");
                 }
                 user.PasswordHash = DomainHelper.HashPassword(changePasswordRequest.NewPassword);
-                _userRepository.UpdateAsync(user);
+                _userRepository.Update(user);
                 return await _unitOfWord.SaveChangesAsync().ContinueWith(t => true);
             }
             catch (Exception ex)
@@ -436,7 +436,7 @@ namespace ActiveOfficeLife.Application.Services
                     throw new Exception("User " + MessageContext.NotFound);
                 }
                 user.PasswordHash = DomainHelper.HashPassword(changePasswordRequest.NewPassword);
-                _userRepository.UpdateAsync(user);
+                _userRepository.Update(user);
                 return await _unitOfWord.SaveChangesAsync().ContinueWith(t => true);
             } catch(Exception ex)
             {

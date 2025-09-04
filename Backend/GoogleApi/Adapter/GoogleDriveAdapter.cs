@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace GoogleApi.Adapter
 {
-    public class GoogleDriveAdapter : GoogleDriveInterface
+    public class GoogleDriveAdapter : IGoogleDriveInterface
     {
         public async Task<bool> CheckIsExpiredToken(string jsonToken, ClientSecrets clientSecrets)
         {
@@ -175,6 +175,68 @@ namespace GoogleApi.Adapter
             return response;
         }
 
+        public async Task<Stream> DownloadFileAsync(string fileId, string jsonToken, ClientSecrets clientSecrets, string appName = "myGoogleApplication")
+        {
+            var driveService = await GetDriveServiceAsync(jsonToken, clientSecrets, appName);
+            var request = driveService.Files.Get(fileId);
+            var stream = new MemoryStream();
+            await request.DownloadAsync(stream);
+            stream.Position = 0;
+            return stream;
+        }
 
+        public async Task<ResultResponse> DeleteFileAsync(string fileId, string jsonToken, ClientSecrets clientSecrets, string appName)
+        {
+            try
+            {
+                var driveService = await GetDriveServiceAsync(jsonToken, clientSecrets, appName);
+                await driveService.Files.Delete(fileId).ExecuteAsync();
+                return new ResultResponse(true);
+            }
+            catch (Exception ex)
+            {
+                // log error
+                Console.WriteLine($"Error deleting file: {ex.Message}");
+                return new ResultResponse(false, ex);
+            }     
+        }
+
+        public string GetAuthorizationUrl(ClientSecrets clientSecrets, string redirectUri, string? state = null, string? orgId = null)
+        {
+            var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
+            {
+                ClientSecrets = clientSecrets,
+                Scopes = new[] { DriveService.ScopeConstants.DriveFile }
+            });
+
+            var url = flow.CreateAuthorizationCodeRequest(redirectUri);
+            // Build custom state
+            var stateDict = new Dictionary<string, string>();
+            if (!string.IsNullOrEmpty(state))
+                stateDict["state"] = state;
+            if (!string.IsNullOrEmpty(orgId))
+                stateDict["orgId"] = orgId;
+
+            if (stateDict.Any())
+            {
+                // Encode thành chuỗi query
+                url.State = string.Join("&", stateDict.Select(kv => $"{kv.Key}={Uri.EscapeDataString(kv.Value)}"));
+            }
+
+            return url.Build().AbsoluteUri;
+        }
+
+        public async Task<TokenResponse> ExchangeCodeForTokenAsync(ClientSecrets clientSecrets, string code, string redirectUri, string userId = "user")
+        {
+            var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
+            {
+                ClientSecrets = clientSecrets,
+                Scopes = new[] { DriveService.ScopeConstants.DriveFile }
+            });
+
+            var token = await flow.ExchangeCodeForTokenAsync(userId, code, redirectUri, CancellationToken.None);
+
+            return token;
+        }
     }
 }

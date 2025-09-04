@@ -49,7 +49,7 @@ namespace ActiveOfficeLife.Application.Services
                     AOLLogger.Error("Comment not found or user not authorized to delete.", "CommentService", userId);
                     return false;
                 }
-                _commentRepository.RemoveAsync(comment);
+                _commentRepository.Remove(comment);
                 await _iUnitOfWork.SaveChangesAsync();
                 return true;
             }

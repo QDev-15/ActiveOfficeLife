@@ -68,7 +68,7 @@ namespace ActiveOfficeLife.Application.Services
                     // Log the error (not implemented here)
                     return false;
                 }
-                _tagRepository.RemoveAsync(tag);
+                _tagRepository.Remove(tag);
                 await _unitOfWork.SaveChangesAsync();
                 return true;
             }
