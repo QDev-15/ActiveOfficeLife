@@ -26,9 +26,7 @@ namespace ActiveOfficeLife.Api.Controllers
         public FTPController(IWebHostEnvironment env, AppConfigService appConfigService)
         {
             _appConfigService = appConfigService;
-            var accountCredentialPath = Path.Combine(env.ContentRootPath, _appConfigService.AppConfigs.GoogleDriveAPI.AccountCredentialFileName);
-            var oAuthClientCredentialPath = Path.Combine(env.ContentRootPath, _appConfigService.AppConfigs.GoogleDriveAPI.OAuthClienCredentialFileName);
-            _googleOAuthClientDrive = new GoogleDriveOAuth2Service(oAuthClientCredentialPath);
+            
             //_googleAccountDrive = new GoogleDriveAccountService(accountCredentialPath);
         }
         [AllowAnonymous]
@@ -103,10 +101,7 @@ namespace ActiveOfficeLife.Api.Controllers
             //{
             //    urlResult = await UploadToAccountDrive(request.File);
             //}
-            if (_appConfigService.AppConfigs.GoogleDriveAPI.OAuthClientService)
-            {
-                urlResult = await UploadToOAuthClientDrive(request.File);
-            }
+
             return Ok(new { Url = urlResult });
         }
 
@@ -119,14 +114,7 @@ namespace ActiveOfficeLife.Api.Controllers
         public async Task<IActionResult> DownloadFromGoogleDrive(string fileId)
         {
             Stream sreamResult = null;
-            if (_appConfigService.AppConfigs.GoogleDriveAPI.AccountService)
-            {
-                sreamResult = await DownloadFromAccountDrive(fileId);
-            }
-            else if (_appConfigService.AppConfigs.GoogleDriveAPI.OAuthClientService)
-            {
-                sreamResult = await DownloadFromOAuthClientDrive(fileId);
-            }
+
             
             return sreamResult == null ? NotFound() : Ok(sreamResult);
         }
@@ -135,7 +123,7 @@ namespace ActiveOfficeLife.Api.Controllers
 
         private async Task<string> UploadToAccountDrive(IFormFile file)
         {
-            var folderId = _appConfigService.AppConfigs.GoogleDriveAPI.FolderID; // ID của folder đã share với service account
+            var folderId = "";
             var filePath = Path.GetTempFileName();
 
             using (var stream = new FileStream(filePath, FileMode.Create))

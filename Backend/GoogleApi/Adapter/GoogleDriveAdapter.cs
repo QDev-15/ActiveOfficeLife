@@ -168,7 +168,9 @@ namespace GoogleApi.Adapter
 
             var response = new UpLoadResponse
             {
+                FileName = fileName,
                 FileId = fileId,
+                FileType = contentType,
                 FileLink = $"https://drive.google.com/uc?id={fileId}",
                 ErrorMessage = string.Empty
             };

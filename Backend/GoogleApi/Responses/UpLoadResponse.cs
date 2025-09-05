@@ -8,8 +8,10 @@ namespace GoogleApi.Responses
 {
     public class UpLoadResponse
     {
+        public string FileName { get; set; } = string.Empty;
         public string FileId { get; set; } = string.Empty;
         public string FileLink { get; set; } = string.Empty;
+        public string FileType { get; set; } = string.Empty;
         public string ErrorMessage { get; set; } = string.Empty;
     }
 }

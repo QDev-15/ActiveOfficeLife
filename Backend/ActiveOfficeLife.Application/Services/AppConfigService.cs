@@ -16,7 +16,7 @@ namespace ActiveOfficeLife.Application.Services
             AppConfigs.ConnectionStrings = configuration.GetSection("ConnectionStrings").Get<ConnectionStrings>();
             AppConfigs.Sessions = configuration.GetSection("Sessions").Get<Sessions>();
             AppConfigs.EmailSmtp = configuration.GetSection("Email").Get<EmailSmtp>();
-            AppConfigs.GoogleDriveAPI = configuration.GetSection("FTPGoogleDriveAPI").Get<GoogleDriveAPI>();
+            AppConfigs.StorageConfig = configuration.GetSection("Storagre").Get<StorageConfig>();
             AppConfigs.ApiUrl = configuration["ApiUrl"] ?? string.Empty;
             AppConfigs.ApplicationName = configuration["ApplicationName"] ?? string.Empty;
             AppConfigs.Version = configuration["Version"] ?? string.Empty;

@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ActiveOfficeLife.Domain.Entities
+namespace ActiveOfficeLife.Common.Models
 {
-    public class Media
+    public class MediaModel
     {
         public Guid Id { get; set; }
         public string FileName { get; set; } = null!;         // Tên file gốc
@@ -20,7 +20,6 @@ namespace ActiveOfficeLife.Domain.Entities
 
         // Optional: Người upload (nếu cần)
         public Guid? UploadedByUserId { get; set; }
-        public User? UploadedBy { get; set; }
+        public UserModel? UploadedBy { get; set; }
     }
-
 }

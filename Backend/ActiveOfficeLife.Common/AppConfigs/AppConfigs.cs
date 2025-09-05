@@ -8,7 +8,7 @@ namespace ActiveOfficeLife.Common.AppConfigs
         public HostingConfigs HostingConfigs { get; set; } = new HostingConfigs();
         public Sessions Sessions { get; set; } = new Sessions();
         public EmailSmtp EmailSmtp { get; set; } = new EmailSmtp();
-        public GoogleDriveAPI GoogleDriveAPI { get; set; } = new GoogleDriveAPI();
+        public StorageConfig StorageConfig { get; set; } = new StorageConfig();
         public string ApiUrl { get; set; } = string.Empty;
         public string WebAppUrl { get; set; } = string.Empty;
         public string AdminAppUrl { get; set; } = string.Empty;

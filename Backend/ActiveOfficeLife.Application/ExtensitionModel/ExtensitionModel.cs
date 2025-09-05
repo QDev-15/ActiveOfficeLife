@@ -5,6 +5,28 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
 {
     public static class ExtensitionModel
     {
+        public static MediaModel ReturnModel(this Media media)
+        {
+            return new MediaModel()
+            {
+                Id = media.Id,
+                FileName = media.FileName,
+                FilePath = media.FilePath,
+                FileType = media.FileType,
+                FileSize = media.FileSize,
+                MediaType = media.MediaType,
+                UploadedAt = media.UploadedAt,
+                UploadedByUserId = media.UploadedByUserId,
+                UploadedBy = media.UploadedBy != null ? new UserModel()
+                {
+                    Id = media.UploadedBy.Id,
+                    Email = media.UploadedBy.Email,
+                    AvatarUrl = media.UploadedBy.AvatarUrl,
+                    Roles = media.UploadedBy.Roles.Select(x => x.Name).ToList(),
+                    Status = media.UploadedBy.Status.ToString()
+                } : null
+            };
+        }
         public static UserTokenModel ReturnModel(this UserToken userToken)
         {
             return new UserTokenModel()
