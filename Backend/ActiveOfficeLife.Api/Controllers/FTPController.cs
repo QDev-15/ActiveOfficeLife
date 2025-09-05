@@ -1,4 +1,5 @@
-﻿using ActiveOfficeLife.Application.Services;
+﻿using ActiveOfficeLife.Application.Interfaces;
+using ActiveOfficeLife.Application.Services;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Auth.OAuth2.Flows;
 using Google.Apis.Auth.OAuth2.Responses;
@@ -16,41 +17,17 @@ namespace ActiveOfficeLife.Api.Controllers
 {
     public class FTPController : BaseController
     {
-        private readonly GoogleDriveOAuth2Service _googleOAuthClientDrive;
-        private readonly GoogleDriveAccountService _googleAccountDrive;
         private readonly AppConfigService _appConfigService;
 
-        private const string RedirectUriLocal = "https://localhost:7029/api/ftp/callback";
-        private const string RedirectUriServer = "https://api.aol.tkid.io.vn/api/ftp/callback";
-        private const string FolderId = "16zz3OdwYgz4HlSBvtm9KRSaSU6qo91C-";
-        public FTPController(IWebHostEnvironment env, AppConfigService appConfigService)
+        private readonly IStorageService _storageService;
+        public FTPController(IWebHostEnvironment env, AppConfigService appConfigService, IStorageService storageService)
         {
+            _storageService = storageService;
             _appConfigService = appConfigService;
             
             //_googleAccountDrive = new GoogleDriveAccountService(accountCredentialPath);
-        }
-        [AllowAnonymous]
-        [HttpGet("login")]
-        public IActionResult Login()
-        {
-            // Khi chạy local thì dùng RedirectUriLocal, khi chạy server thì dùng RedirectUriServer
-            var url = _googleOAuthClientDrive.GetAuthorizationUrl(RedirectUriLocal);
-            return Redirect(url);
-        }
-        [AllowAnonymous]
-        [HttpGet("callback")]
-        public async Task<IActionResult> Callback(string code, string state)
-        {
-            if (string.IsNullOrEmpty(code))
-                return BadRequest("Missing code");
+        }  
 
-            await _googleOAuthClientDrive.ExchangeCodeForTokenAsync(code, $"{Request.Scheme}://{Request.Host}/ftp/callback");
-
-            return Ok("Google OAuth2 Login Success! Token saved.");
-        }
-        
-
-       
         // upload file to web api using form-data with key 'file'
         [HttpPost("upload")]
         [Consumes("multipart/form-data")] // rất quan trọng cho Swagger hiểu đây là form-data
