@@ -10,6 +10,7 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
             return new MediaModel()
             {
                 Id = media.Id,
+                FileId = media.FileId,
                 FileName = media.FileName,
                 FilePath = media.FilePath,
                 FileType = media.FileType,
@@ -139,7 +140,7 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
                 PhoneNumber = user.PhoneNumber,
                 Status = user.Status.ToString(),
                 CreatedAt = user.CreatedAt,
-                
+                SettingId = user.SettingId
             };
         }
         public static CategoryModel ReturnModel(this Category category, bool isParrent = false)

@@ -11,5 +11,6 @@ namespace ActiveOfficeLife.Common.Requests
         public string UserName { set; get; }
         public string Password { set; get; }
         public bool Remember { set; get; }
+        public string? OrgId { set; get; }
     }
 }

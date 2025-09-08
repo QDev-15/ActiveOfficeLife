@@ -137,6 +137,7 @@ namespace ActiveOfficeLife.Application.Services
                 new Claim("Status", user.Status.ToString()),
                 new Claim("UserId", user.Id.ToString()),
                 new Claim("UserName", user.Username),
+                new Claim("SettingId", user.SettingId??""),
                 new Claim("Email", user.Email),
                 new Claim("Roles", string.Join(",", user.Roles)),
                 new Claim("Token", user.Token ?? string.Empty),
@@ -234,6 +235,14 @@ namespace ActiveOfficeLife.Application.Services
                     var verified = DomainHelper.VerifyPassword(user.PasswordHash, loginRequest.Password);
                     if (verified.Success)
                     {
+                        // update settingId user
+                        if (!string.IsNullOrEmpty(loginRequest.OrgId) && user.SettingId != loginRequest.OrgId)
+                        {
+                            user.SettingId = loginRequest.OrgId;
+                            _userRepository.Update(user);
+                            await _unitOfWork.SaveChangesAsync();
+                        }
+                        // create token
                         var authResponse = await CreateAsync(user.ReturnModel(), ipAddress);
                         return authResponse;
                     }

@@ -12,7 +12,7 @@ namespace ActiveOfficeLife.Common.Models
         public string? PhoneNumber { get; set; } // Số điện thoại người dùng
         public string? FullName { get; set; }   // Tên đầy đủ của người dùng
         public string Status { get; set; } = UserStatus.Active.ToString(); // Trạng thái người dùng
-
+        public string? SettingId { get; set; }
         public string? Token { get; set; }         // AccessToken hoặc RefreshToken
         public string? RefreshToken { get; set; }         // AccessToken hoặc RefreshToken
 

@@ -74,64 +74,33 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             if (request.File == null || request.File.Length == 0) return BadRequest("File empty");
             string urlResult = string.Empty;
-            //if (_appConfigService.AppConfigs.GoogleDriveAPI.AccountService)
-            //{
-            //    urlResult = await UploadToAccountDrive(request.File);
-            //}
+            string settingId = User?.Claims?.FirstOrDefault(c => c.Type == "SettingId")?.Value;
+            string userId = User?.Claims?.FirstOrDefault(c => c.Type == "UserId")?.Value;
+            if (string.IsNullOrEmpty(request.settingId))
+            {
+                request.settingId = settingId;
+            }
+            var media = await _storageService.UploadFileAsync(request.File, request.settingId, userId);
 
-            return Ok(new { Url = urlResult });
+            return Ok(media);
         }
 
         /// <summary>
-        /// download file from Google Drive by fileId
+        /// download file from Google Drive by mediaId
         /// </summary>
-        /// <param name="fileId"></param>
+        /// <param name="mediaId"></param>
         /// <returns></returns>
-        [HttpGet("download/googledrive/{fileId}")]
-        public async Task<IActionResult> DownloadFromGoogleDrive(string fileId)
+        [HttpGet("download/googledrive/{mediaId}")]
+        public async Task<IActionResult> DownloadFromGoogleDrive(string mediaId, string orgId)
         {
-            Stream sreamResult = null;
-
-            
+            // get settingid from claims field "SettingId"
+            string settingId = User?.Claims?.FirstOrDefault(c => c.Type == "SettingId")?.Value;
+            if (string.IsNullOrEmpty(settingId))
+            {
+                settingId = orgId;
+            }
+            var sreamResult = await _storageService.DownloadFileAsync(mediaId, settingId);
             return sreamResult == null ? NotFound() : Ok(sreamResult);
         }
-
-        #region Upload Methods
-
-        private async Task<string> UploadToAccountDrive(IFormFile file)
-        {
-            var folderId = "";
-            var filePath = Path.GetTempFileName();
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            var viewLink = await _googleAccountDrive.UploadFileAndMakePublicAsync(filePath, folderId);
-
-            System.IO.File.Delete(filePath);
-            return viewLink;
-        }
-        private async Task<string> UploadToOAuthClientDrive(IFormFile file)
-        {
-            var url = await _googleOAuthClientDrive.UploadFileAndMakePublicAsync(file, FolderId);
-
-            return url;
-        }
-        #endregion
-
-        #region Download Methods
-        private async Task<Stream> DownloadFromAccountDrive(string fileId)
-        {
-            var stream = await _googleAccountDrive.DownloadFileAsync(fileId);
-            return stream;
-        }
-        private async Task<Stream> DownloadFromOAuthClientDrive(string fileId)
-        {
-            var stream = await _googleOAuthClientDrive.DownloadFileAsync(fileId);
-            return stream;
-        }
-        #endregion
     }
 }
