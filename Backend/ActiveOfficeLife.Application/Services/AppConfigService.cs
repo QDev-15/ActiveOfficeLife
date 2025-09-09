@@ -17,6 +17,7 @@ namespace ActiveOfficeLife.Application.Services
             AppConfigs.Sessions = configuration.GetSection("Sessions").Get<Sessions>();
             AppConfigs.EmailSmtp = configuration.GetSection("Email").Get<EmailSmtp>();
             AppConfigs.StorageConfig = configuration.GetSection("Storagre").Get<StorageConfig>();
+            AppConfigs.FileStorage = configuration.GetSection("FileStorage").Get<FileStorage>();
             AppConfigs.ApiUrl = configuration["ApiUrl"] ?? string.Empty;
             AppConfigs.ApplicationName = configuration["ApplicationName"] ?? string.Empty;
             AppConfigs.Version = configuration["Version"] ?? string.Empty;

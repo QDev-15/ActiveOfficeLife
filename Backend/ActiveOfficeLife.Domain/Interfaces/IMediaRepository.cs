@@ -9,5 +9,6 @@ namespace ActiveOfficeLife.Domain.Interfaces
 {
     public interface IMediaRepository : _IRepository<Media>
     {
+        Task<List<Media>> GetMediaByFileId(string fileId);
     }
 }

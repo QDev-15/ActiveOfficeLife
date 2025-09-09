@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ActiveOfficeLife.Common.Enums;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -6,10 +7,44 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace ActiveOfficeLife.Application
+namespace ActiveOfficeLife.Common
 {
     public static class Helper
     {
+        public static MediaType GuessMediaType(string contentType, string ext)
+        {
+            if ((contentType?.StartsWith("image/") ?? false) ||
+                new[] { ".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg" }.Contains(ext.ToLowerInvariant()))
+                return MediaType.Image;
+
+            if ((contentType?.StartsWith("video/") ?? false) ||
+                new[] { ".mp4", ".mov", ".avi", ".mkv", ".webm" }.Contains(ext.ToLowerInvariant()))
+                return MediaType.Video;
+
+            if ((contentType?.StartsWith("audio/") ?? false) ||
+                new[] { ".mp3", ".wav", ".aac", ".flac", ".m4a" }.Contains(ext.ToLowerInvariant()))
+                return MediaType.Audio;
+
+            return MediaType.Document; // fallback
+        }
+        /// <summary>
+        /// Make a file name safe by removing invalid characters and limiting its length.
+        /// </summary>
+        /// <param name="fileName"></param>
+        /// <returns></returns>
+        public static string MakeSafeFileName(string fileName)
+        {
+            // bỏ ký tự không hợp lệ
+            var invalid = Regex.Escape(new string(Path.GetInvalidFileNameChars()));
+            var pattern = $"[{invalid}]+";
+            var cleaned = Regex.Replace(fileName, pattern, "_");
+
+            // tránh tên quá dài
+            var name = Path.GetFileNameWithoutExtension(cleaned);
+            var ext = Path.GetExtension(cleaned);
+            if (name.Length > 80) name = name.Substring(0, 80);
+            return name + ext;
+        }
         /// <summary>
         /// Generates a URL-friendly slug from the specified title.
         /// </summary>

@@ -1,5 +1,134 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿
 @{
+    ViewData["Title"] = "Cấu hình hệ thống";
 }
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-12 col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="mb-0">Cấu hình hệ thống</h5>
+                    <span id="loading-indicator" class="text-muted small">Đang tải...</span>
+                </div>
+                <div class="card-body">
+                    <form id="setting-form" autocomplete="off">
+                        @* Nếu dùng Cookie Auth và cần anti-forgery:
+                           @Html.AntiForgeryToken() *@
+
+                        <input type="hidden" id="setting-id" value="" />
+
+                        <div class="mb-3">
+                            <label for="setting-name" class="form-label">Tên hệ thống</label>
+                            <input type="text" class="form-control" id="setting-name" value="" placeholder="Tên site / app" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="setting-logo" class="form-label">Logo URL</label>
+                            <div class="input-group">
+                                <input type="url" class="form-control" id="setting-logo" value="" placeholder="https://... hoặc /uploads/logo.png">
+                                <button type="button" class="btn btn-outline-secondary" id="btn-preview-logo">Xem</button>
+                            </div>
+                            <div class="mt-2">
+                                <img id="logo-preview" src="" alt="Logo preview" class="img-thumbnail" style="max-height:120px; display:none;" />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="setting-phone" class="form-label">Số điện thoại</label>
+                            <input type="text" class="form-control" id="setting-phone" value="" placeholder="Ví dụ: 090xxx..." />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="setting-email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="setting-email" value="" placeholder="admin@example.com" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="setting-address" class="form-label">Địa chỉ</label>
+                            <textarea class="form-control" id="setting-address" rows="2" placeholder="Địa chỉ hiển thị"></textarea>
+                        </div>
+
+                        <div class="border-top pt-3 mt-4">
+                            <h6 class="text-muted mb-3">Google Drive (tùy chọn)</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="setting-google-client-id" class="form-label">Google Client Id</label>
+                                    <input type="text" class="form-control" id="setting-google-client-id" value="" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="setting-google-client-secret" class="form-label">Google Client Secret</label>
+                                    <input type="text" class="form-control" id="setting-google-client-secret" value="" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="setting-google-folder-id" class="form-label">Google Folder Id</label>
+                                    <input type="text" class="form-control" id="setting-google-folder-id" value="" />
+                                </div>
+
+                                <!-- Thay Google Token bằng cụm Connect/Disconnect -->
+                                <div class="col-md-6 d-flex flex-column">
+                                    <label class="form-label">Google OAuth</label>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <button type="button" id="btn-google-connect" class="btn btn-success btn-sm">
+                                            <i class="bi bi-plug me-1"></i> Connect
+                                        </button>
+                                        <button type="button" id="btn-google-disconnect" class="btn btn-outline-danger btn-sm" style="display:none;">
+                                            <i class="bi bi-plug-fill me-1"></i> Disconnect
+                                        </button>
+                                        <span id="google-connect-status" class="badge text-bg-secondary">Chưa kết nối</span>
+                                    </div>
+                                    <small class="text-muted mt-2">
+                                        Kết nối để cấp quyền tải file lên Google Drive (nếu bạn muốn dùng Drive thay vì lưu local).
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="d-flex justify-content-center gap-2 mt-4">
+                            <button type="button" id="btn-save-setting" class="btn btn-primary">
+                                <i class="bi bi-save me-1"></i>Lưu thay đổi
+                            </button>
+                            <button type="button" id="btn-reset-setting" class="btn btn-outline-secondary">Hoàn tác</button>
+                            <span id="save-state" class="ms-2 small text-muted"></span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        @* Khối hiển thị nhanh *@
+        <div class="col-12 col-lg-4 mt-3 mt-lg-0">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header">
+                    <h6 class="mb-0">Xem nhanh</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center gap-3">
+                        <img id="quick-logo" src="" class="rounded border" style="height:56px; width:auto; display:none;" />
+                        <div>
+                            <div class="fw-semibold" id="quick-name"></div>
+                            <div class="text-muted small" id="quick-email"></div>
+                            <div class="text-muted small" id="quick-phone"></div>
+                        </div>
+                    </div>
+                    <div class="text-muted small mt-3" id="quick-address"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    // Nếu bạn muốn show/hide nhãn "Đang tải..." theo lifecycle:
+    const loading = document.getElementById('loading-indicator');
+    if (loading) {
+        // Ẩn khi module đã gọi getdata xong (bạn có thể bắn 1 customEvent từ module)
+        document.addEventListener('setting:loaded', () => loading.style.display = 'none');
+    }
+</script>
+
+<script type="module">
+    settingInstance.init();
+</script>
+

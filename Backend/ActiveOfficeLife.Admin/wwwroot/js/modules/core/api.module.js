@@ -77,7 +77,12 @@ class ApiModule {
                 });
         });
     }
-
+    getUrl(endpoint) {
+        if (!endpoint.startsWith("/")) {
+            endpoint = "/" + endpoint;
+        }
+        return configInstance.urlApi + endpoint;
+    }
     // GET: url, payload (params)
     get(url, payload = {}) {
         return this.request('GET', url, payload);

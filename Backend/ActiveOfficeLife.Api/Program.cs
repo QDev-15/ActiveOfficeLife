@@ -10,6 +10,7 @@ using GoogleApi;
 using GoogleApi.Adapter;
 using GoogleApi.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -143,9 +144,15 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
-
+// Tăng giới hạn upload
+long maxFileSize = 50 * 1024 * 1024; // 50MB
+builder.Services.Configure<FormOptions>(o =>
+{
+    o.MultipartBodyLengthLimit = maxFileSize;
+});
 
 var app = builder.Build();
+
 
 // ✅ ILogService từ DI container
 using (var scope = app.Services.CreateScope())

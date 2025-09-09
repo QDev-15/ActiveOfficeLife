@@ -38,6 +38,7 @@ class SpinnerModule {
     static showFor(idElement) {
         if (!idElement) return;
         const targetElement = document.getElementById(idElement);
+        if (!targetElement) return;
         targetElement.style.position = 'relative';
 
         const spinner = document.createElement('div');
@@ -65,6 +66,7 @@ class SpinnerModule {
     static hideFor(idElement) {
         if (!idElement) return;
         const targetElement = document.getElementById(idElement);
+        if (!targetElement) return;
         const overlay = targetElement.querySelector('.local-spinner-overlay');
         if (overlay) {
             overlay.remove();

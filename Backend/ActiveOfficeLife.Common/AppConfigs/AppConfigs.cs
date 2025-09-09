@@ -9,6 +9,7 @@ namespace ActiveOfficeLife.Common.AppConfigs
         public Sessions Sessions { get; set; } = new Sessions();
         public EmailSmtp EmailSmtp { get; set; } = new EmailSmtp();
         public StorageConfig StorageConfig { get; set; } = new StorageConfig();
+        public FileStorage FileStorage { get; set; } = new FileStorage();
         public string ApiUrl { get; set; } = string.Empty;
         public string WebAppUrl { get; set; } = string.Empty;
         public string AdminAppUrl { get; set; } = string.Empty;

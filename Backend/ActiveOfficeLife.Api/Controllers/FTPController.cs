@@ -1,17 +1,7 @@
 ﻿using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Services;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Auth.OAuth2.Flows;
-using Google.Apis.Auth.OAuth2.Responses;
-using Google.Apis.Drive.v3;
-using Google.Apis.Services;
 using GoogleApi;
-using GoogleApi.GoogleDrive;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Rewrite;
-using Newtonsoft.Json;
-using System.IO;
 
 namespace ActiveOfficeLife.Api.Controllers
 {
@@ -80,7 +70,7 @@ namespace ActiveOfficeLife.Api.Controllers
             {
                 request.settingId = settingId;
             }
-            var media = await _storageService.UploadFileAsync(request.File, request.settingId, userId);
+            var media = await _storageService.UploadFileToGoogleDriveAsync(request.File, request.settingId, userId);
 
             return Ok(media);
         }
@@ -99,7 +89,7 @@ namespace ActiveOfficeLife.Api.Controllers
             {
                 settingId = orgId;
             }
-            var sreamResult = await _storageService.DownloadFileAsync(mediaId, settingId);
+            var sreamResult = await _storageService.DownloadFileFromGoogleDriveAsync(mediaId, settingId);
             return sreamResult == null ? NotFound() : Ok(sreamResult);
         }
     }
