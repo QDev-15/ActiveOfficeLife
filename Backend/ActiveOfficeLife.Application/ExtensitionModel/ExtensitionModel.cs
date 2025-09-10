@@ -1,10 +1,22 @@
 ﻿using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Domain.Entities;
+using Google.Apis.Auth.OAuth2.Responses;
+using Newtonsoft.Json;
 
 namespace ActiveOfficeLife.Application.ExtensitionModel
 {
     public static class ExtensitionModel
     {
+        public static TokenResponse ConvertToResponseToken(this string jsonToken)
+        {
+            var token = JsonConvert.DeserializeObject<TokenResponse>(jsonToken);
+            return token;
+        }
+        public static string ConvertToJsonToken(this TokenResponse token)
+        {
+            var json = JsonConvert.SerializeObject(token);
+            return json;
+        }
         public static MediaModel ReturnModel(this Media media)
         {
             return new MediaModel()

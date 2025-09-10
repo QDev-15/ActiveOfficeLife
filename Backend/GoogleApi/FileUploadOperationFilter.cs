@@ -31,6 +31,11 @@ namespace GoogleApi
                         Type = "object",
                         Properties = new Dictionary<string, OpenApiSchema>
                         {
+                            ["settingId"] = new OpenApiSchema
+                            {
+                               Type = "string",
+                               Format = "string"
+                            },
                             // single file
                             ["File"] = new OpenApiSchema
                             {

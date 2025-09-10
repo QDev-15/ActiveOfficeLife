@@ -22,16 +22,32 @@
                             <label for="setting-name" class="form-label">Tên hệ thống</label>
                             <input type="text" class="form-control" id="setting-name" value="" placeholder="Tên site / app" />
                         </div>
-
                         <div class="mb-3">
-                            <label for="setting-logo" class="form-label">Logo URL</label>
-                            <div class="input-group">
-                                <input type="url" class="form-control" id="setting-logo" value="" placeholder="https://... hoặc /uploads/logo.png">
+                            <label for="setting-logo" class="form-label">Logo</label>
+
+                            <!-- Hàng 1: URL/ID + Preview -->
+                            <div class="input-group mb-2">
+                                <input type="text" class="form-control" id="setting-logo"
+                                       placeholder="Có thể là URL hoặc FileId (sau khi upload)">
                                 <button type="button" class="btn btn-outline-secondary" id="btn-preview-logo">Xem</button>
                             </div>
                             <div class="mt-2">
-                                <img id="logo-preview" src="" alt="Logo preview" class="img-thumbnail" style="max-height:120px; display:none;" />
+                                <img id="logo-preview" src="" alt="Logo preview"
+                                     class="img-thumbnail" style="max-height:120px; display:none;" />
                             </div>
+
+                            <!-- Hàng 2: Upload -->
+                            <div class="d-flex align-items-center gap-2 mt-3">
+                                <input type="file" id="input-logo-file" accept="image/*,video/*" class="form-control" style="max-width: 360px;">
+                                <button type="button" class="btn btn-success" id="btn-upload-logo">
+                                    <i class="bi bi-upload me-1"></i> Upload logo
+                                </button>
+                                <span id="logo-upload-state" class="small text-muted"></span>
+                            </div>
+                            <small class="text-muted d-block mt-1">
+                                Upload sẽ gọi <code>/api/FTP/upload/googledrive</code> (multipart: <code>file</code>, <code>settingId</code>).
+                                Sau đó lưu <b>FileId</b> vào trường <code>logo</code>, <i>preview</i> hiển thị từ <code>FilePath</code>.
+                            </small>
                         </div>
 
                         <div class="mb-3">
@@ -129,6 +145,6 @@
 </script>
 
 <script type="module">
-    settingInstance.init();
+    // settingInstance.init();
 </script>
 

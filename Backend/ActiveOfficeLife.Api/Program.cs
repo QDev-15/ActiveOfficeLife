@@ -115,7 +115,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.OperationFilter<FileUploadOperationFilter>();
     c.SwaggerDoc("v1", new() { Title = "AOL API", Version = "v1" });
 
     // Thêm phần cấu hình xác thực Bearer token

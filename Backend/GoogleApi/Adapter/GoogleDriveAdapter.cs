@@ -7,6 +7,7 @@ using Google.Apis.Util;
 using GoogleApi.Interfaces;
 using GoogleApi.Responses;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -127,9 +128,12 @@ namespace GoogleApi.Adapter
             }
             // check token is expired
             var istokenExpired = await CheckIsExpiredToken(jsonToken, clientSecrets);
+            string tokenRefreshed = string.Empty;
             if (istokenExpired)
             {
-                throw new Exception("Token is expired. Please refresh the token.");
+                var tokenRefresh = await RefreshToken(jsonToken, clientSecrets);
+                tokenRefreshed = JsonConvert.SerializeObject(tokenRefresh);
+                jsonToken = tokenRefreshed;
             }
 
             // get drive service
@@ -172,7 +176,8 @@ namespace GoogleApi.Adapter
                 FileId = fileId,
                 FileType = contentType,
                 FileLink = $"https://drive.google.com/uc?id={fileId}",
-                ErrorMessage = string.Empty
+                ErrorMessage = string.Empty,
+                TokenRefreshed = tokenRefreshed
             };
             return response;
         }
@@ -211,7 +216,8 @@ namespace GoogleApi.Adapter
                 Scopes = new[] { DriveService.ScopeConstants.DriveFile }
             });
 
-            var url = flow.CreateAuthorizationCodeRequest(redirectUri);
+            var req = flow.CreateAuthorizationCodeRequest(redirectUri);
+
             // Build custom state
             var stateDict = new Dictionary<string, string>();
             if (!string.IsNullOrEmpty(state))
@@ -222,10 +228,38 @@ namespace GoogleApi.Adapter
             if (stateDict.Any())
             {
                 // Encode thành chuỗi query
-                url.State = string.Join("&", stateDict.Select(kv => $"{kv.Key}={Uri.EscapeDataString(kv.Value)}"));
+                req.State = string.Join("&", stateDict.Select(kv => $"{kv.Key}={Uri.EscapeDataString(kv.Value)}"));
             }
+            // URL gốc do SDK build (đã có client_id, redirect_uri, scope, response_type, state,...)
+            var baseUrl = req.Build().AbsoluteUri;
 
-            return url.Build().AbsoluteUri;
+            // --- Thay vì AddQueryString (có thể tạo trùng key), ta parse & thay thế ---
+            var ub = new UriBuilder(baseUrl);
+
+            // ParseQuery trả Dictionary<string, StringValues>
+            var parsed = QueryHelpers.ParseQuery(ub.Query);
+
+            // Chuyển về Dictionary<string,string> (lấy giá trị đầu)
+            var dict = parsed.ToDictionary(
+                kv => kv.Key,
+                kv => kv.Value.Count > 0 ? kv.Value[0] : string.Empty,
+                StringComparer.OrdinalIgnoreCase
+            );
+
+            // Ghi đè/đặt các tham số cần thiết
+            dict["access_type"] = "offline";
+            // CHỈ dùng một tham số "prompt" (không gửi kèm approval_prompt để tránh mâu thuẫn)
+            dict["prompt"] = "consent";
+            // Nếu trước đó có approval_prompt thì bỏ đi để không gửi hai kiểu prompt
+            dict.Remove("approval_prompt");
+
+            // Rebuild query string an toàn
+            var newQuery = string.Join("&",
+                dict.Select(kv => $"{Uri.EscapeDataString(kv.Key)}={Uri.EscapeDataString(kv.Value ?? string.Empty)}"));
+
+            ub.Query = newQuery;
+            var finalUrl = ub.Uri.ToString();
+            return finalUrl;
         }
 
         public async Task<TokenResponse> ExchangeCodeForTokenAsync(ClientSecrets clientSecrets, string code, string redirectUri, string userId = "user")

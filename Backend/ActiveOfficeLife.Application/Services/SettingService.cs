@@ -60,7 +60,6 @@ namespace ActiveOfficeLife.Application.Services
             setting.GoogleClientId = updateModel.GoogleClientId;
             setting.GoogleClientSecretId = updateModel.GoogleClientSecretId;
             setting.GoogleFolderId = updateModel.GoogleFolderId;
-            setting.GoogleToken = updateModel.GoogleToken;
             setting.Logo = updateModel.Logo;
             setting.PhoneNumber = updateModel.PhoneNumber;
             _settingRepository.Update(setting);

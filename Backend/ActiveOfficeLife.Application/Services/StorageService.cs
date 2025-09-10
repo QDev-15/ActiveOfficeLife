@@ -194,11 +194,31 @@ namespace ActiveOfficeLife.Application.Services
             {
                 throw new Exception("Setting not found");
             }
+            // check token expire
+            var tokenExpire = await _googleDriveInterface.CheckIsExpiredToken(setting.GoogleToken, new ClientSecrets()
+            {
+                ClientId = setting.GoogleClientId,
+                ClientSecret = setting.GoogleClientSecretId
+            });
+            if (tokenExpire)
+            {
+                var refreshToken = await _googleDriveInterface.RefreshToken(setting.GoogleToken, new ClientSecrets()
+                {
+                    ClientId = setting.GoogleClientId,
+                    ClientSecret = setting.GoogleClientSecretId
+                });
+                setting.GoogleToken = refreshToken.ConvertToJsonToken();
+                await _unitOfWork.SaveChangesAsync();
+            }
             var uploader = await _googleDriveInterface.UploadFileAndMakePublicAsync(file, setting.GoogleFolderId, setting.GoogleToken, new ClientSecrets()
             {
                 ClientId = setting.GoogleClientId,
                 ClientSecret = setting.GoogleClientSecretId
             }, _appConfigService.AppConfigs.ApplicationName);
+            if (!string.IsNullOrEmpty(uploader.TokenRefreshed))
+            {
+                setting.GoogleToken = uploader.TokenRefreshed;
+            }
             media.Id = Guid.NewGuid();
             media.FileName = file.FileName;
             media.FileId = uploader.FileId;

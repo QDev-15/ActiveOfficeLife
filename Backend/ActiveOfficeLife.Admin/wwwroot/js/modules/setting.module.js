@@ -10,7 +10,10 @@ class SettingModule {
             PUT: '/Setting/update',          // PUT body full model.
             // THÊM 2 endpoint cho OAuth:
             GOOGLE_CONNECT_URL: (id) => `Setting/googledrive/connect?settingId=${encodeURIComponent(id)}`,
-            GOOGLE_DISCONNECT: '/Setting/googledrive/disconnect'
+            GOOGLE_DISCONNECT: '/Setting/googledrive/disconnect',
+            // NEW:
+            UPLOAD_LOGO: '/FTP/upload/googledrive',
+            RESOLVE_MEDIA_URL: (id) => `/FTP/public-url/${encodeURIComponent(id)}` // <- tùy backend
         };
         this.lastLoadedAt = 0;          // timestamp lần load gần nhất
         this.minReloadMs = 5000;        // chỉ reload nếu đã quá 5s
@@ -122,6 +125,8 @@ class SettingModule {
         window.addEventListener('pageshow', (ev) => {
             if (ev.persisted) this._maybeReloadOnFocus();
         });
+        const btnUploadLogo = document.querySelector('#btn-upload-logo');
+        if (btnUploadLogo) btnUploadLogo.addEventListener('click', () => this.handleUploadLogo());
     }
 
     // --- SAVE ---
@@ -139,6 +144,64 @@ class SettingModule {
             googleFolderId: v('#setting-google-folder-id'),
             // KHÔNG gửi googleToken từ client; backend sẽ set khi OAuth callback thành công
         };
+    }
+    async handleUploadLogo() {
+        const fileInput = document.querySelector('#input-logo-file');
+        const state = document.querySelector('#logo-upload-state');
+        const settingId = (document.querySelector('#setting-id')?.value || '').trim();
+
+        if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+            alert('Chọn file trước khi upload.');
+            return;
+        }
+        if (!settingId) {
+            alert('Vui lòng lưu Setting (có Id) trước khi upload.');
+            return;
+        }
+
+        const file = fileInput.files[0];
+        // Tạo tab (optional) nếu cần popup blocker – không cần ở đây
+        try {
+            if (state) state.textContent = 'Đang upload...';
+
+            const form = new FormData();
+            form.append('settingId', settingId);
+            form.append('File', file);  
+            // Gọi upload
+            const media = await apiInstance.postForm(
+                this.ENDPOINTS.UPLOAD_LOGO,
+                form
+            );
+
+            // media = MediaModel: { fileId, filePath, ... }
+            if (!media || !media.fileId) throw new Error('Upload không trả về fileId');
+
+            // 1) Gán FileId vào trường logo (yêu cầu của bạn)
+            const logoInput = document.querySelector('#setting-logo');
+            if (logoInput) logoInput.value = media.fileId;
+
+            // 2) Preview ngay bằng FilePath (URL public)
+            const urlForPreview = media.filePath || media.fileId;
+            this.updatePreviewAndQuickView(urlForPreview);
+
+            if (state) state.textContent = 'Upload xong, đang lưu setting...';
+
+            // 3) Gọi PUT lưu Setting (logo = fileId)
+            await this.save();
+
+            if (state) state.textContent = 'Đã lưu ✔. Đang tải lại...';
+
+            // 4) Reload lại Setting để đồng bộ
+            await this.getdata();
+
+            if (state) state.textContent = 'Hoàn tất ✔';
+            // Xoá file đã chọn để tránh upload nhầm lần sau
+            fileInput.value = '';
+        } catch (err) {
+            console.error('Upload logo failed:', err);
+            if (state) state.textContent = 'Lỗi upload.';
+            messageInstance.error('Upload logo thất bại.');
+        }
     }
 
     async save() {
@@ -195,12 +258,13 @@ class SettingModule {
     }
 
     // --- preview & quick view (giữ nguyên) ---
-    updatePreviewAndQuickView(logoUrl, data) {
+    updatePreviewAndQuickView(logoValue, data) {
         const setText = (sel, val) => {
             const el = document.querySelector(sel);
             if (el) el.textContent = (val == null ? '' : val);
         };
 
+        // cập nhật text
         if (data) {
             setText('#quick-name', data.name);
             setText('#quick-email', data.email);
@@ -214,21 +278,40 @@ class SettingModule {
             setText('#quick-address', v('#setting-address'));
         }
 
+        // cập nhật ảnh
         const preview = document.querySelector('#logo-preview');
         const quick = document.querySelector('#quick-logo');
-        const url = (logoUrl || '').trim();
 
-        if (preview) {
-            preview.src = url;
-            preview.style.display = url ? 'block' : 'none';
-            preview.onerror = () => (preview.style.display = 'none');
+        const setImg = (url) => {
+            if (preview) {
+                preview.src = url || '';
+                preview.style.display = url ? 'block' : 'none';
+                preview.onerror = () => (preview.style.display = 'none');
+            }
+            if (quick) {
+                quick.src = url || '';
+                quick.style.display = url ? 'block' : 'none';
+                quick.onerror = () => (quick.style.display = 'none');
+            }
+        };
+
+        const val = (logoValue ?? '').trim();
+        if (!val) { setImg(''); return; }
+
+        // Nếu đã là URL tuyệt đối hoặc đường dẫn bắt đầu bằng "/"
+        const looksLikeUrl = /^(https?:)?\/\//i.test(val) || val.startsWith('/');
+        if (looksLikeUrl) {
+            setImg(val);
+            return;
         }
-        if (quick) {
-            quick.src = url;
-            quick.style.display = url ? 'block' : 'none';
-            quick.onerror = () => (quick.style.display = 'none');
-        }
+
+        // Ngược lại coi như là Google Drive FileId -> tự build URL xem ảnh
+        const toDriveViewUrl = (id) =>
+            `https://drive.google.com/uc?export=view&id=${encodeURIComponent(id)}`;
+
+        setImg(toDriveViewUrl(val));
     }
+
 
     handleToggle(event) {
         const settingName = event.target.dataset.settingName;
@@ -247,6 +330,8 @@ class SettingModule {
     }
 }
 export const settingInstance = new SettingModule();
+
+
 $(document).on('click', '#btn-google-connect', function () {
     try {
         const id = (document.querySelector('#setting-id')?.value || '').trim();

@@ -51,6 +51,11 @@ namespace ActiveOfficeLife.Api.Controllers
                 ClientId = setting.GoogleClientId,
                 ClientSecret = setting.GoogleClientSecretId
             }, code, _appConfigService.AppConfigs.ApiUrl + "/api/auth/callback");
+            var refreshtoken = await _googleDriveInterface.RefreshToken(JsonConvert.SerializeObject(token), new ClientSecrets()
+            {
+                ClientId = setting.GoogleClientId,
+                ClientSecret = setting.GoogleClientSecretId
+            });
             setting.GoogleToken = JsonConvert.SerializeObject(token);
             await _settingService.Update(setting);
 

@@ -1,4 +1,5 @@
-﻿using ActiveOfficeLife.Application.Interfaces;
+﻿using ActiveOfficeLife.Application.Common;
+using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Services;
 using GoogleApi;
 using Microsoft.AspNetCore.Mvc;
@@ -20,7 +21,7 @@ namespace ActiveOfficeLife.Api.Controllers
 
         // upload file to web api using form-data with key 'file'
         [HttpPost("upload")]
-        [Consumes("multipart/form-data")] // rất quan trọng cho Swagger hiểu đây là form-data
+        //[Consumes("multipart/form-data")] // rất quan trọng cho Swagger hiểu đây là form-data
         public IActionResult UploadToLocal([FromForm] UploadFileRequest request)
         {
             if (request.File == null || request.File.Length == 0) return BadRequest("File empty");
@@ -59,20 +60,29 @@ namespace ActiveOfficeLife.Api.Controllers
         /// <param name="file"></param>
         /// <returns></returns>
         [HttpPost("upload/googledrive")]
-        [Consumes("multipart/form-data")] // rất quan trọng cho Swagger hiểu đây là form-data
+        //[Consumes("multipart/form-data")] // rất quan trọng cho Swagger hiểu đây là form-data
         public async Task<IActionResult> UploadToGoogleDrive([FromForm] UploadFileRequest request)
         {
-            if (request.File == null || request.File.Length == 0) return BadRequest("File empty");
-            string urlResult = string.Empty;
-            string settingId = User?.Claims?.FirstOrDefault(c => c.Type == "SettingId")?.Value;
-            string userId = User?.Claims?.FirstOrDefault(c => c.Type == "UserId")?.Value;
-            if (string.IsNullOrEmpty(request.settingId))
+            try
             {
-                request.settingId = settingId;
-            }
-            var media = await _storageService.UploadFileToGoogleDriveAsync(request.File, request.settingId, userId);
+                if (request.File == null || request.File.Length == 0) return BadRequest("File empty");
+                string urlResult = string.Empty;
+                string settingId = User?.Claims?.FirstOrDefault(c => c.Type == "SettingId")?.Value;
+                string userId = User?.Claims?.FirstOrDefault(c => c.Type == "UserId")?.Value;
+                if (string.IsNullOrEmpty(request.settingId))
+                {
+                    request.settingId = settingId;
+                }
+                var media = await _storageService.UploadFileToGoogleDriveAsync(request.File, request.settingId, userId);
 
-            return Ok(media);
+                return Ok(media);
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.LogService.Error(ex.Message, ex.Source, ex.StackTrace);
+                return BadRequest(ex.Message);
+            }
+            
         }
 
         /// <summary>
