@@ -1,4 +1,5 @@
-﻿using ActiveOfficeLife.Domain.Entities;
+﻿using ActiveOfficeLife.Common.Requests;
+using ActiveOfficeLife.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ namespace ActiveOfficeLife.Domain.Interfaces
 {
     public interface IPostRepository : _IRepository<Post>
     {
+        Task<(List<Post> Items, int Count)> GetAllWithPaging(PagingPostRequest request);
         Task<Post?> GetByAliasAsync(string slug);
         Task<List<Post>> GetByKeyAsync(string keyWord);
         Task<List<Post>> SearchAsync(string keyWord, int pageNumber, int pageSize);

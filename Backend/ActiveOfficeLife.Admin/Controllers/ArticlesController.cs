@@ -13,5 +13,25 @@ namespace ActiveOfficeLife.Admin.Controllers
         {
             return View();
         }
+        [HttpGet]
+        public IActionResult All()
+        {
+            return View();
+        }
+        [HttpGet]
+        public IActionResult Published()
+        {
+            return View();
+        }
+        [HttpGet]
+        public IActionResult Drafts()
+        {
+            return View();
+        }
+        [HttpGet]
+        public IActionResult Closed()
+        {
+            return View();
+        }
     }
 }

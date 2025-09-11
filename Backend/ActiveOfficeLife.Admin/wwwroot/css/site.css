@@ -90,10 +90,10 @@ mark {
 }
 
 .menu-open .link-arrow {
-    transform: rotate(90deg);
-    transition: transform 0.3s ease;
+    transform: rotate(90deg) !important;
+    transition: transform 0.3s ease !important;
 }
 .collapsed .link-arrow {
-    transform: none;
-    transition: transform 0.3s ease;
+    transform: none !important;
+    transition: transform 0.3s ease !important;
 }

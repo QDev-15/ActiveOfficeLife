@@ -2,6 +2,7 @@
 using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Services;
 using ActiveOfficeLife.Common.Models;
+using ActiveOfficeLife.Common.Requests;
 using ActiveOfficeLife.Common.Responses;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,6 +22,26 @@ namespace ActiveOfficeLife.Api.Controllers
             _tagService = tagService ?? throw new ArgumentNullException(nameof(tagService));
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _appConfigService = appConfigService;
+        }
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAllPostPaging([FromQuery] PagingPostRequest request)
+        {
+            try
+            {
+                var result = await _postService.GetAll(request);
+                return Ok(new ResultSuccess(new
+                {
+                    Items = result.Items,
+                    TotalCount = result.count,
+                    PageIndex = request.PageIndex,
+                    PageSize = request.PageSize,
+                }));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error fetching paginated categories: {ex.Message}", ex.Source, null, ex.StackTrace);
+                return BadRequest(new ResultError("Failed to retrieve paginated categories.", "400"));
+            }
         }
         // get post by id
         [HttpGet("get/{id}")]

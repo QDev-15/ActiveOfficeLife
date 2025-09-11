@@ -10,6 +10,7 @@ namespace ActiveOfficeLife.Common.Enums
     {
         Draft,
         Pending,
-        Published
+        Published,
+        Closed
     }
 }

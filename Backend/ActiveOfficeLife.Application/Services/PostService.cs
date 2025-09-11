@@ -5,7 +5,9 @@ using ActiveOfficeLife.Common;
 using ActiveOfficeLife.Common.Enums;
 using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Common.Requests;
+using ActiveOfficeLife.Domain.Entities;
 using ActiveOfficeLife.Domain.Interfaces;
+using System.Reflection;
 
 namespace ActiveOfficeLife.Application.Services
 {
@@ -134,7 +136,7 @@ namespace ActiveOfficeLife.Application.Services
             }
         }
 
-        public async Task<List<PostModel>> Search(PagingRequest request)
+        public async Task<List<PostModel>> Search(PagingPostRequest request)
         {
             string msgHdr = serviceName + "-" + nameof(Search);
             try {
@@ -190,7 +192,7 @@ namespace ActiveOfficeLife.Application.Services
             }
         }
 
-        public async Task<List<PostModel>> GetByCategoryId(Guid categoryId, PagingRequest? request)
+        public async Task<List<PostModel>> GetByCategoryId(Guid categoryId, PagingPostRequest? request)
         {
             try
             {
@@ -208,6 +210,30 @@ namespace ActiveOfficeLife.Application.Services
             {
                 AOLLogger.Error($"{serviceName}-{nameof(GetByCategoryId)}: Error retrieving posts by category. Exception: {ex.Message}", ex.Source, null, ex.StackTrace);
                 throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<(List<PostModel> Items, int count)> GetAll(PagingPostRequest? request)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(request.SortField) || string.IsNullOrEmpty(request.SortDirection))
+                {
+                    request.SortField = "Name"; // Default sort field
+                    request.SortDirection = "asc"; // Default sort direction
+                }
+                var result = await _postRepository.GetAllWithPaging(request); // Get all categories
+                if (result.Items == null || !result.Items.Any())
+                {
+                    result.Items = new List<Post>();
+                }
+
+                return (result.Items.Select(x => x.ReturnModel()).ToList(), result.Count);
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-Error: {ex.Message}", ex.Source, "", ex.StackTrace);
+                throw new Exception("Get categories paging failed");
             }
         }
     }
