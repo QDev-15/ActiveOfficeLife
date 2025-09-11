@@ -221,7 +221,7 @@ class SettingModule {
             setState('Đang lưu...');
 
             const payload = this.getPayloadFromForm();
-            const { data: res } = await apiInstance.put(this.ENDPOINTS.PUT, payload);
+            const { data: res } = await apiInstance.patch(this.ENDPOINTS.PUT, payload);
 
             setState('Đã lưu ✔');
             this.updatePreviewAndQuickView(payload.logo, payload);

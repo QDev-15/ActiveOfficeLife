@@ -5,12 +5,15 @@ import { messageInstance } from './core/messages.module.js';
 import { categoryInstance } from './category.module.js';
 import { settingInstance } from './setting.module.js';   
 import { logInstance } from './log.module.js';
+import { postInstance } from './post.module.js';
+
 
 window.configInstance = configInstance;
 window.spinnerInstance = spinnerInstance;
 window.messageInstance = messageInstance;
 window.categoryInstance = categoryInstance;
 window.settingInstance = settingInstance;
+window.postInstance = postInstance;
 window.logInstance = logInstance
 window.broadCastInstance = broadCastInstance;
 

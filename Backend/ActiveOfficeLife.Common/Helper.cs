@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -11,6 +13,66 @@ namespace ActiveOfficeLife.Common
 {
     public static class Helper
     {
+        /// <summary>
+        /// Merge patch vào target (cả 2 là JsonObject)
+        /// </summary>
+        /// <param name="target"></param>
+        /// <param name="patch"></param>
+        public static void MergeJson(JsonObject target, JsonObject patch)
+        {
+            foreach (var kv in patch)
+            {
+                var key = kv.Key;
+                var patchVal = kv.Value;
+
+                if (patchVal is null)
+                {
+                    // đặt null cho key (nếu property model cho phép null)
+                    target[key] = null;
+                    continue;
+                }
+
+                if (patchVal is JsonObject patchObj)
+                {
+                    // Nếu target[key] là object -> merge đệ quy, ngược lại replace
+                    if (target[key] is JsonObject targetObj)
+                    {
+                        MergeJson(targetObj, patchObj);
+                    }
+                    else
+                    {
+                        target[key] = patchObj.DeepClone();
+                    }
+                }
+                else
+                {
+                    // JsonValue hoặc JsonArray: replace (đơn giản & an toàn)
+                    target[key] = patchVal.DeepClone();
+                }
+            }
+        }
+        public static bool TryGetGuidCaseInsensitive(JsonElement root, string propName, out Guid guid)
+        {
+            guid = Guid.Empty;
+            if (root.ValueKind != JsonValueKind.Object) return false;
+
+            foreach (var p in root.EnumerateObject())
+            {
+                if (string.Equals(p.Name, propName, StringComparison.OrdinalIgnoreCase))
+                {
+                    // cho phép client gửi "id":"...guid..." hoặc JSON string
+                    if (p.Value.ValueKind == JsonValueKind.String)
+                    {
+                        var s = p.Value.GetString();
+                        return Guid.TryParse(s, out guid);
+                    }
+                    // hoặc gửi native guid (hiếm)
+                    try { guid = p.Value.GetGuid(); return guid != Guid.Empty; } catch { }
+                    return false;
+                }
+            }
+            return false;
+        }
         public static MediaType GuessMediaType(string contentType, string ext)
         {
             if ((contentType?.StartsWith("image/") ?? false) ||

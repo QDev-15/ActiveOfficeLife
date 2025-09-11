@@ -162,6 +162,10 @@ class ApiModule {
     put(url, body = {}) {
         return this.request('PUT', url, null, body);
     }
+    // Patch: url, body
+    patch(url, body = {}) {
+        return this.request('PATCH', url, null, body);
+    }
 
     // DELETE: url, payload (params)
     delete(url, payload = {}) {
