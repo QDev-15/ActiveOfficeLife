@@ -200,7 +200,7 @@ namespace ActiveOfficeLife.Application.Services
                 if (request == null)
                 {
                     // set default values for paging request
-                    request = new PagingRequest();
+                    request = new PagingPostRequest();
                     request.PageSize = request.DefaultIfNull;
                 }
                 var posts = await _postRepository.GetPostsByCategoryAsync(categoryId, request.PageIndex, request.PageSize);
