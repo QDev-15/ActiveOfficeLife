@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 namespace ActiveOfficeLife.Common.Enums
 {
     public enum PostStatus
-    {
+    {         
+        All,
         Draft,
         Pending,
         Published,

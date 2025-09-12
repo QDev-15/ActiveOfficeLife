@@ -10,8 +10,8 @@ namespace ActiveOfficeLife.Application.Services
     public class CommentService : ICommentService
     {
         private readonly ICommentRepository _commentRepository;
-        private readonly _IUnitOfWork _iUnitOfWork;
-        public CommentService(ICommentRepository commentRepository, _IUnitOfWork iUnitOfWork)
+        private readonly IUnitOfWork _iUnitOfWork;
+        public CommentService(ICommentRepository commentRepository, IUnitOfWork iUnitOfWork)
         {
             _commentRepository = commentRepository;
             _iUnitOfWork = iUnitOfWork;

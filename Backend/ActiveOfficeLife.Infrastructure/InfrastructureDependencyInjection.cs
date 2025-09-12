@@ -20,7 +20,7 @@ namespace ActiveOfficeLife.Infrastructure
         {
             // Các config khác...
             services.AddSingleton<ConcurrentQueue<Log>>();
-            services.AddScoped<_IUnitOfWork, _UnitOfWork>();
+            services.AddScoped<IUnitOfWork, _UnitOfWork>();
             services.AddScoped<IAdRepository, AdRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<ILogRepository, LogRepository>();

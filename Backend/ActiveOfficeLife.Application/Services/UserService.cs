@@ -17,11 +17,11 @@ namespace ActiveOfficeLife.Application.Services
     {
         private readonly IRoleRepository _roleRepository;
         private readonly IUserRepository _userRepository;
-        private readonly _IUnitOfWork _unitOfWord;
+        private readonly IUnitOfWork _unitOfWord;
         private readonly IMemoryCache _memoryCache;
         private readonly AppConfigService _appConfigService;
         private string className = nameof(UserService);
-        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, _IUnitOfWork unitOfWord, IMemoryCache memoryCache, AppConfigService appConfigService)
+        public UserService(IUserRepository userRepository, IRoleRepository roleRepository, IUnitOfWork unitOfWord, IMemoryCache memoryCache, AppConfigService appConfigService)
         {
             _userRepository = userRepository;
             _roleRepository = roleRepository;

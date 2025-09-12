@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Infrastructure.Repositories
 {
-    public class _UnitOfWork : _IUnitOfWork
+    public class _UnitOfWork : IUnitOfWork
     {
         private readonly ActiveOfficeLifeDbContext _context;
         public _UnitOfWork(ActiveOfficeLifeDbContext context)

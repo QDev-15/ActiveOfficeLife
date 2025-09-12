@@ -13,9 +13,9 @@ namespace ActiveOfficeLife.Application.Services
 {
     public class SettingService : ISettingService
     {
-        private readonly _IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly ISettingRepository _settingRepository;
-        public SettingService(_IUnitOfWork unitOfWork, ISettingRepository settingRepository)
+        public SettingService(IUnitOfWork unitOfWork, ISettingRepository settingRepository)
         {
             _unitOfWork = unitOfWork;
             _settingRepository = settingRepository;

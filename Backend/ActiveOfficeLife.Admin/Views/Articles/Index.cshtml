@@ -2,4 +2,32 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
+    ViewData["Title"] = "Bài viết";
+    // Layout = "~/Views/Shared/_Layout.cshtml";
 }
+<style>
+    tr:hover {
+        background-color: #f1f1f1;
+        cursor: pointer;
+    }
+
+    tr.selected {
+        background-color: #d0ebff !important;
+    }
+</style>
+<input type="hidden" id="article_status" value="@ViewData["status"]" />
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Danh sách Bài viết</h4>
+        <div>
+            <button class="btn btn-primary me-2" onclick="postInstance.add()">➕ Add</button>
+            <button class="btn btn-secondary" onclick="postInstance.refreshData()">🔄 Refresh</button>
+        </div>
+    </div>
+
+
+    @* new table *@
+    <!-- Table -->
+    <table id="articlesTable" class="table table-bordered table-striped table-hover" style="width:100%"></table>
+
+</div>

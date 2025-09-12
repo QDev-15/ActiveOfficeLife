@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Domain.Interfaces
 {
-    public interface _IUnitOfWork
+    public interface IUnitOfWork
     {
         Task SaveChangesAsync();
     }

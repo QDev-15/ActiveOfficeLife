@@ -2,6 +2,9 @@
 import { configInstance } from './config.module.js';
 
 class ApiModule {
+    constructor() {
+        this.stopped = false;
+    }
     request(method, endpoint, params = null, body = null, extraHeaders = {}) {
         configInstance.checkLogined();
         return new Promise((resolve, reject) => {
@@ -77,6 +80,8 @@ class ApiModule {
                 });
         });
     }
+    /// <summary>
+    /// POST form-data (upload file)
     postForm(endpoint, formData, params = null) {
         configInstance.checkLogined();
         return new Promise((resolve, reject) => {

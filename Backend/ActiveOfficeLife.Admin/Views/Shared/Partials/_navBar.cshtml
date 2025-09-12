@@ -79,24 +79,24 @@
                 <div class="multi-level collapse @(Html.IsMenuOpen("Articles") ? "show" : "")" role="list"
                      id="submenu-components" aria-expanded="false">
                     <ul class="flex-column nav">
-                        <li class="nav-item @Html.IsActive("Articles", "All")">
+                        <li class="nav-item @Html.IsActive("Articles", null, "s=all")">
                             <a class="nav-link" 
-                               href="/Articles/all">
+                               href="/Articles?s=all">
                                 <span class="sidebar-text">All Articles</span>
                             </a>
                         </li>
-                        <li class="nav-item @Html.IsActive("Articles", "Published")">
-                            <a class="nav-link" href="/Articles/published">
+                        <li class="nav-item @Html.IsActive("Articles", null, "s=published")">
+                            <a class="nav-link" href="/Articles?s=published">
                                 <span class="sidebar-text">Published</span>
                             </a>
                         </li>
-                        <li class="nav-item @Html.IsActive("Articles", "Drafts")">
-                            <a class="nav-link" href="/Articles/Drafts">
+                        <li class="nav-item @Html.IsActive("Articles", null, "s=draft")">
+                            <a class="nav-link" href="/Articles?s=Draft">
                                 <span class="sidebar-text">Drafts</span>
                             </a>
                         </li>
-                        <li class="nav-item @Html.IsActive("Articles", "Closed")">
-                            <a class="nav-link" href="/Articles/Closed">
+                        <li class="nav-item @Html.IsActive("Articles", null, "s=closed")">
+                            <a class="nav-link" href="/Articles?s=Closed">
                                 <span class="sidebar-text">Closed</span>
                             </a>
                         </li>

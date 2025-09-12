@@ -10,9 +10,9 @@ namespace ActiveOfficeLife.Application.Services
     public class TagService : ITagService
     {
         private readonly ITagRepository _tagRepository;
-        private readonly _IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public TagService(ITagRepository tagRepository, _IUnitOfWork unitOfWork)
+        public TagService(ITagRepository tagRepository, IUnitOfWork unitOfWork)
         {
             _tagRepository = tagRepository;
             _unitOfWork = unitOfWork;

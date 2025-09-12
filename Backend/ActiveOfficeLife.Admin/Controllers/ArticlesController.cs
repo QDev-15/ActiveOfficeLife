@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using ActiveOfficeLife.Common.Enums;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ActiveOfficeLife.Admin.Controllers
 {
@@ -9,29 +10,11 @@ namespace ActiveOfficeLife.Admin.Controllers
         }
         // GET: Article
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Index([FromQuery] PostStatus s = PostStatus.All)
         {
+            ViewData["status"] = s.ToString();
             return View();
         }
-        [HttpGet]
-        public IActionResult All()
-        {
-            return View();
-        }
-        [HttpGet]
-        public IActionResult Published()
-        {
-            return View();
-        }
-        [HttpGet]
-        public IActionResult Drafts()
-        {
-            return View();
-        }
-        [HttpGet]
-        public IActionResult Closed()
-        {
-            return View();
-        }
+        
     }
 }

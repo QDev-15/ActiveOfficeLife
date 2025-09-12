@@ -2,6 +2,7 @@
 import { broadCastInstance } from './core/broadcast.module.js';
 import { spinnerInstance } from './core/spinner.module.js';
 import { messageInstance } from './core/messages.module.js';
+import { pingInstance } from './core/ping.module.js';
 import { categoryInstance } from './category.module.js';
 import { settingInstance } from './setting.module.js';   
 import { logInstance } from './log.module.js';
@@ -9,6 +10,7 @@ import { postInstance } from './post.module.js';
 
 
 window.configInstance = configInstance;
+window.pingInstance = pingInstance;
 window.spinnerInstance = spinnerInstance;
 window.messageInstance = messageInstance;
 window.categoryInstance = categoryInstance;
@@ -16,6 +18,7 @@ window.settingInstance = settingInstance;
 window.postInstance = postInstance;
 window.logInstance = logInstance
 window.broadCastInstance = broadCastInstance;
+pingInstance.startAuthHeartbeat();
 
 
 document.addEventListener('DOMContentLoaded', () => {

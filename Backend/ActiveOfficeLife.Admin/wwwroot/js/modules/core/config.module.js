@@ -4,7 +4,7 @@ class ConfigModule {
     constructor() {
         this.urlApiServer = 'https://api.aol.tkid.io.vn/api';
         this.urlApiLocal = 'https://localhost:7029/api';
-        this.urlApi = window.apiUrl;
+        this.urlApi = window.apiUrl + "/api";
         this.accesstokenKey = window.accesstokenKey;
         this.token = document.cookie
             .split('; ')
@@ -22,7 +22,6 @@ class ConfigModule {
             roles: [],
             createdAt: null
         };
-
         this.initUserCookie();
     }
 

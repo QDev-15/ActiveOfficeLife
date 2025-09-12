@@ -4,17 +4,55 @@ namespace ActiveOfficeLife.Admin.Helpers
 {
     public static class HtmlHelperExtensions
     {
-        public static string IsActive(this IHtmlHelper htmlHelper, string controller, string action = null)
+        /// <summary>
+        /// Trả về "active" nếu controller/action khớp
+        /// và (tuỳ chọn) query string khớp điều kiện trong paramTxt.
+        /// - paramTxt: "key=value" (ví dụ: "s=published") hoặc chỉ "key" (chỉ cần có key).
+        /// </summary>
+        public static string IsActive(this IHtmlHelper htmlHelper, string controller, string action = null, string? paramTxt = "", string cssClass = "active")
         {
-            var routeData = htmlHelper.ViewContext.RouteData;
-            var routeController = routeData.Values["controller"]?.ToString()?.ToLower();
-            var routeAction = routeData.Values["action"]?.ToString()?.ToLower();
+            var route = htmlHelper.ViewContext.RouteData.Values;
+            var routeController = route["controller"]?.ToString();
+            var routeAction = route["action"]?.ToString();
 
-            if (!string.IsNullOrEmpty(action))
-                return (controller.ToLower() == routeController && action?.ToLower() == routeAction) ? "active" : "";
+            // So khớp controller / action (không phân biệt hoa thường)
+            if (!controller.Equals(routeController, StringComparison.OrdinalIgnoreCase))
+                return string.Empty;
 
-            return (controller.ToLower() == routeController) ? "active" : "";
+            if (!string.IsNullOrEmpty(action) &&
+                !action.Equals(routeAction, StringComparison.OrdinalIgnoreCase))
+                return string.Empty;
+
+            // Nếu không yêu cầu check query → active
+            if (string.IsNullOrWhiteSpace(paramTxt))
+                return cssClass;
+
+            // Parse "key=value" hoặc "key"
+            string key, expected = null;
+            var idx = paramTxt.IndexOf('=');
+            if (idx > 0)
+            {
+                key = paramTxt[..idx].Trim();
+                expected = paramTxt[(idx + 1)..].Trim();
+            }
+            else
+            {
+                key = paramTxt.Trim();
+            }
+
+            var req = htmlHelper.ViewContext.HttpContext.Request;
+            if (!req.Query.TryGetValue(key, out var values))
+                return string.Empty;
+
+            // Nếu chỉ cần có key
+            if (expected is null)
+                return cssClass;
+
+            // So sánh giá trị (lấy giá trị đầu nếu có nhiều)
+            var actual = values.ToString();
+            return actual.Equals(expected, StringComparison.OrdinalIgnoreCase) ? cssClass : string.Empty;
         }
+
         public static bool IsMenuOpen(this IHtmlHelper html, string controllers = null)
         {
             var routeData = html.ViewContext.RouteData;

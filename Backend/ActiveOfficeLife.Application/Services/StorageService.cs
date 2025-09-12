@@ -24,10 +24,10 @@ namespace ActiveOfficeLife.Application.Services
         private readonly ISettingRepository _settingRepository;
         private readonly IGoogleDriveInterface _googleDriveInterface;
         private readonly IMediaRepository _mediaRepository;
-        private readonly _IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _env;
         public StorageService(AppConfigService appConfigService, ISettingRepository settingRepository, IWebHostEnvironment env,
-            IGoogleDriveInterface googleDriveInterface, IMediaRepository mediaRepository, _IUnitOfWork unitOfWork)
+            IGoogleDriveInterface googleDriveInterface, IMediaRepository mediaRepository, IUnitOfWork unitOfWork)
         {
             _env = env ?? throw new ArgumentNullException(nameof(env));
             _appConfigService = appConfigService ?? throw new ArgumentNullException(nameof(appConfigService));

@@ -14,9 +14,9 @@ namespace ActiveOfficeLife.Application.Services
     {
         private readonly ICategoryRepository _categoryRepository;
         private readonly IPostRepository _postRepository;
-        private readonly _IUnitOfWork _unitOfWork;
+        private readonly IUnitOfWork _unitOfWork;
        
-        public CategoryService(ICategoryRepository categoryRepository, _IUnitOfWork unitOfWork, IPostRepository postRepository)
+        public CategoryService(ICategoryRepository categoryRepository, IUnitOfWork unitOfWork, IPostRepository postRepository)
         {
             _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
             _unitOfWork = unitOfWork;

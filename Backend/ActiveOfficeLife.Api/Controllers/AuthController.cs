@@ -158,7 +158,10 @@ namespace ActiveOfficeLife.Api.Controllers
             _cache.Clear();
             return Ok(new ResultSuccess("Cache cleared successfully."));
         }
-
+        [HttpGet("/api/ping")]
+        public IActionResult Ping() { 
+            return Ok(true);
+        }
         
     }
 }

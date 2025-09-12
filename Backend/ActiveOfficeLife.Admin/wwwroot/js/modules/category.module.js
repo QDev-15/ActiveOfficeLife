@@ -12,7 +12,7 @@ class CategoryModule {
         this.configApp = configInstance;
         this.spinner = spinnerInstance;
         this.messageApp = messageInstance;
-        this.token = this.configApp.token;
+        this.token = configInstance.token;
         this.selectedRow = null;
         this.selectedData = null;
         this.currentPage = 1;

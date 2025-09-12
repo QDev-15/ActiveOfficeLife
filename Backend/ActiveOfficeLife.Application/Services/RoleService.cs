@@ -11,9 +11,9 @@ namespace ActiveOfficeLife.Application.Services
     public class RoleService : IRoleService
     {
         private readonly IRoleRepository _roleRepository;
-        private readonly _IUnitOfWork _iUnitOfWork;
+        private readonly IUnitOfWork _iUnitOfWork;
 
-        public RoleService(IRoleRepository roleRepository, _IUnitOfWork iUnitOfWork)
+        public RoleService(IRoleRepository roleRepository, IUnitOfWork iUnitOfWork)
         {
             _roleRepository = roleRepository;
             _iUnitOfWork = iUnitOfWork;
