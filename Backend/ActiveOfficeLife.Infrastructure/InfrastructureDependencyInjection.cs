@@ -33,6 +33,7 @@ namespace ActiveOfficeLife.Infrastructure
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IVisitorRepository, VisitorRepository>();
             services.AddScoped<IUserTokenRepository, UserTokenRepository>();
+            services.AddScoped<ICommentRepository, CommentRepository>();
             return services;
         }
     }

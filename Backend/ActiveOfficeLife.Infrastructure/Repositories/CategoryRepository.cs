@@ -97,7 +97,14 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             if (actualSortField == "parent")
             {
                 //sort category first with parent null, and group by parent category
-                query = query.OrderBy(c => c.ParentId == null ? 0 : 1).ThenBy(c => c.ParentId).ThenBy(c => c.Name);
+                if (request.SortDirection.ToLower() == "asc")
+                {
+                    query = query.OrderBy(c => c.ParentId == null ? 0 : 1).ThenBy(c => c.Parent.Name).ThenBy(c => c.Name);
+                } else
+                {
+                    query = query.OrderByDescending(c => c.ParentId == null ? 0 : 1).ThenBy(c => c.Parent.Name).ThenBy(c => c.Name);
+                }
+                    
             } else if (!string.IsNullOrEmpty(actualSortField))
             {
                 if (request.SortDirection.ToLower() == "asc")
