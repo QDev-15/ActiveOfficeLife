@@ -55,10 +55,11 @@ class PingMudule {
         }
     }
     writeLog(time, status) {
-        if (this.counter > 10) {
-            this.stopAuthHeartbeat();
-        };
-        this.counter += 1;
+        //if (this.counter > 10) {
+        //    this.stopAuthHeartbeat();
+        //};
+        //this.counter += 1;
+        //return; // tạm ẩn log
         if (status) {
             console.debug(
                 `[PING] ${new Date().toISOString()} | client=${window.location.host} -> ${window.apiUrl} times=${time}ms`
@@ -92,6 +93,7 @@ class PingMudule {
             this.__hbInFlight = false;
 
             if (!ok && (status === 401 || status === 403)) {
+                console.log('Unauthorized, please login.')
                 this.stopAuthHeartbeat();
                 configInstance.logout();
             }
