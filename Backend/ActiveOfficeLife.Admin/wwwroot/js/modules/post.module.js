@@ -17,6 +17,11 @@ class PostModule {
         this.globalData = [];
         this.totalCount = 0;
         this.tableId = "articlesTable";
+        this.ENDPOINTS = {
+            CREATE: 'post/create',
+            ALL: '/post/all',
+        };
+        
     }
 
     // init DataTable
@@ -111,16 +116,22 @@ class PostModule {
                     }
                 },
                 {
-                    data: null, // null để lấy toàn bộ row
+                    data: "status",
+                    name: "status",
                     title: "Status",
                     className: "text-center",
-                    orderable: false,
-                    render: function (data, type, row) {
-                        if (data.status) {
-                            return '<span class="badge bg-success">Active</span>';
-                        } else {
-                            return '<span class="badge bg-secondary">Deactivated</span>';
-                        }
+                    orderable: true,
+                    render: (status) => {
+                        const s = (status || '').toString().toLowerCase();
+                        const map = {
+                            'published': 'success',
+                            'draft': 'secondary',
+                            'pending': 'warning',
+                            'closed': 'dark'
+                        };
+                        const color = map[s] || 'secondary';
+                        const text = status || 'Unknown';
+                        return `<span class="badge bg-${color}">${text}</span>`;
                     }
                 },
                 {
@@ -130,13 +141,13 @@ class PostModule {
                     orderable: false,
                     render: function (data, type, row) {
                         return `<button class="btn btn-sm btn-warning btn-edit"
-                                    onclick="categoryInstance.edit('${row.id}', '${row.name}')"
+                                    onclick="postInstance.edit('${row.id}', '${row.title}')"
                                     data-id="${row.id}"
-                                    data-name="${row.name}">Edit</button>
+                                    data-name="${row.title}">Edit</button>
                                 <button class="btn btn-sm btn-danger btn-delete"
-                                    onclick="categoryInstance.delete('${row.id}', '${row.name}')"
+                                    onclick="postInstance.delete('${row.id}', '${row.title}')"
                                     data-id="${row.id}"
-                                    data-name="${row.name}">Delete</button>
+                                    data-name="${row.title}">Delete</button>
                                 `;
                     }
                 }
@@ -144,6 +155,34 @@ class PostModule {
             pageLength: 10
         });
 
+    }
+    refreshData() {
+        this.tableInstance?.ajax?.reload(null, false);
+    }
+
+    edit(id) {
+        // Điều hướng tới trang Edit. Nếu action Edit nhận query ?id=...
+        window.location.href = `/Articles/Edit?id=${encodeURIComponent(id)}`;
+        // Nếu bạn map theo route /Articles/Edit/{id} thì dùng:
+        // window.location.href = `/Articles/Edit/${encodeURIComponent(id)}`;
+    }
+    async add() {
+        try {
+            // Gửi body rỗng: backend sẽ set AuthorId = current user, Status = Draft
+            const created = await apiInstance.post(this.ENDPOINTS.CREATE, {});
+            const newId = created?.id || created?.Id; // tuỳ casing server trả về
+
+            if (!newId) {
+                messageInstance.error('Không lấy được ID bài viết vừa tạo.');
+                return;
+            }
+
+            // Chuyển sang trang Edit
+            this.edit(newId);
+        } catch (e) {
+            console.error('Create post failed:', e);
+            messageInstance.error(e?.message || 'Tạo bài viết thất bại.');
+        }
     }
 }
 export const postInstance = new PostModule(); 

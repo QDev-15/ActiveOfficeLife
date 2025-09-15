@@ -60,9 +60,15 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
             return new PostModel()
             {
                 Id = value.Id,
-                Author = value.Author.ReturnModel(),
+                Author = value.Author == null ? new UserModel()
+                {
+                    Id = value.AuthorId
+                } : value.Author.ReturnModel(),
                 AuthorId = value.AuthorId,
-                Category = value.Category.ReturnModel(),
+                Category = value.Category == null ? new CategoryModel()
+                {
+                    Id = value.CategoryId
+                } : value.Category.ReturnModel(),
                 CategoryId = value.CategoryId,
                 Comments = value.Comments.Select(x => x.ReturnModel()).ToList(),
                 Content = value.Content,

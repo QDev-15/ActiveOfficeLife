@@ -137,5 +137,24 @@ namespace ActiveOfficeLife.Api.Controllers
                 return BadRequest(new ResultError("Failed to retrieve posts.", "400"));
             }
         }
+        [HttpPost("create")]
+        public async Task<IActionResult> CreatePost([FromBody] PostModel post)
+        {
+            post.AuthorId = post.AuthorId ?? UserId;
+            if (post == null)
+            {
+                return BadRequest(new ResultError("Post data is required.", "400"));
+            }
+            try
+            {
+                var createdPost = await _postService.Create(post);
+                return Ok(new ResultSuccess(createdPost));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error creating post: {ex.Message}", ex.Source, null, ex.StackTrace);
+                return BadRequest(new ResultError("Failed to create post.", "400"));
+            }
+        }
     }
 }

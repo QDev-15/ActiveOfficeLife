@@ -10,6 +10,7 @@ namespace ActiveOfficeLife.Domain.Interfaces
 {
     public interface ICategoryRepository : _IRepository<Category>
     {
+        Task<Category> GetDefaultCategoryAsync();
         Task<(IEnumerable<Category> Categories, int Count)> GetAllWithPaging(PagingCategoryRequest request);
         Task<IEnumerable<Category>> GetByParrentId(Guid parentId);
         Task<Category?> GetById(Guid id);

@@ -15,6 +15,11 @@ namespace ActiveOfficeLife.Admin.Controllers
             ViewData["status"] = s.ToString();
             return View();
         }
-        
+        [HttpGet]
+        public IActionResult Edit()
+        {
+            return View();
+        }
+
     }
 }

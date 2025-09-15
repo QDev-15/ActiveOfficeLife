@@ -150,5 +150,23 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
         {
             return await _context.Categories.Where(x => x.ParentId == parentId).Include(x => x.SeoMetadata).Include(x => x.Children).ToListAsync();
         }
+
+        public async Task<Category> GetDefaultCategoryAsync()
+        {
+            var defaultCategory = await _context.Categories.FirstOrDefaultAsync();
+            if (defaultCategory == null)
+            {
+                defaultCategory = new Category
+                {
+                    Name = "Default Category",
+                    Slug = "default-category",
+                    IsActive = true,
+                    IsDeleted = false   
+                };
+                await _context.Categories.AddAsync(defaultCategory);
+                await _context.SaveChangesAsync();
+            }
+            return defaultCategory;
+        }
     }
 }

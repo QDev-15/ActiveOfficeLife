@@ -7,6 +7,7 @@ using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Common.Requests;
 using ActiveOfficeLife.Domain.Entities;
 using ActiveOfficeLife.Domain.Interfaces;
+using System.Net.WebSockets;
 using System.Reflection;
 
 namespace ActiveOfficeLife.Application.Services
@@ -15,12 +16,14 @@ namespace ActiveOfficeLife.Application.Services
     {
         private string serviceName = "";
         private readonly IPostRepository _postRepository;
+        private readonly ICategoryRepository _categoryRepository;
         private readonly IUnitOfWork _unitOfWork;
-        public PostService(IPostRepository postRepository, IUnitOfWork unitOfWork)
+        public PostService(IPostRepository postRepository, IUnitOfWork unitOfWork, ICategoryRepository categoryRepository)
         {
             _postRepository = postRepository;
             _unitOfWork = unitOfWork;
             serviceName = this.GetType().Name;
+            _categoryRepository = categoryRepository;
         }
 
         public async Task<PostModel> Create(PostModel post)
@@ -32,12 +35,24 @@ namespace ActiveOfficeLife.Application.Services
                     AOLLogger.Error($"{msgHdr}: Post is null.");
                     throw new ArgumentNullException(nameof(post), "Post cannot be null.");
                 }
-                var newPost = new Domain.Entities.Post
+                if (string.IsNullOrWhiteSpace(post.Title))
+                {
+                    // set default title if not provided
+                    post.Title = "Untitled Post " + DateTime.UtcNow.ToShortTimeString();
+                }
+                // check and sett default category if not provided
+                if (post.CategoryId == null || post.CategoryId == Guid.Empty)
+                {
+                    var defaultCategory = await _categoryRepository.GetDefaultCategoryAsync();
+                    // set default category id (you may want to fetch this from a config or constant)
+                    post.CategoryId = defaultCategory.Id; // Replace with actual default category ID
+                }
+                var newPost = new Post
                 {
                     Id = Guid.NewGuid(),
                     Title = post.Title,
                     Slug = Helper.GenerateSlug(post.Title),
-                    Content = post.Content,
+                    Content = post.Content ?? string.Empty,
                     Summary = post.Summary,
                     AuthorId = post.AuthorId ?? Guid.Empty, // Assuming AuthorId is required
                     CategoryId = post.CategoryId ?? Guid.Empty, // Assuming CategoryId is required
