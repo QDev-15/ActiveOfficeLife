@@ -219,7 +219,7 @@ namespace ActiveOfficeLife.Application.Services
             {
                 if (string.IsNullOrEmpty(request.SortField) || string.IsNullOrEmpty(request.SortDirection))
                 {
-                    request.SortField = "Name"; // Default sort field
+                    request.SortField = "Title"; // Default sort field
                     request.SortDirection = "asc"; // Default sort direction
                 }
                 var result = await _postRepository.GetAllWithPaging(request); // Get all categories

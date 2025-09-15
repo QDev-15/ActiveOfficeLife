@@ -48,10 +48,18 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
                );
             }
 
-            if (actualSortField == "category")
+            if (actualSortField.ToLower() == "category")
             {
                 //sort category first with parent null, and group by parent category
-                query = query.OrderBy(c => c.CategoryId == null ? 0 : 1).ThenBy(c => c.CategoryId).ThenBy(c => c.Title);
+                if (request.SortDirection.ToLower() == "asc")
+                {
+                    query = query.OrderBy(c => c.CategoryId == null ? 0 : 1).ThenBy(c => c.Category.Name).ThenBy(c => c.Title);
+                }
+                else
+                {
+                    query = query.OrderByDescending(c => c.CategoryId == null ? 0 : 1).ThenBy(c => c.Category.Name).ThenBy(c => c.Title);
+                }
+                
             }
             else if (!string.IsNullOrEmpty(actualSortField))
             {
