@@ -32,6 +32,7 @@ builder.Services.AddControllersWithViews()
         fv.RegisterValidatorsFromAssemblyContaining<LoginRequestValidator>();
         fv.RegisterValidatorsFromAssemblyContaining<RegisterRequestValidator>();
         fv.RegisterValidatorsFromAssemblyContaining<CategoryModelValidator>();
+        fv.RegisterValidatorsFromAssemblyContaining<PostModelValidator>();
         fv.DisableDataAnnotationsValidation = true; // Optional
     });
 

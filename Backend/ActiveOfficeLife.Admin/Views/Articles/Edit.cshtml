@@ -1,5 +1,161 @@
-﻿@*
+﻿@using ActiveOfficeLife.Common.Models
+@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
 }
+@model PostModel
+@{
+    ViewData["Title"] = "Cập nhật bài viết";
+    var categories = ViewBag.Categories as Microsoft.AspNetCore.Mvc.Rendering.SelectList;
+    var authors = ViewBag.Authors as Microsoft.AspNetCore.Mvc.Rendering.SelectList;
+    var allTags = ViewBag.AllTags as List<TagModel> ?? new List<TagModel>();
+    var selectedTagIds = Model?.Tags?.Select(t => t.Id).ToHashSet() ?? new HashSet<Guid>();
+}
+
+<h4 class="mb-3">Cập nhật bài viết (Draft)</h4>
+
+<form asp-action="Edit" asp-controller="Posts" method="post" class="needs-validation" novalidate>
+    @Html.AntiForgeryToken()
+
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="CreatedAt" type="hidden" />
+    <input asp-for="SeoMetadataId" type="hidden" />
+
+    <div class="row g-3">
+        <!-- Title + Slug -->
+        <div class="col-12 col-lg-8">
+            <label asp-for="Title" class="form-label">Tiêu đề</label>
+            <input asp-for="Title" class="form-control" placeholder="Nhập tiêu đề bài viết" />
+            <span class="text-danger" asp-validation-for="Title"></span>
+        </div>
+        <div class="col-12 col-lg-4">
+            <label asp-for="Slug" class="form-label">Slug</label>
+            <div class="input-group">
+                <input asp-for="Slug" class="form-control" placeholder="tu-dong-tao-tu-tieu-de" />
+                <button type="button" class="btn btn-outline-secondary" id="btnRegenerateSlug">Tạo lại</button>
+            </div>
+            <span class="text-danger" asp-validation-for="Slug"></span>
+        </div>
+
+        <!-- Category, Author, Status -->
+        <div class="col-12 col-md-4">
+            <label asp-for="CategoryId" class="form-label">Danh mục</label>
+            <select asp-for="CategoryId" asp-items="categories" class="form-select">
+                <option value="">-- Chọn danh mục --</option>
+            </select>
+            <span class="text-danger" asp-validation-for="CategoryId"></span>
+        </div>
+        <div class="col-12 col-md-4">
+            <label asp-for="AuthorId" class="form-label">Tác giả</label>
+            <select asp-for="AuthorId" asp-items="authors" class="form-select">
+                <option value="">-- Chọn tác giả --</option>
+            </select>
+            <span class="text-danger" asp-validation-for="AuthorId"></span>
+        </div>
+        <div class="col-12 col-md-4">
+            <label asp-for="Status" class="form-label">Trạng thái</label>
+            <select asp-for="Status" class="form-select">
+                @foreach (var st in Enum.GetValues(typeof(PostStatus)))
+                {
+                    <option value="@st" selected="@(Model?.Status?.Equals(st) ?? false)">@st</option>
+                }
+            </select>
+            <span class="text-danger" asp-validation-for="Status"></span>
+        </div>
+
+        <!-- Tags (tùy chọn) -->
+        <div class="col-12">
+            <label class="form-label">Thẻ (Tags)</label>
+            <div class="d-flex flex-wrap gap-2">
+                @foreach (var tag in allTags)
+                {
+                    var isChecked = selectedTagIds.Contains(tag.Id);
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="Tags" value="@tag.Id" id="tag_@tag.Id" @(isChecked ? "checked" : "") />
+                        <label class="form-check-label" for="tag_@tag.Id">@tag.Name</label>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="col-12">
+            <label asp-for="Summary" class="form-label">Tóm tắt</label>
+            <textarea asp-for="Summary" class="form-control" rows="2" placeholder="Mô tả ngắn gọn bài viết"></textarea>
+            <div class="form-text"><span id="summaryCounter">0</span> ký tự (khuyên dùng 140–200).</div>
+            <span class="text-danger" asp-validation-for="Summary"></span>
+        </div>
+
+        <!-- Content -->
+        <div class="col-12">
+            <label asp-for="Content" class="form-label">Nội dung</label>
+            <textarea asp-for="Content" class="form-control" rows="12" placeholder="Viết nội dung tại đây..."></textarea>
+            <span class="text-danger" asp-validation-for="Content"></span>
+        </div>
+
+        <!-- Ngày tạo / cập nhật -->
+        <div class="col-12 col-md-6">
+            <label class="form-label">Ngày tạo</label>
+            <input class="form-control" value="@(Model?.CreatedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))" readonly />
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label">Cập nhật</label>
+            <input class="form-control" value="@(Model?.UpdatedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm"))" readonly />
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save me-1"></i>Lưu
+        </button>
+        <a asp-action="Index" asp-controller="Posts" class="btn btn-outline-secondary">Hủy</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const titleEl = document.getElementById("@Html.IdFor(m => m.Title)");
+            const slugEl = document.getElementById("@Html.IdFor(m => m.Slug)");
+            const summaryEl = document.getElementById("@Html.IdFor(m => m.Summary)");
+            const summaryCounter = document.getElementById("summaryCounter");
+            const btnRegen = document.getElementById("btnRegenerateSlug");
+
+            function toSlugVN(str) {
+                if (!str) return "";
+                str = str.toLowerCase().trim();
+                const from = "àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ";
+                const to   = "aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd";
+                for (let i = 0; i < from.length; i++) str = str.replaceAll(from[i], to[i]);
+                str = str.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
+                str = str.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").replace(/-+/g, "-");
+                return str;
+            }
+
+            if (titleEl && slugEl) {
+                titleEl.addEventListener("input", () => {
+                    if (!slugEl.value) slugEl.value = toSlugVN(titleEl.value);
+                });
+            }
+            if (btnRegen && titleEl && slugEl) {
+                btnRegen.addEventListener("click", () => slugEl.value = toSlugVN(titleEl.value));
+            }
+
+            function updateSummaryCounter() {
+                if (summaryEl && summaryCounter) summaryCounter.textContent = (summaryEl.value || "").length;
+            }
+            if (summaryEl) {
+                summaryEl.addEventListener("input", updateSummaryCounter);
+                updateSummaryCounter();
+            }
+        })();
+    </script>
+}
+
+
+
+
+
+

@@ -1,4 +1,5 @@
-﻿using ActiveOfficeLife.Domain.EFCore.DBContext;
+﻿using ActiveOfficeLife.Common.Requests;
+using ActiveOfficeLife.Domain.EFCore.DBContext;
 using ActiveOfficeLife.Domain.Entities;
 using ActiveOfficeLife.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,46 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
     {
         public TagRepository(ActiveOfficeLifeDbContext context) : base(context)
         {
+        }
+
+        public async Task<IEnumerable<Tag>> GetAllAsync()
+        {
+            return await _context.Tags.Include(x => x.SeoMetadata).ToListAsync();
+        }
+
+        public async Task<(IEnumerable<Tag> Items, int Count)> GetAllWithPaging(PagingTagRequest request)
+        {
+            var allowedFields = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "name", "Name" },
+                { "slug", "Slug" }
+
+            };
+            if (!allowedFields.TryGetValue(request.SortField ?? "", out var actualSortField))
+            {
+                actualSortField = "Name"; // fallback nếu không đúng
+                request.SortField = actualSortField;
+            }
+            IQueryable<Tag> query = _context.Tags.AsQueryable();
+
+
+            // check and filter by search text igonre case sensitivity
+            if (!string.IsNullOrEmpty(request.SearchText))
+            {
+                var search = $"%{request.SearchText.ToLower()}%";
+                query = query
+                    .Where(c => EF.Functions.Like(c.Name.ToLower(), search)
+                    || EF.Functions.Like(c.Slug.ToLower(), search)
+               );
+            }
+
+            
+
+            int count = await query.CountAsync();
+            var items = await query.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize)
+                            .Include(x => x.SeoMetadata)
+                            .ToListAsync();
+            return (items, count);
         }
 
         public async Task<Tag?> GetByNameAsync(string name)
