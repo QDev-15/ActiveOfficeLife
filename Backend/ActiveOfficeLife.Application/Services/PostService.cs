@@ -58,7 +58,16 @@ namespace ActiveOfficeLife.Application.Services
                     CategoryId = post.CategoryId ?? Guid.Empty, // Assuming CategoryId is required
                     Status = post.Status ?? PostStatus.Draft,
                     CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
+                    UpdatedAt = DateTime.UtcNow,
+                    SeoMetadata = new SeoMetadata
+                    {
+                        Id = Guid.NewGuid(),
+                        MetaTitle = post.SeoMetadata?.MetaTitle,
+                        MetaDescription = post.SeoMetadata?.MetaDescription,
+                        MetaKeywords = post.SeoMetadata?.MetaKeywords,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    }
                 };
                 await _postRepository.AddAsync(newPost);
                 await _unitOfWork.SaveChangesAsync();

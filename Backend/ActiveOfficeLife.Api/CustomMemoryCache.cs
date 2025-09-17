@@ -72,6 +72,15 @@ namespace ActiveOfficeLife.Api
             _keys.TryAdd(key, true);
         }
 
+        public void RemoveByPattern(string pattern)
+        {
+            var keysToRemove = _keys.Keys.Where(k => k.Contains(pattern)).ToList();
+            foreach (var key in keysToRemove)
+            {
+                _cache.Remove(key);
+                _keys.TryRemove(key, out _);
+            }
+        }
         /// <summary>
         /// remove a key from the cache
         /// </summary>

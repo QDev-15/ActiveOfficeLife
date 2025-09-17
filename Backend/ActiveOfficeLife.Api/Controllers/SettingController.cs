@@ -8,6 +8,7 @@ using Google.Apis.Auth.OAuth2;
 using GoogleApi.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -17,20 +18,31 @@ namespace ActiveOfficeLife.Api.Controllers
 {
     public class SettingController : BaseController
     {
+        private readonly string _controllerName = "Setting";
         private readonly ISettingService _settingService;
         private readonly IGoogleDriveInterface _googleDriveService;
         private readonly AppConfigService _appConfigService;
-        public SettingController(ISettingService settingService, AppConfigService appConfigService, IGoogleDriveInterface googleDriveInterface)
+        private readonly CustomMemoryCache _cache;
+        public SettingController(ISettingService settingService, CustomMemoryCache customMemoryCache, AppConfigService appConfigService, IGoogleDriveInterface googleDriveInterface)
         {
+            customMemoryCache = customMemoryCache ?? throw new ArgumentNullException(nameof(customMemoryCache));
             _googleDriveService = googleDriveInterface;
             _appConfigService = appConfigService;
             _settingService = settingService;
+            _controllerName = this.GetType().Name;
         }
 
         [HttpGet("get")]
         public async Task<IActionResult> Get(string? id)
         {
+            string cacheKey = $"{_controllerName}-{MethodBase.GetCurrentMethod().Name}-{id}";
+            var cachedResult = _cache.Get<SettingModel>(cacheKey);
+            if (cachedResult != null)
+            {
+                return Ok(new ResultSuccess(cachedResult));
+            }
             var setting = await _settingService.GetDefault(id);
+            _cache.Set(cacheKey, setting, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout));
             if (setting == null)
             {
                 return NotFound(new ResultError("Setting not found", "404"));
@@ -45,6 +57,7 @@ namespace ActiveOfficeLife.Api.Controllers
                 return BadRequest(new ResultError("Invalid setting data", "400"));
             }
             var createdSetting = await _settingService.Create(setting);
+            _cache.RemoveByPattern($"{_controllerName}"); // Xoá cache danh sách để cập nhật
             return Ok(new ResultSuccess(createdSetting));
         }
         [HttpPatch("patch")]
@@ -83,6 +96,7 @@ namespace ActiveOfficeLife.Api.Controllers
             // Bảo toàn các field gốc id, name, createdAt,...
             merged.Id = current.Id;
             var updated = await _settingService.Update(merged);
+            _cache.RemoveByPattern($"{_controllerName}"); // Xoá cache danh sách để cập nhật
             return Ok(updated);
         }
         [HttpPut("update")]
@@ -95,6 +109,7 @@ namespace ActiveOfficeLife.Api.Controllers
             try
             {
                 var updatedSetting = await _settingService.Update(setting);
+                _cache.RemoveByPattern($"{_controllerName}"); // Xoá cache danh sách để cập nhật
                 return Ok(new ResultSuccess(updatedSetting));
             }
             catch (System.Exception ex)

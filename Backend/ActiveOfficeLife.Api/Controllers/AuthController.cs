@@ -16,6 +16,7 @@ namespace ActiveOfficeLife.Api.Controllers
 {
     public class AuthController : BaseController
     {
+        private readonly string _controllerName = "Auth";
         private readonly ITokenService _tokenService;
         private readonly IUserService _userService;
         private readonly CustomMemoryCache _cache;
@@ -31,6 +32,7 @@ namespace ActiveOfficeLife.Api.Controllers
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _tokenService = tokenService;
             _userService = userService;
+            _controllerName = this.GetType().Name;
         }
         [AllowAnonymous]
         [HttpGet("callback")]

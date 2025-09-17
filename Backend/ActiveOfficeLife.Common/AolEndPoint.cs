@@ -34,6 +34,22 @@
         public static string PostCreate = "/api/post/create";
         public static string PostUpdate = "/api/post/update";
         public static string PostDelete = "/api/post/delete";
+        // tag Endpoints
+        /// <summary>
+        /// api/tag/all?search=&pageNumber=1&pageSize=10
+        /// </summary>
+        public static string TagGetAll = "/api/tag/all";
+        /// <summary>
+        /// /api/tag/getbyid?id=...
+        /// </summary>
+        public static string TagGetById = "/api/tag/getbyid";
+        /// <summary>
+        /// /api/tag/create
+        /// </summary>
+        public static string TagCreate = "/api/tag/create";
+        public static string TagUpdate = "/api/tag/update";
+        public static string TagDelete = "/api/tag/delete";
+        public static string PatchTag = "/api/tag/patch";
         // Comment Endpoints
         public static string CommentGetAll = "/api/comment/getall";
         public static string CommentGetById = "/api/comment/getbyid";

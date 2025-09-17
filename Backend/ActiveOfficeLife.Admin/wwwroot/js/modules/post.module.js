@@ -17,6 +17,7 @@ class PostModule {
         this.globalData = [];
         this.totalCount = 0;
         this.tableId = "articlesTable";
+        this.postTableInstance = null;
         this.ENDPOINTS = {
             CREATE: 'post/create',
             ALL: '/post/all',
@@ -26,7 +27,7 @@ class PostModule {
 
     // init DataTable
     initTable() {
-        this.tableInstance = $(`#${this.tableId}`).DataTable({
+        this.postTableInstance = $(`#${this.tableId}`).DataTable({
             processing: true,
             serverSide: true,
             stateSave: true,
@@ -157,7 +158,7 @@ class PostModule {
 
     }
     refreshData() {
-        this.tableInstance?.ajax?.reload(null, false);
+        this.postTableInstance?.ajax?.reload(null, false);
     }
 
     edit(id) {

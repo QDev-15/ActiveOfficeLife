@@ -1,4 +1,5 @@
-﻿@using ActiveOfficeLife.Common.Models
+﻿@using ActiveOfficeLife.Common.Enums
+@using ActiveOfficeLife.Common.Models
 @*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
@@ -10,10 +11,11 @@
     var categories = ViewBag.Categories as Microsoft.AspNetCore.Mvc.Rendering.SelectList;
     var authors = ViewBag.Authors as Microsoft.AspNetCore.Mvc.Rendering.SelectList;
     var allTags = ViewBag.AllTags as List<TagModel> ?? new List<TagModel>();
-    var selectedTagIds = Model?.Tags?.Select(t => t.Id).ToHashSet() ?? new HashSet<Guid>();
+    var selectedTagNames = string.Join(",", Model.Tags.Select(t => t.Name));
+    var selectedTagIds = Model.Tags.Select(t => t.Id).ToList();
 }
 
-<h4 class="mb-3">Cập nhật bài viết (Draft)</h4>
+<h4 class="mb-3">Bài viết - @Model.Status.ToString()</h4>
 
 <form asp-action="Edit" asp-controller="Posts" method="post" class="needs-validation" novalidate>
     @Html.AntiForgeryToken()
@@ -37,6 +39,12 @@
             </div>
             <span class="text-danger" asp-validation-for="Slug"></span>
         </div>
+        <div class="col-12 col-lg-4">
+            <label class="form-label">Status</label>
+            <div class="input-group">
+                <span>@Model.Status.ToString()</span>
+            </div>
+        </div>
 
         <!-- Category, Author, Status -->
         <div class="col-12 col-md-4">
@@ -52,16 +60,6 @@
                 <option value="">-- Chọn tác giả --</option>
             </select>
             <span class="text-danger" asp-validation-for="AuthorId"></span>
-        </div>
-        <div class="col-12 col-md-4">
-            <label asp-for="Status" class="form-label">Trạng thái</label>
-            <select asp-for="Status" class="form-select">
-                @foreach (var st in Enum.GetValues(typeof(PostStatus)))
-                {
-                    <option value="@st" selected="@(Model?.Status?.Equals(st) ?? false)">@st</option>
-                }
-            </select>
-            <span class="text-danger" asp-validation-for="Status"></span>
         </div>
 
         <!-- Tags (tùy chọn) -->
@@ -113,46 +111,6 @@
     </div>
 </form>
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-    <script>
-        (function () {
-            const titleEl = document.getElementById("@Html.IdFor(m => m.Title)");
-            const slugEl = document.getElementById("@Html.IdFor(m => m.Slug)");
-            const summaryEl = document.getElementById("@Html.IdFor(m => m.Summary)");
-            const summaryCounter = document.getElementById("summaryCounter");
-            const btnRegen = document.getElementById("btnRegenerateSlug");
-
-            function toSlugVN(str) {
-                if (!str) return "";
-                str = str.toLowerCase().trim();
-                const from = "àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ";
-                const to   = "aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd";
-                for (let i = 0; i < from.length; i++) str = str.replaceAll(from[i], to[i]);
-                str = str.normalize('NFD').replace(/[\u0300-\u036f]/g, "");
-                str = str.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").replace(/-+/g, "-");
-                return str;
-            }
-
-            if (titleEl && slugEl) {
-                titleEl.addEventListener("input", () => {
-                    if (!slugEl.value) slugEl.value = toSlugVN(titleEl.value);
-                });
-            }
-            if (btnRegen && titleEl && slugEl) {
-                btnRegen.addEventListener("click", () => slugEl.value = toSlugVN(titleEl.value));
-            }
-
-            function updateSummaryCounter() {
-                if (summaryEl && summaryCounter) summaryCounter.textContent = (summaryEl.value || "").length;
-            }
-            if (summaryEl) {
-                summaryEl.addEventListener("input", updateSummaryCounter);
-                updateSummaryCounter();
-            }
-        })();
-    </script>
-}
 
 
 
