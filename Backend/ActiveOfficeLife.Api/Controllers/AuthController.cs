@@ -60,7 +60,7 @@ namespace ActiveOfficeLife.Api.Controllers
             });
             setting.GoogleToken = JsonConvert.SerializeObject(token);
             await _settingService.Update(setting);
-
+            _cache.RemoveByPattern("setting");
             return Ok("Google OAuth2 Login Success! Token saved.");
         }
         [AllowAnonymous]

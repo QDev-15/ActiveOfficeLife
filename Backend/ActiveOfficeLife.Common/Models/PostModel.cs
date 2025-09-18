@@ -17,7 +17,7 @@ namespace ActiveOfficeLife.Common.Models
         public Guid? CategoryId { get; set; }
         public CategoryModel? Category { get; set; } = null!;
 
-        public PostStatus? Status { get; set; } = PostStatus.Draft;
+        public string? Status { get; set; } = "Draft";
 
         public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }

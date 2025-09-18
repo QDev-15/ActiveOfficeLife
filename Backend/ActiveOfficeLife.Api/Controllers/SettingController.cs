@@ -25,7 +25,7 @@ namespace ActiveOfficeLife.Api.Controllers
         private readonly CustomMemoryCache _cache;
         public SettingController(ISettingService settingService, CustomMemoryCache customMemoryCache, AppConfigService appConfigService, IGoogleDriveInterface googleDriveInterface)
         {
-            customMemoryCache = customMemoryCache ?? throw new ArgumentNullException(nameof(customMemoryCache));
+            _cache = customMemoryCache ?? throw new ArgumentNullException(nameof(customMemoryCache));
             _googleDriveService = googleDriveInterface;
             _appConfigService = appConfigService;
             _settingService = settingService;
@@ -138,7 +138,8 @@ namespace ActiveOfficeLife.Api.Controllers
             {
                 ClientId = setting.GoogleClientId,
                 ClientSecret = setting.GoogleClientSecretId
-            }, RedirectUri, "aol-attachment", setting.Id.ToString());
+            }, RedirectUri, _appConfigService.AppConfigs.ApplicationName, setting.Id.ToString());
+            _cache.RemoveByPattern(_controllerName);
             return Redirect(url);
             //return Ok(new ResultSuccess(url));
         }
@@ -152,6 +153,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             setting.GoogleToken = null;
             await _settingService.Update(setting);
+            _cache.RemoveByPattern(_controllerName);
             return Ok(new ResultSuccess("Google Drive disconnected successfully"));
         }
     }

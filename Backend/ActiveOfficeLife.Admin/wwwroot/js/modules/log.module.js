@@ -24,7 +24,7 @@ class LogModule {
             stateSave: true,
             responsive: true,
             searchDelay: 500, // searchDelay mặc định sau 0.5s mới search
-            order: [[1, 'desc']],
+            order: [[3, 'desc']],
             pagingType: "full_numbers", // để hiển thị First, Prev, Next, Last
             mark: true, // ✅ Bật highlight search
             language: {
@@ -40,7 +40,7 @@ class LogModule {
                     pageIndex: (d.start / d.length) + 1,
                     pageSize: d.length,
                     keySearch: d.search.value || "",
-                    sortField: d.order.length > 0 ? d.columns[d.order[0].column].data : "name",
+                    sortField: d.order.length > 0 ? d.columns[d.order[0].column].data : "timestamp",
                     sortDirection: d.order.length > 0 ? d.order[0].dir : "desc",
                     startDate: $("#startDate").val() || null, 
                     endDate: $("#endDate").val() || null      
@@ -90,12 +90,13 @@ class LogModule {
                     orderable: true,
                 },
                 {
-                    data: null, // null để lấy toàn bộ row
+                    data: "timestamp", // null để lấy toàn bộ row
                     title: "Date",
+                    Name: "timestamp",
                     className: "text-center",
-                    orderable: false,
+                    orderable: true,
                     render: function (data, type, row) {
-                        return `${ dateHelper.formatDefault(data.timestamp) }`;
+                        return `${ dateHelper.formatDefaultMoment(row.timestamp) }`;
                     }
                 },
                 {

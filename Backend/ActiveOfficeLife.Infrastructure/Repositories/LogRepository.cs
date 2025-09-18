@@ -27,6 +27,20 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
 
         public async Task<(IEnumerable<LogModel> Items, int totalCount)> GetAllAsync(PagingLogRequest request)
         {
+            var allowedFields = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "timestamp", "Timestamp" },
+                { "message", "Message" },
+                { "stacktrace", "StackTrace" },
+                { "source", "Source" },
+                { "level", "Level" },
+
+            };
+            if (!allowedFields.TryGetValue(request.SortField ?? "", out var actualSortField))
+            {
+                actualSortField = "Timestamp"; // fallback nếu không đúng
+                request.SortField = actualSortField;
+            }
             var query = _context.Logs.OrderByDescending(log => log.Timestamp).AsQueryable();
 
             if (request.StartDate.HasValue && request.EndDate.HasValue)
@@ -39,7 +53,17 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
                         || log.IpAddress!.Contains(request.SearchText) || log.RequestPath!.Contains(request.SearchText) 
                         || log.Source!.Contains(request.SearchText) || log.StackTrace!.Contains(request.SearchText));
             }
-
+            if (!string.IsNullOrEmpty(actualSortField))
+            {
+                if (request.SortDirection.ToLower() == "asc")
+                {
+                    query = query.OrderBy(x => EF.Property<object>(x, actualSortField));
+                }
+                else
+                {
+                    query = query.OrderByDescending(x => EF.Property<object>(x, actualSortField));
+                }
+            }
             var logs = await query
                 .Skip((request.PageIndex - 1) * request.PageSize)
                 .Take(request.PageSize)

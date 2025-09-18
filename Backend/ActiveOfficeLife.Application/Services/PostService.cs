@@ -38,7 +38,7 @@ namespace ActiveOfficeLife.Application.Services
                 if (string.IsNullOrWhiteSpace(post.Title))
                 {
                     // set default title if not provided
-                    post.Title = "Untitled Post " + DateTime.UtcNow.ToShortTimeString();
+                    post.Title = "Active office life - Post " + DateTime.UtcNow.ToShortTimeString();
                 }
                 // check and sett default category if not provided
                 if (post.CategoryId == null || post.CategoryId == Guid.Empty)
@@ -56,7 +56,7 @@ namespace ActiveOfficeLife.Application.Services
                     Summary = post.Summary,
                     AuthorId = post.AuthorId ?? Guid.Empty, // Assuming AuthorId is required
                     CategoryId = post.CategoryId ?? Guid.Empty, // Assuming CategoryId is required
-                    Status = post.Status ?? PostStatus.Draft,
+                    Status = string.IsNullOrEmpty(post.Status) ? PostStatus.Draft : Enum.Parse<PostStatus>(post.Status),
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
                     SeoMetadata = new SeoMetadata
@@ -202,7 +202,7 @@ namespace ActiveOfficeLife.Application.Services
                 existingPost.Title = post.Title;
                 existingPost.Content = post.Content;
                 existingPost.Summary = post.Summary;
-                existingPost.Status = post.Status ?? PostStatus.Draft;
+                existingPost.Status = string.IsNullOrEmpty(post.Status) ? PostStatus.Draft : Enum.Parse<PostStatus>(post.Status);
                 existingPost.UpdatedAt = DateTime.UtcNow;
                 _postRepository.Update(existingPost);
                 await _unitOfWork.SaveChangesAsync();

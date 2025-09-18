@@ -1,6 +1,7 @@
 ﻿import { apiInstance } from './core/api.module.js';
 import { messageInstance } from './core/messages.module.js'
 import { spinnerInstance } from './core/spinner.module.js';
+import { utilities } from './core/utilities.module.js';
 class SettingModule {
     constructor(
     ) {
@@ -15,9 +16,12 @@ class SettingModule {
             UPLOAD_LOGO: '/FTP/upload/googledrive',
             RESOLVE_MEDIA_URL: (id) => `/FTP/public-url/${encodeURIComponent(id)}` // <- tùy backend
         };
-        this.lastLoadedAt = 0;          // timestamp lần load gần nhất
-        this.minReloadMs = 5000;        // chỉ reload nếu đã quá 5s
-        this._focusTimer = null;        // hẹn giờ khi đang gõ
+        utilities.minReloadMs = 5000;
+
+        this._unreg = utilities.registerReloadTask({
+            path: "/setting",
+            reload: () => this.getdata()
+        });
         this.init();
     }
 
@@ -25,14 +29,8 @@ class SettingModule {
         this.bindEvents();
         this.getdata();
     }
-    _isTyping() {
-        const ae = document.activeElement;
-        if (!ae) return false;
-        const tag = ae.tagName;
-        if (tag === 'INPUT' || tag === 'TEXTAREA') return true;
-        // contenteditable?
-        if (ae.isContentEditable) return true;
-        return false;
+    dispose() {
+        this._unreg?.();
     }
     // ---- LOAD ----
     getdata() {
@@ -102,29 +100,29 @@ class SettingModule {
                     this.updatePreviewAndQuickView(logo);
                 });
             });
-        // Tự reload khi tab trở lại visible / cửa sổ được focus
-        this._maybeReloadOnFocus = this._maybeReloadOnFocus?.bind(this) || ((e) => {
-            const visible = document.visibilityState === 'visible';
-            const enoughTime = (Date.now() - this.lastLoadedAt) > this.minReloadMs;
+        //// Tự reload khi tab trở lại visible / cửa sổ được focus
+        //this._maybeReloadOnFocus = this._maybeReloadOnFocus?.bind(this) || ((e) => {
+        //    const visible = document.visibilityState === 'visible';
+        //    const enoughTime = (Date.now() - this.lastLoadedAt) > this.minReloadMs;
 
-            if (!visible || !enoughTime) return;
+        //    if (!visible || !enoughTime) return;
 
-            // Tránh giật khi người dùng đang gõ
-            if (this._isTyping()) {
-                clearTimeout(this._focusTimer);
-                this._focusTimer = setTimeout(() => this.getdata(), 1000);
-            } else {
-                this.getdata();
-            }
-        });
+        //    // Tránh giật khi người dùng đang gõ
+        //    if (utilitiesInstance._isTyping()) {
+        //        clearTimeout(this._focusTimer);
+        //        this._focusTimer = setTimeout(() => this.getdata(), 1000);
+        //    } else {
+        //        this.getdata();
+        //    }
+        //});
 
-        window.addEventListener('focus', this._maybeReloadOnFocus);
-        document.addEventListener('visibilitychange', this._maybeReloadOnFocus);
+        //window.addEventListener('focus', this._maybeReloadOnFocus);
+        //document.addEventListener('visibilitychange', this._maybeReloadOnFocus);
 
-        // Hỗ trợ back-forward cache của trình duyệt (Safari/Firefox)
-        window.addEventListener('pageshow', (ev) => {
-            if (ev.persisted) this._maybeReloadOnFocus();
-        });
+        //// Hỗ trợ back-forward cache của trình duyệt (Safari/Firefox)
+        //window.addEventListener('pageshow', (ev) => {
+        //    if (ev.persisted) this._maybeReloadOnFocus();
+        //});
         const btnUploadLogo = document.querySelector('#btn-upload-logo');
         if (btnUploadLogo) btnUploadLogo.addEventListener('click', () => this.handleUploadLogo());
     }

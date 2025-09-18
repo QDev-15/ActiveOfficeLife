@@ -24,7 +24,7 @@ namespace ActiveOfficeLife.Admin.Controllers
         }
         public async Task<IActionResult> Edit(string id)
         {
-            var modelResponse = await _apiService.GetAsync(AOLEndPoint.PostGetById + "/" + id); /* lấy từ DB theo id (Status mặc định Draft) */;
+            var modelResponse = await _apiService.GetAsync(AOLEndPoint.PostGetById + "/" + id); /* lấy từ DB theo id (Status mặc định Draft) */
             var model = await modelResponse.ToModelAsync<PostModel>() ?? new PostModel();
             var modelCategoriesResponse = await _apiService.GetAsync(AOLEndPoint.CategoryGetAll + "?pageSize=10000");
             var categories = await modelCategoriesResponse.ToModelAsync<List<CategoryModel>>() ?? new List<CategoryModel>();

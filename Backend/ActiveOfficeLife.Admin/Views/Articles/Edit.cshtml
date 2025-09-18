@@ -15,7 +15,7 @@
     var selectedTagIds = Model.Tags.Select(t => t.Id).ToList();
 }
 
-<h4 class="mb-3">Bài viết - @Model.Status.ToString()</h4>
+<h4 class="mb-3">Bài viết - @Model.Status</h4>
 
 <form asp-action="Edit" asp-controller="Posts" method="post" class="needs-validation" novalidate>
     @Html.AntiForgeryToken()
@@ -42,7 +42,7 @@
         <div class="col-12 col-lg-4">
             <label class="form-label">Status</label>
             <div class="input-group">
-                <span>@Model.Status.ToString()</span>
+                <span>@Model.Status</span>
             </div>
         </div>
 

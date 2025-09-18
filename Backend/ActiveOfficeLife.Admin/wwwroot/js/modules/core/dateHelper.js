@@ -11,6 +11,11 @@ class DateHelper {
             return dateString;
         }
     }
+    formatDefaultMoment(dateString) {
+        const format = "DD/MM/YYYY HH:mm:ss"
+        if (!dateString) return "";
+        return moment(dateString).format(format)
+    }
     format(dateString, formatDate) {
         const format = formatDate ?? "DD/MM/YYYY HH:mm:ss"
         if (!this.user?.createdAt) return "";

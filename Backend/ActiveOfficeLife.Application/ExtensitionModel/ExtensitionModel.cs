@@ -76,7 +76,7 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
                 SeoMetadata = value.SeoMetadata?.ReturnModel(),
                 SeoMetadataId = value.SeoMetadataId,
                 Slug = value.Slug,
-                Status = value.Status,
+                Status = value.Status.ToString(),
                 Summary = value.Summary,
                 Tags = value.Tags?.Select(x => x.ReturnModel()).ToList(),
                 Title = value.Title,
