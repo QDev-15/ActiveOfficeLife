@@ -19,7 +19,9 @@ class PostModule {
         this.tableId = "articlesTable";
         this.postTableInstance = null;
         this.ENDPOINTS = {
-            CREATE: 'post/create',
+            CREATE: '/post/create',
+            PATCH: '/Post/patch',
+            UPDATE: '/Post/update',
             ALL: '/post/all',
         };
         
@@ -167,6 +169,30 @@ class PostModule {
         // Nếu bạn map theo route /Articles/Edit/{id} thì dùng:
         // window.location.href = `/Articles/Edit/${encodeURIComponent(id)}`;
     }
+    setAutoSlug = () => {
+        const $title = document.getElementById('Title');
+        const $slug = document.getElementById('Slug');
+        const next = utilities.slugify($title.value);
+        if (!next) return;
+        const userEdited = $slug.dataset.userEdited === 'true';
+        if (!userEdited || !$slug.value) {
+            $slug.value = next;
+            $slug.dataset.lastAuto = next;  // ghi nhớ bản auto gần nhất
+        }
+    };
+    blurTitle() {
+        this.setAutoSlug();
+    }
+    reSlug() {
+        const $slug = document.getElementById('Slug');
+        $slug.dataset.userEdited = 'false';
+        this.setAutoSlug();
+    }
+    changeSlug() {
+        const $slug = document.getElementById('Slug');
+        const lastAuto = $slug.dataset.lastAuto || '';
+        $slug.dataset.userEdited = String($slug.value !== lastAuto);
+    }
     async add() {
         try {
             // Gửi body rỗng: backend sẽ set AuthorId = current user, Status = Draft
@@ -184,6 +210,15 @@ class PostModule {
             console.error('Create post failed:', e);
             messageInstance.error(e?.message || 'Tạo bài viết thất bại.');
         }
+    }
+    async save() {
+
+    }
+    async patch() {
+
+    }
+    async delete() {
+        
     }
 }
 export const postInstance = new PostModule(); 
