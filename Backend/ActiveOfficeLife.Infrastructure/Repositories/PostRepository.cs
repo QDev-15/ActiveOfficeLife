@@ -17,6 +17,17 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
         {
         }
 
+        public async Task<Post?> GetByIdAsync(Guid id)
+        {
+            var post = await _context.Posts
+                .Include(p => p.Author)
+                .Include(p => p.Category)
+                .Include(p => p.Comments)
+                .Include(p => p.Tags)
+                .Include(p => p.SeoMetadata)
+                .FirstOrDefaultAsync(p => p.Id == id);
+            return post;
+        }
         public async Task<(List<Post> Items, int Count)> GetAllWithPaging(PagingPostRequest request)
         {
             var allowedFields = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)

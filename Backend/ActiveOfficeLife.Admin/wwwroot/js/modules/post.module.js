@@ -19,12 +19,16 @@ class PostModule {
         this.tableId = "articlesTable";
         this.postTableInstance = null;
         this.ENDPOINTS = {
-            CREATE: '/post/create',
-            PATCH: '/Post/patch',
-            UPDATE: '/Post/update',
-            ALL: '/post/all',
+            GET_ONE: (id) => `/post/get/${id}`,        // chỉnh cho đúng route API của bạn
+            CAT_ALL: `/category/all?pageSize=10000`, // hoặc /Category/all
+            TAG_ALL: `/tag/all?pageSize=10000`,
+            CREATE: `/post/create`,
+            UPDATE: `/Post/update`,
+            PATCH: `/Post/patch`,
+            DELETE: (id) => `/post/delete/${id}`,     // nếu API của bạn là /post/{id} thì sửa lại
         };
-        
+        this.id = null;
+        this.model = null;
     }
 
     // init DataTable
@@ -159,6 +163,22 @@ class PostModule {
         });
 
     }
+
+    // ====== Life cycle ======
+    initEditPage() {
+        // auto-Select2 toàn site (đã có util auto)
+        utilities.setupSelect2Auto?.();
+
+        // lấy id từ dataset hoặc query
+        const root = document.getElementById('post-edit-root');
+        this.id = root?.dataset?.postId || new URLSearchParams(location.search).get('id');
+        if (!this.id) {
+            messageInstance.error('Không tìm thấy ID bài viết.');
+            return;
+        }
+        this.loadData();
+        this.wireInputs();
+    }
     refreshData() {
         this.postTableInstance?.ajax?.reload(null, false);
     }
@@ -169,6 +189,125 @@ class PostModule {
         // Nếu bạn map theo route /Articles/Edit/{id} thì dùng:
         // window.location.href = `/Articles/Edit/${encodeURIComponent(id)}`;
     }
+    async loadData() {
+        try {
+            spinnerInstance.show?.();
+
+            const [post, cats, tags] = await Promise.all([
+                apiInstance.get(this.ENDPOINTS.GET_ONE(this.id)),
+                apiInstance.get(this.ENDPOINTS.CAT_ALL),
+                apiInstance.get(this.ENDPOINTS.TAG_ALL),
+            ]);
+
+            this.model = post;
+            this.fillForm(post);
+            this.fillCategories(cats?.items ?? cats ?? []);
+            this.fillTags(tags?.items ?? tags ?? [], post?.tags ?? []);
+
+            this.renderButtons(post?.status);
+            utilities.lastLoadedAt = Date.now(); // phục vụ auto-reload helper nếu có
+        } catch (e) {
+            console.error(e);
+            messageInstance.error(e?.message || 'Tải dữ liệu thất bại');
+        } finally {
+            spinnerInstance.hide?.();
+        }
+    }
+    // ====== Render ======
+    fillForm(m) {
+        const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val ?? ''; };
+
+        set('Title', m?.title);
+        set('Slug', m?.slug);
+        set('Summary', m?.summary);
+        set('Content', m?.content);
+        set('CreatedAt', m?.createdAt ? utilities.formatDateTime?.(m.createdAt) || new Date(m.createdAt).toLocaleString() : '');
+        set('UpdatedAt', m?.updatedAt ? utilities.formatDateTime?.(m.updatedAt) || new Date(m.updatedAt).toLocaleString() : '');
+
+        // status text
+        const statusText = document.getElementById('statusText');
+        statusText.textContent = this.statusDisplay(m?.status);
+
+        // category
+        const $cat = $('#CategoryId');
+        if ($cat.length) {
+            $cat.val(m?.categoryId || '').trigger('change');
+        }
+        // ===== SEO =====
+        const seo = m?.seoMetadata || null;
+        set('SeoMetadataId', seo?.id || m?.seoMetadataId || '');
+        set('SeoMetaTitle', seo?.metaTitle || '');        // gợi ý từ Title nếu trống (dưới)
+        set('SeoMetaDescription', seo?.metaDescription || '');
+        // nếu API không trả keywords, có thể gợi ý từ tags
+        const keywordsFromTags = (m?.tags || []).map(t => t?.name).filter(Boolean).join(', ');
+        set('SeoMetaKeywords', seo?.metaKeywords || keywordsFromTags || '');
+
+        // Nếu metaTitle chưa có -> gợi ý từ Title
+        if (!document.getElementById('SeoMetaTitle').value && m?.title) {
+            document.getElementById('SeoMetaTitle').value = m.title;
+        }
+        // Nếu metaDescription chưa có -> gợi ý từ Summary
+        if (!document.getElementById('SeoMetaDescription').value && m?.summary) {
+            document.getElementById('SeoMetaDescription').value = m.summary;
+        }
+
+        // Counters
+        this.updateSummaryCounter();
+        this.updateSeoCounters();
+    }
+    fillCategories(categories, selected = null) {
+        const $cat = $('#CategoryId');
+        if (!$cat.length) return;
+        $cat.find('option:not([value=""])').remove();
+        (categories || []).forEach(c => {
+            $cat.append(new Option(c.name ?? '(No name)', c.id));
+        });
+        if (selected) $cat.val(selected).trigger('change');
+    }
+    fillTags(allTags, selectedTags) {
+        const host = document.getElementById('tagsContainer');
+        if (!host) return;
+
+        const selectedIds = new Set((selectedTags || []).map(t => t.id));
+        host.innerHTML = '';
+        (allTags || []).forEach(tag => {
+            const id = `tag_${tag.id}`;
+            host.insertAdjacentHTML('beforeend', `
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="${tag.id}" id="${id}" ${selectedIds.has(tag.id) ? 'checked' : ''}>
+          <label class="form-check-label" for="${id}">${tag.name}</label>
+        </div>
+      `);
+        });
+    }
+    renderButtons(status) {
+        // ẩn tất cả
+        const hide = id => document.getElementById(id)?.classList.add('d-none');
+        const show = id => document.getElementById(id)?.classList.remove('d-none');
+        ['btnView', 'btnPublish', 'btnUnpublish', 'btnClose', 'btnRepublish'].forEach(hide);
+
+        const s = (status || '').toString().toLowerCase();
+        if (s === 'draft') {
+            show('btnPublish');
+        } else if (s === 'published') {
+            show('btnView'); show('btnUnpublish'); show('btnClose');
+        } else if (s === 'paused') {
+            show('btnRepublish'); show('btnClose');
+        } else if (s === 'closed') {
+            show('btnRepublish');
+        }
+    }
+
+    statusDisplay(s) {
+        const map = {
+            draft: 'Bản nháp',
+            published: 'Đã xuất bản',
+            paused: 'Tạm dừng',
+            closed: 'Đóng',
+        };
+        return map[(s || '').toLowerCase()] || (s || 'Không rõ');
+    }
+
     setAutoSlug = () => {
         const $title = document.getElementById('Title');
         const $slug = document.getElementById('Slug');
@@ -193,6 +332,61 @@ class PostModule {
         const lastAuto = $slug.dataset.lastAuto || '';
         $slug.dataset.userEdited = String($slug.value !== lastAuto);
     }
+    wireInputs() {
+        const $summary = document.getElementById('Summary');
+        $summary?.addEventListener('input', () => this.updateSummaryCounter());
+
+        ['SeoMetaTitle', 'SeoMetaDescription'].forEach(id => {
+            document.getElementById(id)?.addEventListener('input', () => this.updateSeoCounters());
+        });
+
+        // Khi Title blur, nếu SeoMetaTitle đang trống -> gợi ý
+        document.getElementById('Title')?.addEventListener('blur', () => {
+            const el = document.getElementById('SeoMetaTitle');
+            if (el && !el.value?.trim()) el.value = document.getElementById('Title').value || '';
+            this.updateSeoCounters();
+        });
+    }
+    updateSummaryCounter() {
+        const $summary = document.getElementById('Summary');
+        const $counter = document.getElementById('summaryCounter');
+        if ($summary && $counter) $counter.textContent = ($summary.value || '').length;
+    }
+    updateSeoCounters() {
+        const t = (document.getElementById('SeoMetaTitle')?.value || '').length;
+        const d = (document.getElementById('SeoMetaDescription')?.value || '').length;
+        const tEl = document.getElementById('seoTitleCounter');
+        const dEl = document.getElementById('seoDescCounter');
+        if (tEl) tEl.textContent = t;
+        if (dEl) dEl.textContent = d;
+    }
+    // ====== CRUD via API ======
+    gatherPayload() {
+        // gom dữ liệu từ form → payload API
+        const tags = Array.from(document.querySelectorAll('#tagsContainer input[type="checkbox"]:checked')).map(x => x.value);
+        const seoId = document.getElementById('SeoMetadataId')?.value || null;
+        const metaT = document.getElementById('SeoMetaTitle')?.value?.trim() || null;
+        const metaD = document.getElementById('SeoMetaDescription')?.value?.trim() || null;
+        const metaK = document.getElementById('SeoMetaKeywords')?.value?.trim() || null;
+        return {
+            id: this.id,
+            title: document.getElementById('Title').value?.trim(),
+            slug: document.getElementById('Slug').value?.trim(),
+            summary: document.getElementById('Summary').value?.trim(),
+            content: document.getElementById('Content').value?.trim(),
+            categoryId: $('#CategoryId').val() || null,
+            tagIds: tags, // hoặc Tags: [{id},…] tùy API
+            // ===== SEO =====
+            seoMetadataId: seoId,  // để server biết record hiện có
+            seoMetadata: {
+                id: seoId,                     // có thể null nếu tạo mới
+                metaTitle: metaT,
+                metaDescription: metaD,
+                metaKeywords: metaK
+            }
+        };
+
+    }
     async add() {
         try {
             // Gửi body rỗng: backend sẽ set AuthorId = current user, Status = Draft
@@ -212,13 +406,55 @@ class PostModule {
         }
     }
     async save() {
-
+        try {
+            spinnerInstance.show?.();
+            const body = this.gatherPayload();
+            // Nếu API của bạn phân biệt UPDATE vs PATCH, chọn cái bạn muốn:
+            const res = await apiInstance.put?.(this.ENDPOINTS.UPDATE, body)
+                ?? await apiInstance.post(this.ENDPOINTS.UPDATE, body);
+            messageInstance.success('Đã lưu bài viết.');
+            // reload lại để đồng bộ timestamp/status nếu server thay đổi
+            await this.loadData();
+        } catch (e) {
+            console.error(e);
+            messageInstance.error(e?.message || 'Lưu thất bại.');
+        } finally {
+            spinnerInstance.hide?.();
+        }
     }
-    async patch() {
 
+    async changeStatus(nextStatus) {
+        try {
+            spinnerInstance.show?.();
+            const res = await apiInstance.patch(this.ENDPOINTS.PATCH, { id: this.id, status: nextStatus });
+            messageInstance.success('Trạng thái đã cập nhật.');
+            await this.loadData();
+        } catch (e) {
+            console.error(e);
+            messageInstance.error(e?.message || 'Đổi trạng thái thất bại.');
+        } finally {
+            spinnerInstance.hide?.();
+        }
     }
+
     async delete() {
-        
+        try {
+            if (!confirm('Xóa bài viết này?')) return;
+            spinnerInstance.show?.();
+            await apiInstance.delete?.(this.ENDPOINTS.DELETE(this.id))
+                ?? await apiInstance.post(this.ENDPOINTS.DELETE(this.id)); // tùy API
+            messageInstance.success('Đã xóa.');
+            this.back();
+        } catch (e) {
+            console.error(e);
+            messageInstance.error(e?.message || 'Xóa thất bại.');
+        } finally {
+            spinnerInstance.hide?.();
+        }
     }
+
+    // ====== Nav helpers ======
+    back() { history.length > 1 ? history.back() : (location.href = '/Posts'); }
+    view() { window.open(`/Articles/View/${encodeURIComponent(this.id)}`, '_blank'); }
 }
 export const postInstance = new PostModule(); 

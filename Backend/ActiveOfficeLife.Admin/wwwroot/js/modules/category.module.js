@@ -173,9 +173,9 @@ class CategoryModule {
             parentId: form.querySelector('[name="ParentId"]').value || null,
             seoMetadataId: form.querySelector('[name="SeoMetadataId"]').value || null,
             seoMetadata: {
-                title: form.querySelector('[name="SeoMetadata.Title"]').value,
-                description: form.querySelector('[name="SeoMetadata.Description"]').value,
-                keywords: form.querySelector('[name="SeoMetadata.Keywords"]').value
+                seoMetaTitle: form.querySelector('[name="SeoMetadata.Title"]').value,
+                seoMetaDescription: form.querySelector('[name="SeoMetadata.Description"]').value,
+                seoMetaKeywords: form.querySelector('[name="SeoMetadata.Keywords"]').value
             }
         };
         payload.parentId = payload.parentId === "0" ? null : payload.parentId;
