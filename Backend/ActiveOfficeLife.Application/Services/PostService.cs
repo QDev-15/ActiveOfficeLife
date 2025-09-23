@@ -199,11 +199,28 @@ namespace ActiveOfficeLife.Application.Services
                     AOLLogger.Error($"{msgHdr}: Post with id {post.Id} not found.");
                     return null; // Post not found
                 }
-                existingPost.Title = post.Title;
-                existingPost.Content = post.Content;
+                existingPost.Title = post.Title?? "AOL title " + Helper.GenerateRandomString(4);
+                existingPost.Slug = post.Slug ?? Helper.GenerateSlug(existingPost.Title);
+                existingPost.Content = post.Content ?? string.Empty;
                 existingPost.Summary = post.Summary;
-                existingPost.Status = string.IsNullOrEmpty(post.Status) ? PostStatus.Draft : Enum.Parse<PostStatus>(post.Status);
+                existingPost.Status = string.IsNullOrEmpty(post.Status) ? PostStatus.Draft : (PostStatus)Enum.Parse(typeof(PostStatus), post.Status.Trim(), ignoreCase: true);
                 existingPost.UpdatedAt = DateTime.UtcNow;
+                if (post.SeoMetadata != null)
+                {
+                    if (existingPost.SeoMetadata == null)
+                    {
+                        existingPost.SeoMetadata = new SeoMetadata()
+                        {
+                            Id = Guid.NewGuid(),
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow,
+                        };
+                    }
+                    existingPost.SeoMetadata.MetaTitle = post.SeoMetadata.MetaTitle;
+                    existingPost.SeoMetadata.MetaDescription = post.SeoMetadata.MetaDescription;
+                    existingPost.SeoMetadata.MetaKeywords = post.SeoMetadata.MetaKeywords;
+                    existingPost.SeoMetadata.UpdatedAt = DateTime.UtcNow;
+                }
                 _postRepository.Update(existingPost);
                 await _unitOfWork.SaveChangesAsync();
                 

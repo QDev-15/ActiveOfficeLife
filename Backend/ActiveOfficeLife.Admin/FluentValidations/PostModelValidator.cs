@@ -15,8 +15,10 @@ namespace ActiveOfficeLife.Admin.FluentValidations
                 .MaximumLength(200).WithMessage("Slug không được vượt quá 200 ký tự");
             RuleFor(x => x.CategoryId)
                 .NotEmpty().WithMessage("Vui lòng chọn danh mục");
-            RuleFor(x => x.Tags)
-                .Must(tags => tags == null || tags.Count <= 10).WithMessage("Không được chọn quá 10 thẻ");
+            // khuyến nghị dùng TagIds để bind checkbox
+            RuleFor(x => x.TagIds)
+                .Must(ids => ids == null || ids.Count <= 10)
+                .WithMessage("Không được chọn quá 10 thẻ");
         }
     }
 }

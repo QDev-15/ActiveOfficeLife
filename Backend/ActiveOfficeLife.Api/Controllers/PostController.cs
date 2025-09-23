@@ -217,7 +217,10 @@ namespace ActiveOfficeLife.Api.Controllers
             merged.Id = (Guid)current.Id;
             var updated = await _postService.Update(merged);
             _memoryCache.RemoveByPattern($"{serviceName}"); // Clear relevant caches
-            return Ok(updated);
+            return Ok(new ResultSuccess()
+            {
+                Data = updated
+            });
         }
         [HttpPut("update")]
         public async Task<IActionResult> Update([FromBody] PostModel setting)

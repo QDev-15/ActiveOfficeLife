@@ -45,6 +45,10 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             }
             IQueryable<Post> query = _context.Posts.AsQueryable();
 
+            if (request.Status != null && request.Status != Common.Enums.PostStatus.All)
+            {
+                query = query.Where(p => p.Status == request.Status);
+            }
 
             // check and filter by search text igonre case sensitivity
             if (!string.IsNullOrEmpty(request.SearchText))

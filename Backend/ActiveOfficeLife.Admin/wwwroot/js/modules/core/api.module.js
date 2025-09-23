@@ -62,12 +62,17 @@ class ApiModule {
                     }
 
                     if (!result.success) {
-                        reject({
-                            status: res.status,
-                            message: result?.data?.message || res.statusText,
-                            result
-                        });
-                        return;
+                        if (res.ok && res.status == 200 && result) {
+                            resolve(result);
+                            return;
+                        } else {
+                            reject({
+                                status: res.status,
+                                message: result?.data?.message || res.statusText,
+                                result
+                            });
+                            return;
+                        }
                     }
                     resolve(result?.data);
                 })

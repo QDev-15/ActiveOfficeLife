@@ -37,86 +37,11 @@
     </div>
 </div>
 
-<!-- KHÔNG post form về MVC nữa, chỉ là khung UI -->
-<div class="row g-3">
-    <!-- Title + Slug -->
-    <div class="col-12 col-lg-8">
-        <label for="Title" class="form-label">Tiêu đề</label>
-        <input id="Title" class="form-control" placeholder="Nhập tiêu đề bài viết" onblur="postInstance.blurTitle()" />
-        <div class="invalid-feedback" id="valTitle"></div>
-    </div>
-    <div class="col-12 col-lg-4">
-        <label for="Slug" class="form-label">Slug</label>
-        <div class="input-group">
-            <input id="Slug" class="form-control" placeholder="tu-dong-tao-tu-tieu-de" onchange="postInstance.changeSlug()" />
-            <button type="button" class="btn btn-outline-secondary" onclick="postInstance.reSlug()">Tạo lại</button>
-        </div>
-        <div class="invalid-feedback" id="valSlug"></div>
-    </div>
-
-    <!-- Category -->
-    <div class="col-12 col-md-4">
-        <label for="CategoryId" class="form-label">Danh mục</label>
-        <select id="CategoryId" class="form-select select2" data-placeholder="-- Chọn danh mục --">
-            <option value="">-- Chọn danh mục --</option>
-        </select>
-        <div class="invalid-feedback" id="valCategory"></div>
-    </div>
-
-    <!-- Tags -->
-    <div class="col-12">
-        <label class="form-label">Thẻ (Tags)</label>
-        <div id="tagsContainer" class="d-flex flex-wrap gap-2"></div>
-    </div>
-
-    <!-- Summary -->
-    <div class="col-12">
-        <label for="Summary" class="form-label">Tóm tắt</label>
-        <textarea id="Summary" class="form-control" rows="2" placeholder="Mô tả ngắn gọn bài viết"></textarea>
-        <div class="form-text"><span id="summaryCounter">0</span> ký tự (khuyên dùng 140–200).</div>
-    </div>
-
-    <!-- Content -->
-    <div class="col-12">
-        <label for="Content" class="form-label">Nội dung</label>
-        <textarea id="Content" class="form-control" rows="12" placeholder="Viết nội dung tại đây..."></textarea>
-    </div>
-
-    <!-- Ngày tạo / cập nhật -->
-    <div class="col-12 col-md-6">
-        <label class="form-label">Ngày tạo</label>
-        <input id="CreatedAt" class="form-control" readonly />
-    </div>
-    <div class="col-12 col-md-6">
-        <label class="form-label">Cập nhật</label>
-        <input id="UpdatedAt" class="form-control" readonly />
-    </div>
-    <!-- SEO Metadata -->
-    <input type="hidden" id="SeoMetadataId" />
-
-    <div class="border p-3 rounded mb-3">
-        <h5 class="mb-3">SEO Metadata</h5>
-
-        <div class="mb-3">
-            <label for="SeoMetaTitle" class="form-label">SEO Title</label>
-            <input id="SeoMetaTitle" class="form-control" placeholder="Tiêu đề SEO (nên ≤ 60 ký tự)" />
-            <div class="form-text"><span id="seoTitleCounter">0</span>/60</div>
-        </div>
-
-        <div class="mb-3">
-            <label for="SeoMetaDescription" class="form-label">SEO Description</label>
-            <textarea id="SeoMetaDescription" class="form-control" rows="2" placeholder="Mô tả SEO (nên 140–160 ký tự)"></textarea>
-            <div class="form-text"><span id="seoDescCounter">0</span>/160</div>
-        </div>
-
-        <div class="mb-3">
-            <label for="SeoMetaKeywords" class="form-label">SEO Keywords</label>
-            <input id="SeoMetaKeywords" class="form-control" placeholder="Từ khóa, cách nhau bởi dấu phẩy" />
-        </div>
-    </div>
+<div class="container-fluid" id="content-artile-edit">
+    <!-- KHÔNG post form về MVC nữa, chỉ là khung UI -->
+    
 </div>
-
-<div class="d-flex gap-2 mt-4">
+<div class="d-flex justify-content-center gap-2 mt-4">
     <button type="button" class="btn btn-primary" onclick="postInstance.save()">
         <i class="bi bi-save me-1"></i>Lưu
     </button>

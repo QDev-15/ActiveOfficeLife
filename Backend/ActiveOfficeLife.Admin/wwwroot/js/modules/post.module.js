@@ -28,7 +28,7 @@ class PostModule {
             DELETE: (id) => `/post/delete/${id}`,     // nếu API của bạn là /post/{id} thì sửa lại
         };
         this.id = null;
-        this.model = null;
+        this.form = null;
     }
 
     // init DataTable
@@ -177,7 +177,7 @@ class PostModule {
             return;
         }
         this.loadData();
-        this.wireInputs();
+
     }
     refreshData() {
         this.postTableInstance?.ajax?.reload(null, false);
@@ -192,20 +192,30 @@ class PostModule {
     async loadData() {
         try {
             spinnerInstance.show?.();
-
-            const [post, cats, tags] = await Promise.all([
-                apiInstance.get(this.ENDPOINTS.GET_ONE(this.id)),
-                apiInstance.get(this.ENDPOINTS.CAT_ALL),
-                apiInstance.get(this.ENDPOINTS.TAG_ALL),
-            ]);
-
-            this.model = post;
-            this.fillForm(post);
-            this.fillCategories(cats?.items ?? cats ?? []);
-            this.fillTags(tags?.items ?? tags ?? [], post?.tags ?? []);
-
-            this.renderButtons(post?.status);
-            utilities.lastLoadedAt = Date.now(); // phục vụ auto-reload helper nếu có
+            $('#content-artile-edit').html('');
+            mvcInstance.get('/Articles/form?id=' + this.id)
+                .then(html => {
+                    $('#content-artile-edit').html(html);
+                    this.form = configInstance.initValidatorForm("content-artile-edit");
+                    var statusElement = document.getElementById('Status');
+                    // status text
+                    const statusText = document.getElementById('statusText');
+                    statusText.textContent = this.statusDisplay(statusElement.value);
+                    // category
+                    const categoryId = $('#CategoryId').val();
+                    const $cat = $('#CategoryId');
+                    if ($cat.length) {
+                        $cat.val(categoryId || '').trigger('change');
+                    }
+                    this.wireInputs();
+                    // render button
+                    this.renderButtons(statusElement.value);
+                    utilities.lastLoadedAt = Date.now(); // phục vụ auto-reload helper nếu có
+                }).catch((err) => {
+                    console.error('Lỗi tải form', err);
+                    messageInstance.error('Không thể tải form');
+                });
+            
         } catch (e) {
             console.error(e);
             messageInstance.error(e?.message || 'Tải dữ liệu thất bại');
@@ -213,73 +223,11 @@ class PostModule {
             spinnerInstance.hide?.();
         }
     }
+    validate() {
+        return this.form?.valid();
+    }
     // ====== Render ======
-    fillForm(m) {
-        const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val ?? ''; };
 
-        set('Title', m?.title);
-        set('Slug', m?.slug);
-        set('Summary', m?.summary);
-        set('Content', m?.content);
-        set('CreatedAt', m?.createdAt ? utilities.formatDateTime?.(m.createdAt) || new Date(m.createdAt).toLocaleString() : '');
-        set('UpdatedAt', m?.updatedAt ? utilities.formatDateTime?.(m.updatedAt) || new Date(m.updatedAt).toLocaleString() : '');
-
-        // status text
-        const statusText = document.getElementById('statusText');
-        statusText.textContent = this.statusDisplay(m?.status);
-
-        // category
-        const $cat = $('#CategoryId');
-        if ($cat.length) {
-            $cat.val(m?.categoryId || '').trigger('change');
-        }
-        // ===== SEO =====
-        const seo = m?.seoMetadata || null;
-        set('SeoMetadataId', seo?.id || m?.seoMetadataId || '');
-        set('SeoMetaTitle', seo?.metaTitle || '');        // gợi ý từ Title nếu trống (dưới)
-        set('SeoMetaDescription', seo?.metaDescription || '');
-        // nếu API không trả keywords, có thể gợi ý từ tags
-        const keywordsFromTags = (m?.tags || []).map(t => t?.name).filter(Boolean).join(', ');
-        set('SeoMetaKeywords', seo?.metaKeywords || keywordsFromTags || '');
-
-        // Nếu metaTitle chưa có -> gợi ý từ Title
-        if (!document.getElementById('SeoMetaTitle').value && m?.title) {
-            document.getElementById('SeoMetaTitle').value = m.title;
-        }
-        // Nếu metaDescription chưa có -> gợi ý từ Summary
-        if (!document.getElementById('SeoMetaDescription').value && m?.summary) {
-            document.getElementById('SeoMetaDescription').value = m.summary;
-        }
-
-        // Counters
-        this.updateSummaryCounter();
-        this.updateSeoCounters();
-    }
-    fillCategories(categories, selected = null) {
-        const $cat = $('#CategoryId');
-        if (!$cat.length) return;
-        $cat.find('option:not([value=""])').remove();
-        (categories || []).forEach(c => {
-            $cat.append(new Option(c.name ?? '(No name)', c.id));
-        });
-        if (selected) $cat.val(selected).trigger('change');
-    }
-    fillTags(allTags, selectedTags) {
-        const host = document.getElementById('tagsContainer');
-        if (!host) return;
-
-        const selectedIds = new Set((selectedTags || []).map(t => t.id));
-        host.innerHTML = '';
-        (allTags || []).forEach(tag => {
-            const id = `tag_${tag.id}`;
-            host.insertAdjacentHTML('beforeend', `
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" value="${tag.id}" id="${id}" ${selectedIds.has(tag.id) ? 'checked' : ''}>
-          <label class="form-check-label" for="${id}">${tag.name}</label>
-        </div>
-      `);
-        });
-    }
     renderButtons(status) {
         // ẩn tất cả
         const hide = id => document.getElementById(id)?.classList.add('d-none');
@@ -307,7 +255,12 @@ class PostModule {
         };
         return map[(s || '').toLowerCase()] || (s || 'Không rõ');
     }
-
+    // validate Title
+    blurTitle() {
+        this.validate();
+        this.setAutoSlug();
+    }
+    // validate Slug
     setAutoSlug = () => {
         const $title = document.getElementById('Title');
         const $slug = document.getElementById('Slug');
@@ -319,9 +272,7 @@ class PostModule {
             $slug.dataset.lastAuto = next;  // ghi nhớ bản auto gần nhất
         }
     };
-    blurTitle() {
-        this.setAutoSlug();
-    }
+
     reSlug() {
         const $slug = document.getElementById('Slug');
         $slug.dataset.userEdited = 'false';
@@ -332,20 +283,24 @@ class PostModule {
         const lastAuto = $slug.dataset.lastAuto || '';
         $slug.dataset.userEdited = String($slug.value !== lastAuto);
     }
+    // end validate Slug
     wireInputs() {
         const $summary = document.getElementById('Summary');
         $summary?.addEventListener('input', () => this.updateSummaryCounter());
 
-        ['SeoMetaTitle', 'SeoMetaDescription'].forEach(id => {
+        ['SeoMetadata_MetaTitle', 'SeoMetadata_MetaDescription'].forEach(id => {
             document.getElementById(id)?.addEventListener('input', () => this.updateSeoCounters());
         });
 
-        // Khi Title blur, nếu SeoMetaTitle đang trống -> gợi ý
+        // Khi Title blur, nếu SeoMetadata_MetaTitle đang trống -> gợi ý
         document.getElementById('Title')?.addEventListener('blur', () => {
-            const el = document.getElementById('SeoMetaTitle');
+            const el = document.getElementById('SeoMetadata_MetaTitle');
             if (el && !el.value?.trim()) el.value = document.getElementById('Title').value || '';
             this.updateSeoCounters();
         });
+        // run first, after reload
+        this.updateSummaryCounter();
+        this.updateSeoCounters();
     }
     updateSummaryCounter() {
         const $summary = document.getElementById('Summary');
@@ -353,8 +308,8 @@ class PostModule {
         if ($summary && $counter) $counter.textContent = ($summary.value || '').length;
     }
     updateSeoCounters() {
-        const t = (document.getElementById('SeoMetaTitle')?.value || '').length;
-        const d = (document.getElementById('SeoMetaDescription')?.value || '').length;
+        const t = (document.getElementById('SeoMetadata_MetaTitle')?.value || '').length;
+        const d = (document.getElementById('SeoMetadata_MetaDescription')?.value || '').length;
         const tEl = document.getElementById('seoTitleCounter');
         const dEl = document.getElementById('seoDescCounter');
         if (tEl) tEl.textContent = t;
@@ -365,9 +320,9 @@ class PostModule {
         // gom dữ liệu từ form → payload API
         const tags = Array.from(document.querySelectorAll('#tagsContainer input[type="checkbox"]:checked')).map(x => x.value);
         const seoId = document.getElementById('SeoMetadataId')?.value || null;
-        const metaT = document.getElementById('SeoMetaTitle')?.value?.trim() || null;
-        const metaD = document.getElementById('SeoMetaDescription')?.value?.trim() || null;
-        const metaK = document.getElementById('SeoMetaKeywords')?.value?.trim() || null;
+        const metaT = document.getElementById('SeoMetadata_MetaTitle')?.value?.trim() || null;
+        const metaD = document.getElementById('SeoMetadata_MetaDescription')?.value?.trim() || null;
+        const metaK = document.getElementById('SeoMetadata_MetaKeywords')?.value?.trim() || null;
         return {
             id: this.id,
             title: document.getElementById('Title').value?.trim(),
@@ -454,7 +409,26 @@ class PostModule {
     }
 
     // ====== Nav helpers ======
-    back() { history.length > 1 ? history.back() : (location.href = '/Posts'); }
-    view() { window.open(`/Articles/View/${encodeURIComponent(this.id)}`, '_blank'); }
+    back() { location.href = '/Articles?s=' + document.getElementById('Status').value; }
+    backToDetail(id) {
+
+    }
+    view() {
+        const id = this.id;
+        const slug = (document.getElementById('Slug')?.value || this.model?.slug || '').trim();
+        const s = (this.model?.status || '').toLowerCase();
+
+        //// Nếu có slug -> đi public URL; nếu chưa publish thì thêm ?preview=1
+        //if (slug) {
+        //    const query = s === 'published' ? '' : '?preview=1';
+        //    window.open(`/bai-viet/${encodeURIComponent(slug)}${query}`, '_blank');
+        //    return;
+        //}
+
+        // Fallback theo id (preview)
+        //window.open(`/Articles/View/${encodeURIComponent(id)}?preview=1`, '_blank');
+        window.location.href = `/Articles/View/${encodeURIComponent(id)}?preview=1`;
+    }
+
 }
 export const postInstance = new PostModule(); 

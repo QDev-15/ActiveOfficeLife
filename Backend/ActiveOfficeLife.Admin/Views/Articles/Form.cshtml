@@ -1,0 +1,117 @@
+﻿@using ActiveOfficeLife.Common.Models
+@{
+    Layout = null;
+}
+@model PostModel
+
+<form novalidate>
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <!-- Hidden Ids -->
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="SeoMetadataId" type="hidden" />
+    <input asp-for="Status" type="hidden" />
+
+    <div class="row g-3">
+        <!-- Title + Slug -->
+        <div class="col-12 col-lg-8">
+            <label asp-for="Title" class="form-label"></label>
+            <input asp-for="Title" class="form-control" placeholder="Nhập tiêu đề bài viết"
+                   onblur="postInstance.blurTitle()" required/>
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+
+        <div class="col-12 col-lg-4">
+            <label asp-for="Slug" class="form-label"></label>
+            <div class="input-group">
+                <input asp-for="Slug" class="form-control" placeholder="tu-dong-tao-tu-tieu-de"
+                       onchange="postInstance.changeSlug()" required/>
+                <button type="button" class="btn btn-outline-secondary" onclick="postInstance.reSlug()">Tạo lại</button>
+            </div>
+            <span asp-validation-for="Slug" class="text-danger"></span>
+        </div>
+
+        <!-- Category -->
+        <div class="col-12 col-md-4">
+            <label asp-for="CategoryId" class="form-label"></label>
+            <select asp-for="CategoryId" class="form-select select2" required asp-items="ViewBag.Categories">
+                <option value="">-- Chọn danh mục --</option>
+            </select>
+            <span asp-validation-for="CategoryId" class="text-danger"></span>
+        </div>
+
+        <!-- Tags (khuyến nghị dùng TagIds để bind gọn) -->
+        <div class="col-12">
+            <label class="form-label">Thẻ (Tags)</label>
+            <div class="d-flex flex-wrap gap-2">
+                @* Nếu model có List<Guid> TagIds *@
+                @foreach (var tag in (IEnumerable<TagModel>)ViewBag.AllTags)
+                {
+                    var isChecked = Model.TagIds?.Contains(tag.Id) == true;
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                               name="TagIds" value="@tag.Id" id="tag_@tag.Id" @(isChecked ? "checked" : "") />
+                        <label class="form-check-label" for="tag_@tag.Id">@tag.Name</label>
+                    </div>
+                }
+            </div>
+            @* Nếu muốn hiển thị lỗi cho TagIds, bạn có thể thêm một span custom:*@
+            <span class="text-danger">@ViewData.ModelState["TagIds"]?.Errors?.FirstOrDefault()?.ErrorMessage</span>
+            
+        </div>
+
+        <!-- Summary -->
+        <div class="col-12">
+            <label asp-for="Summary" class="form-label"></label>
+            <textarea asp-for="Summary" class="form-control" rows="2" maxlength="200" placeholder="Mô tả ngắn gọn bài viết"></textarea>
+            <div class="form-text"><span id="summaryCounter">0</span> ký tự (khuyên dùng 140–200).</div>
+            <span asp-validation-for="Summary" class="text-danger"></span>
+        </div>
+
+        <!-- Content -->
+        <div class="col-12">
+            <label asp-for="Content" class="form-label"></label>
+            <textarea asp-for="Content" class="form-control" rows="12" placeholder="Viết nội dung tại đây..."></textarea>
+            <span asp-validation-for="Content" class="text-danger"></span>
+        </div>
+
+        <!-- Ngày tạo / cập nhật -->
+        <div class="col-12 col-md-6">
+            <label asp-for="CreatedAt" class="form-label"></label>
+            <input asp-for="CreatedAt" class="form-control" readonly />
+        </div>
+        <div class="col-12 col-md-6">
+            <label asp-for="UpdatedAt" class="form-label"></label>
+            <input asp-for="UpdatedAt" class="form-control" readonly />
+        </div>
+
+        <!-- SEO Metadata -->
+        <div class="border shadow p-3 rounded mb-3 bg-gray-200">
+            <h5 class="mb-3">SEO Metadata</h5>
+
+            <div class="mb-3">
+                <label asp-for="SeoMetadata.MetaTitle" class="form-label"></label>
+                <input asp-for="SeoMetadata.MetaTitle" class="form-control" maxlength="60" placeholder="Tiêu đề SEO (≤ 60 ký tự)" />
+                <div class="form-text"><span id="seoTitleCounter">0</span>/60</div>
+                <span asp-validation-for="SeoMetadata.MetaTitle" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="SeoMetadata.MetaDescription" class="form-label"></label>
+                <textarea asp-for="SeoMetadata.MetaDescription" class="form-control" rows="2" maxlength="160"
+                          placeholder="Mô tả SEO (140–160 ký tự)"></textarea>
+                <div class="form-text"><span id="seoDescCounter">0</span>/160</div>
+                <span asp-validation-for="SeoMetadata.MetaDescription" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="SeoMetadata.MetaKeywords" class="form-label"></label>
+                <input asp-for="SeoMetadata.MetaKeywords" class="form-control" placeholder="Từ khóa, cách nhau bởi dấu phẩy" />
+                <span asp-validation-for="SeoMetadata.MetaKeywords" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+</form>
+<partial name="_ValidationScriptsPartial" />
+

@@ -31,6 +31,7 @@
         // Post Endpoints
         public static string PostGetAll = "/api/post/getall";
         public static string PostGetById = "/api/Post/get";
+        public static string PostGetBySlug = "/api/Post/get-by-slug";
         public static string PostCreate = "/api/post/create";
         public static string PostUpdate = "/api/post/update";
         public static string PostDelete = "/api/post/delete";

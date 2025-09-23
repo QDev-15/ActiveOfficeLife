@@ -1,0 +1,261 @@
+﻿@model PostModel
+@using ActiveOfficeLife.Common.Models
+@using Microsoft.AspNetCore.Http.Extensions
+
+@{
+    ViewData["Title"] = Model?.SeoMetadata?.MetaTitle ?? Model?.Title ?? "Bài viết";
+    var desc = Model?.SeoMetadata?.MetaDescription ?? Model?.Summary;
+    var kw = Model?.SeoMetadata?.MetaKeywords;
+    var url = Context?.Request?.GetDisplayUrl();
+    var created = Model?.CreatedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm");
+    var updated = Model?.UpdatedAt?.ToLocalTime().ToString("dd/MM/yyyy HH:mm");
+    var category = Model?.Category?.Name;
+}
+
+    @* SEO *@
+    @if (!string.IsNullOrWhiteSpace(desc))
+    {
+        <meta name="description" content="@desc" />
+    }
+    @if (!string.IsNullOrWhiteSpace(kw))
+    {
+        <meta name="keywords" content="@kw" />
+    }
+    @if (!string.IsNullOrWhiteSpace(Model?.Slug))
+    {
+        <link rel="canonical" href="@(Url.Content($"~/bai-viet/{Model.Slug}"))" />
+    }
+
+
+    <style>
+        /* Vùng bài viết “prose” */
+        .prose {
+            font-size: 1.05rem;
+            line-height: 1.85;
+            color: #222;
+        }
+
+            .prose h1, .prose h2, .prose h3 {
+                margin-top: 1.25em;
+                margin-bottom: .5em;
+                font-weight: 700;
+            }
+
+            .prose p {
+                margin: .85em 0;
+            }
+
+            .prose img, .prose video {
+                max-width: 100%;
+                height: auto;
+                border-radius: .5rem;
+            }
+
+            .prose blockquote {
+                border-left: 4px solid #e9ecef;
+                padding-left: 1rem;
+                color: #555;
+                margin: 1rem 0;
+            }
+
+            .prose pre, .prose code {
+                background: #f8f9fa;
+                border-radius: .375rem;
+            }
+
+            .prose pre {
+                padding: .75rem 1rem;
+                overflow: auto;
+            }
+
+        /* Header */
+        .article-header {
+            background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        /* Badge trạng thái */
+        .badge-status {
+            text-transform: uppercase;
+            letter-spacing: .02em;
+        }
+
+        /* Quảng cáo */
+        .ad-slot {
+            background: repeating-linear-gradient(45deg,#f8f9fa,#f8f9fa 10px,#ffffff 10px,#ffffff 20px);
+            border: 1px dashed #d0d7de;
+            border-radius: .5rem;
+            min-height: 120px; /* placeholder */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: .9rem;
+        }
+
+            .ad-slot.small {
+                min-height: 80px;
+            }
+
+        .sticky-side {
+            position: sticky;
+            top: 1.25rem;
+        }
+
+        /* Chia sẻ */
+        .share a {
+            text-decoration: none;
+        }
+
+        
+    </style>
+
+<a onclick="postInstance.edit('@Model?.Id.ToString()')" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left me-1"></i>Quay lại
+</a>
+<div class="article-header py-4 mb-3">
+    <div class="container">
+        <nav class="small mb-2 text-muted">
+            <a href="/" class="text-muted text-decoration-none">Trang chủ</a>
+            <span class="mx-1">/</span>
+            @if (!string.IsNullOrWhiteSpace(category))
+            {
+                <a href="@Url.Content($"~/chuyen-muc/{Model.Category?.Slug ?? ""}")" class="text-muted text-decoration-none">@category</a>
+                <span class="mx-1">/</span>
+            }
+            <span class="text-muted">Bài viết</span>
+        </nav>
+
+        <h1 class="h2 mb-2">@Model?.Title</h1>
+        <div class="d-flex flex-wrap gap-3 align-items-center text-muted">
+            @if (!string.IsNullOrEmpty(created))
+            {
+                <div><i class="bi bi-calendar3 me-1"></i> @created</div>
+            }
+            @if (!string.IsNullOrEmpty(updated))
+            {
+                <div><i class="bi bi-arrow-repeat me-1"></i> Cập nhật: @updated</div>
+            }
+            <div><i class="bi bi-clock me-1"></i> <span id="readingTime">~3 phút đọc</span></div>
+            @if (!string.IsNullOrEmpty(Model?.Status))
+            {
+                var s = (Model.Status ?? "").ToLowerInvariant();
+                var color = s switch { "published" => "success", "draft" => "secondary", "paused" => "warning", "closed" => "dark", _ => "secondary" };
+                <span class="badge bg-@color badge-status">@Model.Status</span>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    @* QUẢNG CÁO TOP *@
+    <div id="ad-top" class="ad-slot small mb-3">[ Quảng cáo Top - 728x90 / 970x90 ]</div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            @if (!string.IsNullOrWhiteSpace(Model?.Summary))
+            {
+                <p class="lead">@Model.Summary</p>
+            }
+
+            <article class="prose" id="articleContent">
+                @Html.Raw(Model?.Content ?? "")
+            </article>
+
+            @* IN-ARTICLE AD sẽ được JS cắm sau đoạn 2 *@
+            <div id="ad-in-article-1" class="ad-slot my-4">[ Quảng cáo In-Article ]</div>
+
+            @if (Model?.Tags?.Any() == true)
+            {
+                <div class="mt-4">
+                    <strong class="me-2">Tags:</strong>
+                    @foreach (var t in Model.Tags)
+                    {
+                        <a class="badge bg-light text-dark me-1 text-decoration-none" href="@Url.Content($"~/tag/{t.Slug}")">@t.Name</a>
+                    }
+                </div>
+            }
+
+            <hr class="my-4" />
+
+            <div class="share d-flex align-items-center gap-2">
+                <span class="text-muted me-1">Chia sẻ:</span>
+                <a class="btn btn-sm btn-outline-secondary" target="_blank"
+                   href="https://www.facebook.com/sharer/sharer.php?u=@Uri.EscapeDataString(url ?? "")">
+                    <i class="bi bi-facebook me-1"></i>Facebook
+                </a>
+                <a class="btn btn-sm btn-outline-secondary" target="_blank"
+                   href="https://twitter.com/intent/tweet?url=@Uri.EscapeDataString(url ?? "")&text=@Uri.EscapeDataString(Model?.Title ?? "")">
+                    <i class="bi bi-twitter-x me-1"></i>Twitter
+                </a>
+                <button class="btn btn-sm btn-outline-secondary" type="button" id="btnCopyLink">
+                    <i class="bi bi-link-45deg me-1"></i>Copy link
+                </button>
+            </div>
+
+            @* QUẢNG CÁO BOTTOM *@
+            <div id="ad-bottom" class="ad-slot my-4">[ Quảng cáo Bottom - 728x90 ]</div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="sticky-side">
+                @* QUẢNG CÁO SIDEBAR *@
+                <div id="ad-sidebar" class="ad-slot mb-3" style="min-height: 600px;">[ Quảng cáo Sidebar - 300x600 ]</div>
+
+                @* Gợi ý bài viết liên quan (placeholder) *@
+                <div class="card">
+                    <div class="card-header bg-white fw-semibold">Có thể bạn quan tâm</div>
+                    <ul class="list-group list-group-flush small">
+                        <li class="list-group-item d-flex">
+                            <i class="bi bi-chevron-right me-2"></i>
+                            <a class="text-decoration-none" href="#">Mẹo chăm sóc sức khỏe mùa mưa</a>
+                        </li>
+                        <li class="list-group-item d-flex">
+                            <i class="bi bi-chevron-right me-2"></i>
+                            <a class="text-decoration-none" href="#">5 thực phẩm nên ăn mỗi tuần</a>
+                        </li>
+                        <li class="list-group-item d-flex">
+                            <i class="bi bi-chevron-right me-2"></i>
+                            <a class="text-decoration-none" href="#">Tập thở đúng giúp ngủ ngon</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <script>
+        // Ước tính thời gian đọc (≈200 wpm)
+        (() => {
+          const html = document.getElementById('articleContent')?.innerText || '';
+          const words = (html.trim().match(/\S+/g) || []).length;
+          const minutes = Math.max(1, Math.round(words / 200));
+          const el = document.getElementById('readingTime');
+          if (el) el.textContent = `~${minutes} phút đọc`;
+        })();
+
+        // Copy link chia sẻ
+        document.getElementById('btnCopyLink')?.addEventListener('click', async () => {
+          try {
+            await navigator.clipboard.writeText(window.location.href);
+            const btn = document.getElementById('btnCopyLink');
+            const old = btn.innerHTML;
+            btn.innerHTML = '<i class="bi bi-check2-circle me-1"></i>Đã copy';
+            setTimeout(()=> btn.innerHTML = old, 1400);
+          } catch {}
+        });
+
+        // Chèn quảng cáo “in-article” sau đoạn 2 (nếu có)
+        (function placeInArticleAd(){
+          const content = document.getElementById('articleContent');
+          const ad = document.getElementById('ad-in-article-1');
+          if (!content || !ad) return;
+          const ps = content.querySelectorAll('p');
+          if (ps.length >= 2) {
+            ps[1].insertAdjacentElement('afterend', ad);
+          }
+        })();
+    </script>
+

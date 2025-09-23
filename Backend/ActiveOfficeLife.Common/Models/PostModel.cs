@@ -22,6 +22,7 @@ namespace ActiveOfficeLife.Common.Models
         public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
 
+        public List<Guid> TagIds { get; set; } = new();
         public List<CommentModel> Comments { get; set; } = new List<CommentModel>();
         public List<TagModel> Tags { get; set; } = new List<TagModel>();
 
