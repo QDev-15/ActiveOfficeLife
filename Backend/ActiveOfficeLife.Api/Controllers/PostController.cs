@@ -35,7 +35,7 @@ namespace ActiveOfficeLife.Api.Controllers
         {
             try
             {
-                string cacheKey = $"{serviceName}-{MethodBase.GetCurrentMethod().Name}-{request.PageIndex}-{request.PageSize}-{UserId}-{request.SearchText}-{request.SortDirection}-{request.SortField}";
+                string cacheKey = $"{serviceName}-{MethodBase.GetCurrentMethod().Name}-{request.PageIndex}-{request.PageSize}-{UserId}-{request.SearchText}-{request.SortDirection}-{request.SortField}-{request.Status.ToString()}";
                 var cachedResult = _memoryCache.Get<(List<PostModel> Items, int count)>(cacheKey);
                 if (cachedResult != default)
                 {

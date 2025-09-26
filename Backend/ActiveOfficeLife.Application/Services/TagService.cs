@@ -37,18 +37,18 @@ namespace ActiveOfficeLife.Application.Services
                     Id = Guid.NewGuid(),
                     Name = tagModel.Name,
                     Slug = tagModel.Slug,
+                    SeoMetadata = new SeoMetadata()
+                    {
+                        Id = Guid.NewGuid(),
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    }
                 };
                 if (tagModel.SeoMetadata != null)
                 {
-                    tag.SeoMetadata = new SeoMetadata
-                    {
-                        Id = tagModel.SeoMetadata?.Id ?? Guid.NewGuid(),
-                        MetaDescription = tagModel.SeoMetadata?.MetaDescription,
-                        MetaKeywords = tagModel.SeoMetadata?.MetaKeywords,
-                        MetaTitle = tagModel.SeoMetadata?.MetaTitle,
-                        CreatedAt = tagModel.SeoMetadata?.CreatedAt ?? DateTime.UtcNow,
-                        UpdatedAt = tagModel.SeoMetadata?.UpdatedAt ?? DateTime.UtcNow
-                    };
+                    tag.SeoMetadata.MetaTitle = tagModel.SeoMetadata.MetaTitle;
+                    tag.SeoMetadata.MetaDescription = tagModel.SeoMetadata.MetaDescription;
+                    tag.SeoMetadata.MetaKeywords = tagModel.SeoMetadata.MetaKeywords;
                 }
                 await _tagRepository.AddAsync(tag);
                 await _unitOfWork.SaveChangesAsync();

@@ -1,0 +1,119 @@
+﻿@using ActiveOfficeLife.Common.Models
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model TagModel
+
+<form id="tag-form" class="needs-validation" novalidate>
+    @* Hidden keys *@
+    <input asp-for="Id" type="hidden" />
+    <input asp-for="SeoMetadataId" type="hidden" />
+    @* Nếu SeoMetadata null, tạo object để binding không lỗi *@
+    @if (Model.SeoMetadata is null)
+    {
+        Model.SeoMetadata = new SeoMetadataModel();
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="mb-0">Tag</h5>
+            <div class="d-flex gap-2">
+                <button type="button"
+                        class="btn btn-primary"
+                        id="btn-save-tag"
+                        data-action="update"
+                        data-target="#tag-form">
+                    <i class="bi bi-save"></i> Lưu
+                </button>
+
+                <button type="button"
+                        class="btn btn-outline-danger"
+                        id="btn-delete-tag"
+                        data-action="delete"
+                        data-id="@Model.Id">
+                    <i class="bi bi-trash"></i> Xóa
+                </button>
+
+                <button type="reset" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                </button>
+            </div>
+        </div>
+
+        <div class="card-body">
+
+            <div class="row g-3">
+                <div class="col-12">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span class="text-danger" asp-validation-for="Name"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Slug" class="form-label"></label>
+                    <input asp-for="Slug" class="form-control" />
+                    <div class="form-text">Nếu để trống, slug có thể được tạo từ Name.</div>
+                    <span class="text-danger" asp-validation-for="Slug"></span>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+
+            <h6 class="mb-3">SEO Metadata</h6>
+            <div class="row g-3">
+                <div class="col-12">
+                    <label asp-for="SeoMetadata.MetaTitle" class="form-label"></label>
+                    <input asp-for="SeoMetadata.MetaTitle" class="form-control" />
+                    <span class="text-danger" asp-validation-for="SeoMetadata.MetaTitle"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="SeoMetadata.MetaDescription" class="form-label"></label>
+                    <textarea asp-for="SeoMetadata.MetaDescription" rows="3" class="form-control"></textarea>
+                    <span class="text-danger" asp-validation-for="SeoMetadata.MetaDescription"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="SeoMetadata.MetaKeywords" class="form-label"></label>
+                    <input asp-for="SeoMetadata.MetaKeywords" class="form-control" />
+                    <div class="form-text">Phân tách bằng dấu phẩy.</div>
+                    <span class="text-danger" asp-validation-for="SeoMetadata.MetaKeywords"></span>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Created At</label>
+                    <input type="text"
+                           class="form-control"
+                           value="@(Model.SeoMetadata?.CreatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "")"
+                           readonly />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Updated At</label>
+                    <input type="text"
+                           class="form-control"
+                           value="@(Model.SeoMetadata?.UpdatedAt?.ToString("yyyy-MM-dd HH:mm") ?? "")"
+                           readonly />
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <div class="text-muted small">
+                <span>Id: @Model.Id</span>
+                @if (Model.SeoMetadataId.HasValue)
+                {
+                    <span class="ms-3">SeoMetadataId: @Model.SeoMetadataId</span>
+                }
+            </div>
+        </div>
+    </div>
+</form>
+
+<partial name="_ValidationScriptsPartial" />

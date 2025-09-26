@@ -8,6 +8,7 @@ import { categoryInstance } from './category.module.js';
 import { settingInstance } from './setting.module.js';   
 import { logInstance } from './log.module.js';
 import { postInstance } from './post.module.js';
+import { tagInstance } from './tag.module.js'; }
 
 
 window.configInstance = configInstance;
@@ -20,6 +21,7 @@ window.settingInstance = settingInstance;
 window.postInstance = postInstance;
 window.logInstance = logInstance
 window.broadCastInstance = broadCastInstance;
+window.tagInstance = tagInstance;
 pingInstance.startAuthHeartbeat();
 
 
