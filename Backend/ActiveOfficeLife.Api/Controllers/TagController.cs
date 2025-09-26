@@ -76,10 +76,7 @@ namespace ActiveOfficeLife.Api.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> CreateTag([FromBody] TagModel tag)
         {
-            if (tag == null)
-            {
-                return BadRequest(new ResultError("Invalid tag data.", "400"));
-            }
+            
             try
             {
                 var createdTag = await _tagService.Add(tag);

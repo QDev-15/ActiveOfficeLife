@@ -22,6 +22,18 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             return await _context.Tags.Include(x => x.SeoMetadata).ToListAsync();
         }
 
+        public async Task<Tag?> GetByIdAsync(Guid id)
+        {
+            var tag = await _context.Tags
+                .Include(x => x.SeoMetadata)
+                .FirstOrDefaultAsync(t => t.Id == id);
+            if (tag == null)
+            {
+                return null;
+            }
+            return tag;
+        }
+
         public async Task<(IEnumerable<Tag> Items, int Count)> GetAllWithPaging(PagingTagRequest request)
         {
             var allowedFields = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)

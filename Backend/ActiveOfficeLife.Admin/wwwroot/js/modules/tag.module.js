@@ -134,7 +134,7 @@ class TagModule {
 
     }
     async addNew() {
-        const tag = await apiInstance.post(this.EndPoints.create);
+        const tag = await apiInstance.post(this.EndPoints.create, {});
         // set tag id to modal input tagIdModal
         $('#tagIdModal').val(tag.id);
         this.edit(tag.id);
@@ -208,13 +208,18 @@ class TagModule {
         $('#tagBody').html(''); // Xóa nội dung cũ trong dialog
         // set title    
         $('#tagTitle').text('Cập nhật danh mục');
-        mvcInstance.get('/Tag/Edit/' + id)
+        mvcInstance.get('/Tag/TagForm/' + id)
             .then(html => {
                 $('#tagBody').html(html);
                 $('.btn-update').show();
                 $('.btn-create').hide();
-                //this.form = configInstance.initValidatorForm("tagBody");
+                this.form = configInstance.initValidatorForm("tagBody");
+                this.form?.valid();
                 this.modalTag.show();
+                // auto focus to input name
+                setTimeout(() => {
+                    $('#Name').focus();
+                }, 500);
             }).catch((err) => {
                 console.error('Lỗi tải form thêm mới:', err);
                 messageInstance.error('Không thể tải form thêm mới');

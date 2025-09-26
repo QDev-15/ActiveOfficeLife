@@ -1,6 +1,7 @@
 ﻿using ActiveOfficeLife.Application.Common;
 using ActiveOfficeLife.Application.ExtensitionModel;
 using ActiveOfficeLife.Application.Interfaces;
+using ActiveOfficeLife.Common;
 using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Common.Requests;
 using ActiveOfficeLife.Domain.Entities;
@@ -25,7 +26,17 @@ namespace ActiveOfficeLife.Application.Services
         {
             try
             {
-                var existingTag = await this.IsExist(tagModel.Name);
+                // check if tagModel is null or tagModel is objet with empty name
+                if (tagModel == null || string.IsNullOrWhiteSpace(tagModel.Name))
+                {
+                    tagModel = new TagModel()
+                    {
+                        Name = "New Tag" + Helper.GenerateRandomString(4),
+                        SeoMetadata = tagModel?.SeoMetadata
+                    };
+                    tagModel.Slug = Helper.GenerateSlug(tagModel.Name);
+                }
+                var existingTag = tagModel == null ? false : await this.IsExist(tagModel.Name);
                 if (existingTag)
                 {
                     AOLLogger.Error("Tag already exists.", "TagService", null);
@@ -35,8 +46,7 @@ namespace ActiveOfficeLife.Application.Services
                 var tag = new Tag
                 {
                     Id = Guid.NewGuid(),
-                    Name = tagModel.Name,
-                    Slug = tagModel.Slug,
+                    Name = tagModel!.Name ?? "new tag " + Helper.GenerateRandomString(4),
                     SeoMetadata = new SeoMetadata()
                     {
                         Id = Guid.NewGuid(),
@@ -44,6 +54,7 @@ namespace ActiveOfficeLife.Application.Services
                         UpdatedAt = DateTime.UtcNow
                     }
                 };
+                tag.Slug = string.IsNullOrWhiteSpace(tagModel.Slug) ? Helper.GenerateSlug(tag.Name) : tagModel.Slug;
                 if (tagModel.SeoMetadata != null)
                 {
                     tag.SeoMetadata.MetaTitle = tagModel.SeoMetadata.MetaTitle;
