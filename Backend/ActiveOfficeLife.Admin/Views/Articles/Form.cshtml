@@ -44,7 +44,7 @@
         <!-- Tags (khuyến nghị dùng TagIds để bind gọn) -->
         <div class="col-12">
             <label class="form-label">Thẻ (Tags)</label>
-            <div class="d-flex flex-wrap gap-2">
+            <div class="d-flex flex-wrap gap-2" id="tagsContainer">
                 @* Nếu model có List<Guid> TagIds *@
                 @foreach (var tag in (IEnumerable<TagModel>)ViewBag.AllTags)
                 {

@@ -7,6 +7,58 @@
 }
 @model TagModel
 
+<style>
+    .tags-input {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .375rem;
+        min-height: calc(2.5rem + 2px); /* gần bằng .form-control */
+        padding: .375rem .5rem;
+        border: 1px solid #ced4da;
+        border-radius: .375rem;
+        background: #fff;
+        cursor: text;
+    }
+
+        .tags-input:focus-within {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 .2rem rgba(13,110,253,.25);
+        }
+
+    .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        padding: .25rem .5rem;
+        border-radius: 999px;
+        background: #f1f3f5;
+        border: 1px solid #e9ecef;
+        font-size: .875rem;
+    }
+
+        .tag .remove {
+            border: none;
+            background: transparent;
+            line-height: 1;
+            cursor: pointer;
+            opacity: .6;
+        }
+
+            .tag .remove:hover {
+                opacity: 1;
+            }
+
+    .tags-input input {
+        border: none;
+        outline: none;
+        flex: 1 0 8rem;
+        min-width: 6rem;
+        padding: .25rem;
+        font: inherit;
+        background: transparent;
+    }
+</style>
+
 <form id="tag-form" class="needs-validation" novalidate>
     @* Hidden keys *@
     <input asp-for="Id" type="hidden" />
@@ -20,7 +72,7 @@
     <div class="row g-3">
         <div class="col-12">
             <label asp-for="Name" class="form-label"></label>
-            <input asp-for="Name" class="form-control" />
+            <input asp-for="Name" maxlength="100" class="form-control" />
             <span class="text-danger" asp-validation-for="Name"></span>
         </div>
 
@@ -50,7 +102,10 @@
 
         <div class="col-12">
             <label asp-for="SeoMetadata.MetaKeywords" class="form-label"></label>
-            <input asp-for="SeoMetadata.MetaKeywords" class="form-control" />
+
+            <!-- input gốc (ASP.NET Tag Helper) -->
+            <input asp-for="SeoMetadata.MetaKeywords" class="form-control" id="metaKeywords" />
+
             <div class="form-text">Phân tách bằng dấu phẩy.</div>
             <span class="text-danger" asp-validation-for="SeoMetadata.MetaKeywords"></span>
         </div>

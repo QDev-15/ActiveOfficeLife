@@ -8,8 +8,8 @@ namespace ActiveOfficeLife.Admin.FluentValidations
         public TagModelValidator()
         {
             RuleFor(tag => tag.Name)
-                .NotEmpty().WithMessage("Tag name is required.")
-                .MaximumLength(100).WithMessage("Tag name must not exceed 100 characters.");
+                .NotEmpty().WithMessage("Tag Name không được trống.")
+                .MaximumLength(100).WithMessage("Tag name phải không vượt quá 100 ký tự.");
         }
     }
 }

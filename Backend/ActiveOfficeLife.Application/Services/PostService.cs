@@ -17,13 +17,16 @@ namespace ActiveOfficeLife.Application.Services
         private string serviceName = "";
         private readonly IPostRepository _postRepository;
         private readonly ICategoryRepository _categoryRepository;
+        private readonly ITagRepository _tagRepository;
         private readonly IUnitOfWork _unitOfWork;
-        public PostService(IPostRepository postRepository, IUnitOfWork unitOfWork, ICategoryRepository categoryRepository)
+        public PostService(IPostRepository postRepository, IUnitOfWork unitOfWork, 
+            ICategoryRepository categoryRepository, ITagRepository tagRepository)
         {
             _postRepository = postRepository;
             _unitOfWork = unitOfWork;
             serviceName = this.GetType().Name;
             _categoryRepository = categoryRepository;
+            _tagRepository = tagRepository;
         }
 
         public async Task<PostModel> Create(PostModel post)
@@ -198,6 +201,12 @@ namespace ActiveOfficeLife.Application.Services
                 {
                     AOLLogger.Error($"{msgHdr}: Post with id {post.Id} not found.");
                     return null; // Post not found
+                }
+
+                if (post.TagIds!.Any())
+                {
+                    var tags = await _tagRepository.GetTagsByIds(post.TagIds);
+                    existingPost.Tags = tags.ToList();
                 }
                 existingPost.Title = post.Title?? "AOL title " + Helper.GenerateRandomString(4);
                 existingPost.Slug = post.Slug ?? Helper.GenerateSlug(existingPost.Title);

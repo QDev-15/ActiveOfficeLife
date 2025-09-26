@@ -12,5 +12,6 @@ namespace ActiveOfficeLife.Domain.Interfaces
     {
         Task<Tag?> GetByNameAsync(string name);
         Task<(IEnumerable<Tag> Items, int Count)> GetAllWithPaging(PagingTagRequest request);
+        Task<List<Tag>> GetTagsByIds(List<Guid> ids);
     }
 }

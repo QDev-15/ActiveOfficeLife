@@ -19,7 +19,7 @@ class TagModule {
         this.sortDirection = 'asc';
         this.globalData = [];
         this.totalCount = 0;
-
+        
         this.form = null;
         this.tableId = "tagTable";
         this.tableInstance = null;
@@ -141,25 +141,22 @@ class TagModule {
     }
     save() {
         if (!this.validate()) return;
-        const form = document.getElementById('form_add_tag');
-        // Tạo FormData từ form
+        const form = document.getElementById('tag-form');
+        // Tạo FormData từ form tag
         let payload = {
             id: form.querySelector('[name="Id"]').value || null,
             name: form.querySelector('[name="Name"]').value,
             slug: form.querySelector('[name="Slug"]').value,
-            description: form.querySelector('[name="Description"]').value,
-            parentId: form.querySelector('[name="ParentId"]').value || null,
             seoMetadataId: form.querySelector('[name="SeoMetadataId"]').value || null,
             seoMetadata: {
-                seoMetaTitle: form.querySelector('[name="SeoMetadata.Title"]').value,
-                seoMetaDescription: form.querySelector('[name="SeoMetadata.Description"]').value,
-                seoMetaKeywords: form.querySelector('[name="SeoMetadata.Keywords"]').value
+                metaTitle: form.querySelector('[name="SeoMetadata.MetaTitle"]').value,
+                metaDescription: form.querySelector('[name="SeoMetadata.MetaDescription"]').value,
+                metaKeywords: form.querySelector('[name="SeoMetadata.MetaKeywords"]').value
             }
         };
-        payload.parentId = payload.parentId === "0" ? null : payload.parentId;
-        apiInstance.post('/tag/create', payload)
+        apiInstance.put(this.EndPoints.update, payload)
             .then(res => {
-                messageInstance.success("Thêm mới thành công!");
+                messageInstance.success("Cập nhập thành công!");
                 this.modalTag.hide();
                 this.refreshData();
             })
@@ -169,36 +166,6 @@ class TagModule {
             });
     }
 
-    update() {
-        if (!this.validate()) return;
-        const form = document.getElementById('form_add_tag');
-        // Tạo FormData từ form
-        let payload = {
-            id: form.querySelector('[name="Id"]').value || null,
-            name: form.querySelector('[name="Name"]').value,
-            slug: form.querySelector('[name="Slug"]').value,
-            description: form.querySelector('[name="Description"]').value,
-            parentId: form.querySelector('[name="ParentId"]').value || null,
-            seoMetadataId: form.querySelector('[name="SeoMetadataId"]').value || null,
-            seoMetadata: {
-                title: form.querySelector('[name="SeoMetadata.Title"]').value,
-                description: form.querySelector('[name="SeoMetadata.Description"]').value,
-                keywords: form.querySelector('[name="SeoMetadata.Keywords"]').value
-            }
-        };
-        payload.parentId = payload.parentId === "0" ? null : payload.parentId;
-        apiInstance.put('/tag/update', payload)
-            .then(res => {
-                messageInstance.success("Cập nhật thành công!");
-                this.modalTag.hide();
-                this.refreshData();
-            })
-            .catch(err => {
-                console.error(err);
-                messageInstance.error("Lỗi khi cập nhật!");
-            });
-    }
-   
     validate() {
         return this.form?.valid();
     }
@@ -206,19 +173,18 @@ class TagModule {
         console.log("id = ", id);
         this.modalTag = this.configApp.createModal("tagModal");
         $('#tagBody').html(''); // Xóa nội dung cũ trong dialog
-        // set title    
-        $('#tagTitle').text('Cập nhật danh mục');
         mvcInstance.get('/Tag/TagForm/' + id)
             .then(html => {
                 $('#tagBody').html(html);
-                $('.btn-update').show();
-                $('.btn-create').hide();
+                $('.btn-create').show();
                 this.form = configInstance.initValidatorForm("tagBody");
                 this.form?.valid();
                 this.modalTag.show();
                 // auto focus to input name
                 setTimeout(() => {
                     $('#Name').focus();
+                    const el = document.getElementById('metaKeywords');
+                    if (el) utilities.initTags(el);
                 }, 500);
             }).catch((err) => {
                 console.error('Lỗi tải form thêm mới:', err);
@@ -230,7 +196,7 @@ class TagModule {
         var message = "Bạn có chắc chắn muốn xóa danh mục <strong>" + name + "</strong> không?";
         this.messageApp.confirm(message).then((result) => {
             if (result) {
-                apiInstance.delete('/tag/delete?id=' + id)
+                apiInstance.delete(this.EndPoints.delete +'?id=' + id)
                     .then(res => {
                         this.messageApp.success("Xóa thành công!");
                         this.refreshData();
@@ -246,6 +212,7 @@ class TagModule {
     refreshData() {
         this.tableInstance?.ajax.reload();
     }
+
 }
 
 export const tagInstance = new TagModule(); 

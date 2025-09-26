@@ -10,6 +10,13 @@ class Utilities {
         // --- Select2 auto wiring ---
         this._select2Wired = false;
         this._select2Observer = null;
+        // init tags
+        this.sep = /[,，；;]+/;
+        this.tags = [];
+        this.box = null;
+        this.editor = null;
+        this.hiddenOriginal = null;
+        // end init tags
     }
     _trim(p) { return p.replace(/\/+$/, ""); }
     _match(path) { return this._trim(new URL(location.href).pathname).indexOf(this._trim(path)) >= 0 }
@@ -152,6 +159,90 @@ class Utilities {
         this._select2Observer = null;
         this._select2Wired = false;
     }
+
+
+    // INIT TAGS by region
+    #region
+    render() {
+        // xóa tất cả tag pill (trừ editor)
+        [...this.box.querySelectorAll('.tag')].forEach(n => n.remove());
+        this.tags.forEach((t, i) => {
+            const pill = document.createElement('span');
+            pill.className = 'tag';
+            pill.innerHTML = `<span>${this.escapeHtml(t)}</span><button type="button" class="remove" aria-label="Remove">&times;</button>`;
+            pill.querySelector('.remove').addEventListener('click', () => {
+                this.tags.splice(i, 1);
+                this.render();
+            });
+            this.box.insertBefore(pill, this.editor);
+        });
+        this.hiddenOriginal.value = this.tags.join(', ');
+    }
+    commitChunk(chunk) {
+        const parts = chunk.split(this.sep).map(s => s.trim()).filter(Boolean);
+        for (const p of parts) if (!this.tags.includes(p)) this.tags.push(p);
+        this.render();
+    }
+    backspaceMaybeRemove(e) {
+        if (this.editor.value === '' && tags.length && e.key === 'Backspace') {
+            tags.pop(); this.render();
+            e.preventDefault();
+        }
+    }
+    escapeHtml(s) { return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+    initTags(input) {
+        const original = input;                     // input gốc (có asp-for)
+        const name = original.name;
+        const initial = (original.value || '').split(this.sep).map(s => s.trim()).filter(Boolean);
+
+        // ẩn input gốc & tạo hidden để post
+        original.type = 'hidden';
+        this.hiddenOriginal = original; // dùng luôn input gốc làm hidden (giữ name/binding)
+
+        // container hiển thị pill + ô nhập
+        this.box = document.createElement('div');
+        this.box.className = 'tags-input';
+        this.editor = document.createElement('input');
+        this.editor.type = 'text'; this.editor.placeholder = 'Nhập từ khóa, nhấn phẩy hoặc Enter';
+        this.box.appendChild(this.editor);
+        this.hiddenOriginal.insertAdjacentElement('afterend', this.box);
+
+        this.tags = [];
+
+        // sự kiện
+        this.editor.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                if (this.editor.value.trim()) { this.commitChunk(this.editor.value); this.editor.value = ''; }
+            } else if (e.key === 'Backspace') {
+                this.backspaceMaybeRemove(e);
+            }
+        });
+        this.editor.addEventListener('input', () => {
+            if (this.sep.test(this.editor.value)) {
+                this.commitChunk(this.editor.value);
+                this.editor.value = '';
+            }
+        });
+        this.editor.addEventListener('blur', () => {
+            if (this.editor.value.trim()) { this.commitChunk(this.editor.value); this.editor.value = ''; }
+        });
+        this.box.addEventListener('click', () => this.editor.focus());
+
+        // paste nhiều từ khóa
+        this.editor.addEventListener('paste', e => {
+            const text = (e.clipboardData || window.clipboardData).getData('text');
+            if (this.sep.test(text)) {
+                e.preventDefault();
+                this.commitChunk(text);
+            }
+        });
+
+        // khởi tạo từ giá trị ban đầu
+        if (initial.length) { this.tags = Array.from(new Set(initial)); this.render(); }
+    }
+    #endregion
+
 
 }
 export const utilities = new Utilities();

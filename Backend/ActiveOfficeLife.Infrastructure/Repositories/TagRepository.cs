@@ -78,5 +78,16 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             }
             return tag;
         }
+
+        public async Task<List<Tag>> GetTagsByIds(List<Guid> ids)
+        {
+            ids = ids ?? [];
+            var tagStringIds = string.Join(',', ids.Select(x => x.ToString()).ToList());
+            var tags = await _context.Tags
+                .Where(t => tagStringIds.Contains(t.Id.ToString()))
+                .Include(x => x.SeoMetadata)
+                .ToListAsync();
+            return tags;
+        }
     }
 }
