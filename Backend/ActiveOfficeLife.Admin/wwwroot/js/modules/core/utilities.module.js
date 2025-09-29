@@ -73,6 +73,8 @@ class Utilities {
         for (const t of this._tasks) clearTimeout(t._timer);
         this._tasks.length = 0;
     }
+    generateSlug(s) { return this.slugify(s); };
+    generateTag(s) { return this.slugify(s).replace(/-/, '_'); };
     slugify = (s) => (s || '')
         .normalize('NFD').replace(/[\u0300-\u036f]/g, '')  // bỏ dấu
         .replace(/đ/g, 'd').replace(/Đ/g, 'D')

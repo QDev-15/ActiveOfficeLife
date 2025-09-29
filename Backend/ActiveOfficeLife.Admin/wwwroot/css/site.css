@@ -26,6 +26,7 @@ main.content {
         padding: 15px !important;
         border-radius: 0;
         box-shadow: 0 1px 4px 0 rgb(0 0 0 / 38%);
+        z-index: 9999999;
     }
     main.content .main-body-container {
         overflow: auto;
@@ -34,10 +35,7 @@ main.content {
         border-radius: 0 !important;
         box-shadow: 0 1px 4px 0 rgb(0 0 0 / 38%) !important;
     }
-.main-body-container {
-   padding-left: 15px;
-   padding-right: 15px;
-}
+
 .dataTables_length select.form-select {
     min-width: 70px;
 }

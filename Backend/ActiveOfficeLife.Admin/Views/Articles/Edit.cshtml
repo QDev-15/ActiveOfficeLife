@@ -5,7 +5,7 @@
 
 <div id="post-edit-root" data-post-id="@postId"></div>
 
-<div class="container-fluid d-flex justify-content-between align-items-center mb-3">
+<div class="container-fluid d-flex sticky-top shadow justify-content-between align-items-center p-3" style="background: #f2f4f6">
     <div class="d-flex align-items-center">
         <span id="statusText" class="text-muted fs-5 fw-bold">Đang tải…</span>
     </div>
@@ -30,6 +30,9 @@
         <a id="btnRepublish" onclick="postInstance.changeStatus('published')" class="btn btn-success d-none">
             <i class="bi bi-upload me-1"></i>Xuất bản lại
         </a>
+        <a id="btnSave" onclick="postInstance.save()" class="btn btn-primary">
+            <i class="bi bi-upload me-1"></i>Lưu
+        </a>
 
         <a id="btnDelete" onclick="postInstance.delete()" class="btn btn-danger">
             <i class="bi bi-trash me-1"></i>Xóa
@@ -37,7 +40,7 @@
     </div>
 </div>
 
-<div class="container-fluid" id="content-artile-edit">
+<div class="container-fluid pt-3 pb-3" id="content-artile-edit">
     <!-- KHÔNG post form về MVC nữa, chỉ là khung UI -->
     
 </div>

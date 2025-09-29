@@ -137,6 +137,7 @@ class TagModule {
         const tag = await apiInstance.post(this.EndPoints.create, {});
         // set tag id to modal input tagIdModal
         $('#tagIdModal').val(tag.id);
+        this.refreshData();
         this.edit(tag.id);
     }
     save() {
@@ -162,7 +163,7 @@ class TagModule {
             })
             .catch(err => {
                 console.error(err);
-                messageInstance.error("Lỗi khi thêm mới!");
+                messageInstance.error("Lỗi cập nhập, làm ơn liên hệ admin và thử lại sau.!");
             });
     }
 
@@ -185,15 +186,16 @@ class TagModule {
                     $('#Name').focus();
                     const el = document.getElementById('metaKeywords');
                     if (el) utilities.initTags(el);
+                    this.initEvents();
                 }, 500);
             }).catch((err) => {
-                console.error('Lỗi tải form thêm mới:', err);
-                messageInstance.error('Không thể tải form thêm mới');
+                console.error('Lỗi tải form:', err);
+                messageInstance.error('Không thể tải form');
             });
 
     }
     delete(id, name) {
-        var message = "Bạn có chắc chắn muốn xóa danh mục <strong>" + name + "</strong> không?";
+        var message = "Bạn có chắc chắn muốn xóa tag \"<strong>" + name + "</strong>\" không?";
         this.messageApp.confirm(message).then((result) => {
             if (result) {
                 apiInstance.delete(this.EndPoints.delete +'?id=' + id)
@@ -203,7 +205,7 @@ class TagModule {
                     })
                     .catch(err => {
                         console.error(err);
-                        this.messageApp.error("Lỗi khi xóa danh mục!");
+                        this.messageApp.error("Lỗi khi xóa tag!");
                     });
             };
         });
@@ -212,7 +214,31 @@ class TagModule {
     refreshData() {
         this.tableInstance?.ajax.reload();
     }
+    // set event blur for input name to generate slug
+    initEvents() {
+        // debounce for input#tagSearch
+        const searchInput = document.getElementById('tagSearch');
+        if (searchInput) {
+            const debouncedSearch = this.debounce(() => {
+                this.tableInstance.search(searchInput.value).draw();
+            }, 500);
+            searchInput.addEventListener('input', debouncedSearch);
+        }
+        // sự kiện blur cho input#Name để tự động tạo slug
+        $(document).on('blur', '#Name', function () {
+            let name = $(this).val();
+            let slug = utilities.generateTag(name);
+            $('#Slug').val(slug);
+        });
 
+        // sự kiện đóng modal tag
+        $(document).on('hidden.bs.modal', '#tagModal', () => {
+            $('#tagBody').html('');
+            this.form = null;
+        });
+    }
 }
 
 export const tagInstance = new TagModule(); 
+
+
