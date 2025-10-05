@@ -67,7 +67,6 @@ mark {
     background-color: #f1f1f1;
     cursor: pointer;
 }
-
 .table tr.selected {
     background-color: #d0ebff !important;
 }

@@ -1,0 +1,61 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Quảng cáo";
+    // Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Danh sách quảng cáo</h4>
+        <div>
+            <button class="btn btn-primary me-2" onclick="categoryInstance.add()">➕ Add</button>
+            <button class="btn btn-secondary" onclick="categoryInstance.refreshData()">🔄 Refresh</button>
+        </div>
+    </div>
+
+
+    @* new table *@
+    <!-- Table -->
+    <table id="categoryTable" class="table table-bordered table-striped table-hover" style="width:100%"></table>
+
+</div>
+
+
+
+
+
+
+
+
+<div class="modal fade" id="categoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Header -->
+            <div class="modal-header">
+                <span id="categoryIcon" class="me-2"></span>
+                <h5 class="modal-title" id="categoryTitle"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body" id="categoryBody">
+                <!-- Nội dung sẽ được bind qua JS -->
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer" id="categoryFooter">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button type="button" onclick="categoryInstance.update()" class="btn btn-primary btn-update">Cập nhật</button>
+                <button type="button" onclick="categoryInstance.save()" class="btn btn-primary btn-create">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    categoryInstance.initTable();
+</script>
+
+

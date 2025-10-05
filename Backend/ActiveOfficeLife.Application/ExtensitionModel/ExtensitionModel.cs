@@ -17,6 +17,20 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
             var json = JsonConvert.SerializeObject(token);
             return json;
         }
+        public static AdModel ReturnModel(this Ad ad)
+        {
+            return new AdModel()
+            {
+                Id = ad.Id,
+                Name = ad.Name,
+                Type = ad.Type,
+                ImageUrl = ad.ImageUrl,
+                Link = ad.Link,
+                StartDate = ad.StartDate,
+                EndDate = ad.EndDate,
+                Status = ad.Status
+            };
+        }
         public static MediaModel ReturnModel(this Media media)
         {
             return new MediaModel()
