@@ -13,16 +13,13 @@ class AdModule {
         this.spinner = spinnerInstance;
         this.messageApp = messageInstance;
         this.token = configInstance.token;
-        this.selectedRow = null;
-        this.selectedData = null;
-        this.currentPage = 1;
+        // paging init
         this.pageSize = 10;
         this.sortField = 'name';
         this.sortDirection = 'asc';
         this.globalData = [];
         this.totalCount = 0;
 
-        this.form = null;
         this.modalAd = null;
         this.tableId = "adTable";
         this.tableInstance = null;
@@ -35,13 +32,6 @@ class AdModule {
         };
     }
 
-    debounce(func, delay) {
-        let timeout;
-        return function (...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), delay);
-        };
-    }
     // init DataTable
     initTable() {
         this.tableInstance = $(`#${this.tableId}`).DataTable({
@@ -138,11 +128,11 @@ class AdModule {
                     orderable: false,
                     render: function (data, type, row) {
                         return `<button class="btn btn-sm btn-warning btn-edit"
-                                    onclick="AdInstance.edit('${row.id}', '${row.name}')"
+                                    onclick="adInstance.edit('${row.id}')"
                                     data-id="${row.id}"
                                     data-name="${row.name}">Edit</button>
                                 <button class="btn btn-sm btn-danger btn-delete"
-                                    onclick="AdInstance.delete('${row.id}', '${row.name}')"
+                                    onclick="adInstance.delete('${row.id}', '${row.name}')"
                                     data-id="${row.id}"
                                     data-name="${row.name}">Delete</button>
                                 `;
@@ -155,104 +145,51 @@ class AdModule {
     }
     
     save() {
-        if (!this.validate()) return;
-        const form = document.getElementById('form_add_Ad');
-        // Tạo FormData từ form
-        let payload = {
-            id: form.querySelector('[name="Id"]').value || null,
-            name: form.querySelector('[name="Name"]').value,
-            slug: form.querySelector('[name="Slug"]').value,
-            description: form.querySelector('[name="Description"]').value,
-            parentId: form.querySelector('[name="ParentId"]').value || null,
-            seoMetadataId: form.querySelector('[name="SeoMetadataId"]').value || null,
-            seoMetadata: {
-                seoMetaTitle: form.querySelector('[name="SeoMetadata.Title"]').value,
-                seoMetaDescription: form.querySelector('[name="SeoMetadata.Description"]').value,
-                seoMetaKeywords: form.querySelector('[name="SeoMetadata.Keywords"]').value
-            }
-        };
-        payload.parentId = payload.parentId === "0" ? null : payload.parentId;
-        apiInstance.post('/Ad/create', payload)
-            .then(res => {
-                messageInstance.success("Thêm mới thành công!");
-                this.modalAd.hide();
+        if (!this._validateDom()) return;
+
+        const model = this._collectForm();
+
+        apiInstance.post(this.Endpoints.update, model)
+            .then(() => {
+                messageInstance.success('Đã cập nhật quảng cáo.');
+                this.modalAd?.hide();
                 this.refreshData();
             })
             .catch(err => {
-                console.error(err);
-                messageInstance.error("Lỗi khi thêm mới!");
+                console.error('Lỗi cập nhật quảng cáo:', err);
+                messageInstance.error('Không thể cập nhật quảng cáo.');
             });
     }
 
-    update() {
-        if (!this.validate()) return;
-        const form = document.getElementById('form_add_Ad');
-        // Tạo FormData từ form
-        let payload = {
-            id: form.querySelector('[name="Id"]').value || null,
-            name: form.querySelector('[name="Name"]').value,
-            slug: form.querySelector('[name="Slug"]').value,
-            description: form.querySelector('[name="Description"]').value,
-            parentId: form.querySelector('[name="ParentId"]').value || null,
-            seoMetadataId: form.querySelector('[name="SeoMetadataId"]').value || null,
-            seoMetadata: {
-                title: form.querySelector('[name="SeoMetadata.Title"]').value,
-                description: form.querySelector('[name="SeoMetadata.Description"]').value,
-                keywords: form.querySelector('[name="SeoMetadata.Keywords"]').value
-            }
-        };
-        payload.parentId = payload.parentId === "0" ? null : payload.parentId;
-        apiInstance.put('/Ad/update', payload)
-            .then(res => {
-                messageInstance.success("Cập nhật thành công!");
-                this.modalAd.hide();
-                this.refreshData();
-            })
-            .catch(err => {
-                console.error(err);
-                messageInstance.error("Lỗi khi cập nhật!");
-            });
-    }
     add() {
-        this.modalAd = this.configApp.createModal("AdModal");
-        $('#adBody').html(''); // Xóa nội dung cũ trong dialog
-        // set title    
-        $('#adTitle').text('Thêm mới danh mục');
-        mvcInstance.get('/Ad/Create')
-            .then(html => {
-                $('#adBody').html(html);
-                // set button create show, hide update
-                $('.btn-update').hide();
-                $('.btn-create').show();
-                this.form = configInstance.initValidatorForm("adBody");
-                this.modalAd.show();
-            }).catch((err) => {
-                console.error('Lỗi tải form thêm mới:', err);
-                messageInstance.error('Không thể tải form thêm mới');
-            });
+        // call api create 
+        apiInstance.post(this.Enpoints.create).then((resp) => {
+            this.edit(null, resp);
+        });
         
     }
    
-    validate() {
-        return this.form?.valid();
-    }
-    edit(id, name) {
-        console.log("id = ", id);
-        this.modalAd = this.configApp.createModal("AdModal");
-        $('#adBody').html(''); // Xóa nội dung cũ trong dialog
-        // set title    
-        $('#adTitle').text('Cập nhật danh mục');
-        mvcInstance.get('/Ad/Edit/' + id)
-            .then(html => {
-                $('#adBody').html(html);
-                $('.btn-update').show();
-                $('.btn-create').hide();
-                this.form = configInstance.initValidatorForm("adBody");
-                this.modalAd.show();
+    edit(id, model) {
+        this.modalAd = this.configApp.createModal("adModal");
+        $('#adTitle').text('Chi tiết quảng cáo');
+        if (model) {
+            // set form
+            var formHtml = this._formHtml(model);
+            $('#adBody').html(formHtml);
+            this._bindInteractions();
+        } else {
+            apiInstance.get(this.Enpoints.getById, {id: id}).then((res) => {
+                // set form
+                var formHtml = this._formHtml(res);
+                $('#adBody').html(formHtml);
+                this._bindInteractions();
             }).catch((err) => {
-                console.error('Lỗi tải form thêm mới:', err);
-                messageInstance.error('Không thể tải form thêm mới');
+                console.error('Lỗi tải quảng cáo: ', err);
+                messageInstance.error('Không thể tải quảng cáo');
+                return;
             });
+        }
+        this.modalAd.show();
 
     }
     delete(id, name) {
@@ -275,6 +212,207 @@ class AdModule {
     refreshData() {
         this.tableInstance?.ajax.reload();
     }
+
+    // bind form
+    _formHtml(ad = {}) {
+        const id = ad.id ?? '';
+        const name = ad.name ?? '';
+        const type = ad.type ?? '';   // Banner | Text | ...
+        const imageUrl = ad.imageUrl ?? '';
+        const link = ad.link ?? '';
+        const startDate = utilities._toInputDatetimeLocal(ad.startDate);
+        const endDate = utilities._toInputDatetimeLocal(ad.endDate);
+        const status = (ad.status ?? true) ? 'checked' : '';
+
+        return `
+        <form id="adForm" class="needs-validation" novalidate>
+          <input type="hidden" id="ad_id" value="${id}">
+          
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label for="ad_name" class="form-label">Tên quảng cáo</label>
+              <input type="text" id="ad_name" class="form-control" value="${name}" required>
+              <div class="invalid-feedback">Vui lòng nhập tên quảng cáo.</div>
+            </div>
+
+            <div class="col-md-4">
+              <label for="ad_type" class="form-label">Loại</label>
+              <select id="ad_type" class="form-select" required>
+                <option value="" ${type === '' ? 'selected' : ''} disabled>-- Chọn loại --</option>
+                <option value="Banner" ${type === 'Banner' ? 'selected' : ''}>Banner</option>
+                <option value="Text" ${type === 'Text' ? 'selected' : ''}>Text</option>
+                <option value="Popup" ${type === 'Popup' ? 'selected' : ''}>Popup</option>
+                <option value="Video" ${type === 'Video' ? 'selected' : ''}>Video</option>
+              </select>
+              <div class="invalid-feedback">Vui lòng chọn loại quảng cáo.</div>
+            </div>
+
+            <div class="col-md-8">
+              <label for="ad_imageurl" class="form-label">Ảnh (URL)</label>
+              <input type="url" id="ad_imageurl" class="form-control" placeholder="https://..." value="${imageUrl}">
+              <div class="form-text">Dán link ảnh để xem preview.</div>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+              <img id="ad_image_preview" src="${imageUrl || ''}" alt="preview" class="img-fluid border rounded w-100" style="max-height:120px; object-fit:contain;">
+            </div>
+
+            <div class="col-12">
+              <label for="ad_link" class="form-label">Liên kết khi click</label>
+              <input type="url" id="ad_link" class="form-control" placeholder="https://..." value="${link}">
+            </div>
+
+            <div class="col-md-6">
+              <label for="ad_start" class="form-label">Bắt đầu</label>
+              <input type="datetime-local" id="ad_start" class="form-control" value="${startDate}" required>
+              <div class="invalid-feedback">Vui lòng chọn thời gian bắt đầu.</div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="ad_end" class="form-label">Kết thúc</label>
+              <input type="datetime-local" id="ad_end" class="form-control" value="${endDate}" required>
+              <div class="invalid-feedback">Vui lòng chọn thời gian kết thúc.</div>
+            </div>
+
+            <div class="col-12">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="ad_status" ${status}>
+                <label class="form-check-label" for="ad_status">Kích hoạt</label>
+              </div>
+            </div>
+          </div>
+        </form>
+      `;
+    };
+    _bindInteractions() {
+        // Live preview ảnh
+        const $img = document.querySelector('#ad_image_preview');
+        const $url = document.querySelector('#ad_imageurl');
+        if ($img && $url) {
+            $url.addEventListener('input', () => { $img.src = $url.value || ''; });
+        }
+    };
+    _collectForm() {
+        const idEl = document.getElementById('ad_id');
+        const nameEl = document.getElementById('ad_name');
+        const typeEl = document.getElementById('ad_type');
+        const imageUrlEl = document.getElementById('ad_imageurl');
+        const linkEl = document.getElementById('ad_link');
+        const startEl = document.getElementById('ad_start');
+        const endEl = document.getElementById('ad_end');
+        const statusEl = document.getElementById('ad_status');
+
+        const id = idEl ? idEl.value || null : null;
+        const name = nameEl ? (nameEl.value || '').trim() : '';
+        const type = typeEl ? typeEl.value : '';
+        const imageUrl = imageUrlEl ? (imageUrlEl.value || '').trim() : null;
+        const link = linkEl ? (linkEl.value || '').trim() : null;
+        const startStr = startEl ? startEl.value : '';
+        const endStr = endEl ? endEl.value : '';
+        const status = statusEl ? statusEl.checked : true;
+
+        // Convert datetime-local -> ISO string (server dễ parse)
+        const startDate = startStr ? new Date(startStr).toISOString() : null;
+        const endDate = endStr ? new Date(endStr).toISOString() : null;
+
+        return {
+            id, name, type, imageUrl, link, startDate, endDate, status
+        };
+    };
+    
+    // validate Dom
+    _validateDom() {
+        const form = document.getElementById('adForm');
+        if (!form) return false;
+
+        // clear các trạng thái cũ
+        const fields = [
+            'ad_name', 'ad_type', 'ad_imageurl', 'ad_link', 'ad_start', 'ad_end'
+        ].map(id => document.getElementById(id));
+        fields.forEach(utilities._clearInvalid);
+
+        // Bật Bootstrap validation mặc định
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return false;
+        }
+
+        // --- Lấy giá trị ---
+        const nameEl = document.getElementById('ad_name');
+        const typeEl = document.getElementById('ad_type');
+        const imageUrlEl = document.getElementById('ad_imageurl');
+        const linkEl = document.getElementById('ad_link');
+        const startEl = document.getElementById('ad_start');
+        const endEl = document.getElementById('ad_end');
+
+        const name = (nameEl?.value || '').trim();
+        const type = (typeEl?.value || '').trim();
+        const imageUrl = (imageUrlEl?.value || '').trim();
+        const link = (linkEl?.value || '').trim();
+        const startStr = startEl?.value || '';
+        const endStr = endEl?.value || '';
+
+        // --- Kiểm tra nâng cao ---
+
+        // 1) Tên quảng cáo
+        if (!name) {
+            utilities._markInvalid(nameEl, 'Vui lòng nhập tên quảng cáo.');
+            nameEl?.focus();
+            return false;
+        }
+        if (name.length > 150) {
+            utilities._markInvalid(nameEl, 'Tên quảng cáo tối đa 150 ký tự.');
+            nameEl?.focus();
+            return false;
+        }
+
+        // 2) Loại quảng cáo
+        if (!type) {
+            utilities._markInvalid(typeEl, 'Vui lòng chọn loại quảng cáo.');
+            typeEl?.focus();
+            return false;
+        }
+
+        // 3) Ảnh bắt buộc với một số loại
+        const needImageTypes = ['Banner', 'Popup', 'Video'];
+        if (needImageTypes.includes(type) && !imageUrl) {
+            utilities._markInvalid(imageUrlEl, 'Loại này yêu cầu ảnh. Vui lòng nhập URL ảnh.');
+            imageUrlEl?.focus();
+            return false;
+        }
+
+        // 4) URL hợp lệ (nếu có nhập)
+        if (imageUrl && !utilities._isValidUrl(imageUrl)) {
+            utilities._markInvalid(imageUrlEl, 'URL ảnh không hợp lệ.');
+            imageUrlEl?.focus();
+            return false;
+        }
+        if (link && !utilities._isValidUrl(link)) {
+            utilities._markInvalid(linkEl, 'URL liên kết không hợp lệ.');
+            linkEl?.focus();
+            return false;
+        }
+
+        // 5) Thời gian: start < end
+        if (startStr && endStr && new Date(startStr) > new Date(endStr)) {
+            utilities._markInvalid(endEl, 'Thời gian kết thúc phải lớn hơn thời gian bắt đầu.');
+            messageInstance?.warning?.('Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc.');
+            endEl?.focus();
+            return false;
+        }
+
+         // (Tuỳ chọn) 6) Không cho kết thúc trong quá khứ
+         const now = new Date();
+         if (endStr && new Date(endStr) < now) {
+             utilities._markInvalid(endEl, 'Thời gian kết thúc không được ở quá khứ.');
+           endEl?.focus();
+           return false;
+         }
+
+        // Passed
+        form.classList.add('was-validated');
+        return true;
+    }
+   
 }
 
 export const adInstance = new AdModule(); 

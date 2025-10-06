@@ -36,6 +36,39 @@ class Utilities {
             }
         }
     };
+    // format number ex: input 2 => 02, input 10 => 10
+    _pad(n) { return n < 10 ? '0' + n : '' + n; };
+    _toInputDatetimeLocal(value) {
+        if (!value) return '';
+        const d = (value instanceof Date) ? value : new Date(value);
+        const yyyy = d.getFullYear();
+        const MM = this._pad(d.getMonth() + 1);
+        const dd = this._pad(d.getDate());
+        const hh = this._pad(d.getHours());
+        const mm = this._pad(d.getMinutes());
+        // datetime-local cần 'YYYY-MM-DDTHH:mm'
+        return `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
+    };
+    // clear invalid
+    _clearInvalid(el) {
+        if (!el) return;
+        el.classList.remove('is-invalid');
+    }
+    // đặt trạng thái invalid + thông báo
+    _markInvalid(el, msg) {
+        if (!el) return;
+        el.classList.add('is-invalid');
+        // nếu ngay sau input có .invalid-feedback thì set text
+        const fb = el.nextElementSibling;
+        if (fb && fb.classList && fb.classList.contains('invalid-feedback')) {
+            fb.textContent = msg || fb.textContent;
+        }
+    }
+    // validate url
+    _isValidUrl(u) {
+        if (!u) return true; // cho phép rỗng, nếu muốn bắt buộc thì kiểm tra riêng
+        try { new URL(u); return true; } catch { return false; }
+    }
     _attachOnce() {
         if (this._attached) return;
         window.addEventListener("focus", this._run);

@@ -159,26 +159,26 @@ class ApiModule {
         return configInstance.urlApi + endpoint;
     }
     // GET: url, payload (params)
-    get(url, payload = {}) {
+    get(url, payload) {
         return this.request('GET', url, payload);
     }
 
     // POST: url, body
-    post(url, body = {}) {
+    post(url, body) {
         return this.request('POST', url, null, body);
     }
 
     // PUT: url, body
-    put(url, body = {}) {
+    put(url, body) {
         return this.request('PUT', url, null, body);
     }
     // Patch: url, body
-    patch(url, body = {}) {
+    patch(url, body) {
         return this.request('PATCH', url, null, body);
     }
 
     // DELETE: url, payload (params)
-    delete(url, payload = {}) {
+    delete(url, payload) {
         return this.request('DELETE', url, payload);
     }
 }

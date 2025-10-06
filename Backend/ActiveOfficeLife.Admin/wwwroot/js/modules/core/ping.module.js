@@ -55,10 +55,10 @@ class PingMudule {
         }
     }
     writeLog(time, status) {
-        //if (this.counter > 10) {
-        //    this.stopAuthHeartbeat();
-        //};
-        //this.counter += 1;
+        if (this.counter > 10) {
+            this.stopAuthHeartbeat();
+        };
+        this.counter += 1;
         //return; // tạm ẩn log
         if (status) {
             console.debug(

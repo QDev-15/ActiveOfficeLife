@@ -26,7 +26,7 @@ main.content {
         padding: 15px !important;
         border-radius: 0;
         box-shadow: 0 1px 4px 0 rgb(0 0 0 / 38%);
-        z-index: 9999999;
+        z-index: 999;
     }
     main.content .main-body-container {
         overflow: auto;
@@ -96,7 +96,7 @@ mark {
 }
 
 .btn {
-    box-shadow: 1px 1px 4px rgb(187 187 187), inset 1px 1px 10px rgb(243 243 243) !important;
+    box-shadow: 1px 2px 2px rgb(187 187 187), inset 1px 1px 1px rgb(243 243 243) !important;
 }
 .badge {
     padding: 10px;
