@@ -17,6 +17,36 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ActiveOfficeLife.Admin", "A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GoogleApi", "GoogleApi\GoogleApi.csproj", "{B11DFAAB-B233-46C0-90FF-D7A42232D42F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebView", "WebView", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		healthyoffice-template\404.html = healthyoffice-template\404.html
+		healthyoffice-template\about.html = healthyoffice-template\about.html
+		healthyoffice-template\archive.html = healthyoffice-template\archive.html
+		healthyoffice-template\author.html = healthyoffice-template\author.html
+		healthyoffice-template\categories.html = healthyoffice-template\categories.html
+		healthyoffice-template\contact.html = healthyoffice-template\contact.html
+		healthyoffice-template\index.html = healthyoffice-template\index.html
+		healthyoffice-template\newsletter-success.html = healthyoffice-template\newsletter-success.html
+		healthyoffice-template\newsletter.html = healthyoffice-template\newsletter.html
+		healthyoffice-template\post.html = healthyoffice-template\post.html
+		healthyoffice-template\privacy.html = healthyoffice-template\privacy.html
+		healthyoffice-template\search.html = healthyoffice-template\search.html
+		healthyoffice-template\tag.html = healthyoffice-template\tag.html
+		healthyoffice-template\terms.html = healthyoffice-template\terms.html
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{924117FB-887A-40D9-9634-03690A239847}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "css", "css", "{55E4C6F1-62FD-4195-9C8C-75B3B702ABE5}"
+	ProjectSection(SolutionItems) = preProject
+		healthyoffice-template\assets\css\style.css = healthyoffice-template\assets\css\style.css
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "js", "js", "{5DA40AE1-0D3B-462A-B969-70DC4A7F77E2}"
+	ProjectSection(SolutionItems) = preProject
+		healthyoffice-template\assets\js\main.js = healthyoffice-template\assets\js\main.js
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -54,6 +84,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{924117FB-887A-40D9-9634-03690A239847} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{55E4C6F1-62FD-4195-9C8C-75B3B702ABE5} = {924117FB-887A-40D9-9634-03690A239847}
+		{5DA40AE1-0D3B-462A-B969-70DC4A7F77E2} = {924117FB-887A-40D9-9634-03690A239847}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {178EE898-365D-45D0-BAF0-523D7C64B758}
