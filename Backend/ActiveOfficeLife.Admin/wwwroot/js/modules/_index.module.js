@@ -9,6 +9,7 @@ import { settingInstance } from './setting.module.js';
 import { logInstance } from './log.module.js';
 import { postInstance } from './post.module.js';
 import { tagInstance } from './tag.module.js';
+import { adInstance } from './ad.module.js';
 
 
 window.configInstance = configInstance;
@@ -22,6 +23,7 @@ window.postInstance = postInstance;
 window.logInstance = logInstance
 window.broadCastInstance = broadCastInstance;
 window.tagInstance = tagInstance;
+window.adInstance = adInstance;
 pingInstance.startAuthHeartbeat();
 
 

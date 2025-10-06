@@ -1,5 +1,7 @@
 ﻿using ActiveOfficeLife.Application.ExtensitionModel;
 using ActiveOfficeLife.Application.Interfaces;
+using ActiveOfficeLife.Common;
+using ActiveOfficeLife.Common.Enums;
 using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Common.Requests;
 using ActiveOfficeLife.Domain.Entities;
@@ -25,15 +27,30 @@ namespace ActiveOfficeLife.Application.Services
         {
             var adEntity = new Ad
             {
-                Id = Guid.NewGuid(),
-                Name = adModel.Name,
-                Type = adModel.Type,
-                ImageUrl = adModel.ImageUrl,
-                Link = adModel.Link,
-                StartDate = adModel.StartDate,
-                EndDate = adModel.EndDate,
-                Status = adModel.Status
+                Id = Guid.NewGuid()
             };
+            if (adModel == null)
+            {
+                adEntity.Name = "AOL Ad - " + Helper.GenerateRandomString(4);
+                adEntity.Status = false;
+                adEntity.Type = AdType.None.ToString();
+                adEntity.StartDate = DateTime.UtcNow;
+                adEntity.EndDate = DateTime.MaxValue;
+            } else
+            {
+                adEntity = new Ad
+                {
+                    Id = Guid.NewGuid(),
+                    Name = adModel.Name,
+                    Type = adModel.Type,
+                    ImageUrl = adModel.ImageUrl,
+                    Link = adModel.Link,
+                    StartDate = adModel.StartDate,
+                    EndDate = adModel.EndDate,
+                    Status = adModel.Status
+                };
+            }
+            
             await _adRepository.AddAsync(adEntity);
             await _unitOfWork.SaveChangesAsync();
             return adEntity.ReturnModel();

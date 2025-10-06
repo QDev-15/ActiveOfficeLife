@@ -24,8 +24,15 @@ class AdModule {
 
         this.form = null;
         this.modalAd = null;
-        this.tableId = "AdTable";
+        this.tableId = "adTable";
         this.tableInstance = null;
+        this.Enpoints = {
+            getAll: '/Ad/all',
+            getById: '/Ad/getbyid',
+            create: '/Ad/create',
+            update: '/Ad/update',
+            delete: '/Ad/delete'
+        };
     }
 
     debounce(func, delay) {
@@ -101,9 +108,9 @@ class AdModule {
                     orderable: true
                 },
                 {
-                    data: "slug",
-                    name: "slug",
-                    title: "Slug",
+                    data: "type",
+                    name: "type",
+                    title: "Type",
                     className: "text-center",
                     orderable: true,
                     //render: function (data) {
@@ -113,26 +120,12 @@ class AdModule {
                 },
                 {
                     data: null, // null để lấy toàn bộ row
-                    name: "parent",
-                    title: "Parent name",
+                    title: "Status",
                     className: "text-center",
                     orderable: true,
                     render: function (data, type, row) {
-                        if (data.parent && data.parent.name) {
-                            return data.parent.name;
-                        } else {
-                            return '----';
-                        }
-                    }
-                },
-                {
-                    data: null, // null để lấy toàn bộ row
-                    title: "Status",
-                    className: "text-center",
-                    orderable: false,
-                    render: function (data, type, row) {
-                        if (data.isActive) {
-                            return '<span class="badge bg-success">Active</span>';
+                        if (data.status) {
+                            return '<span class="badge bg-success">Activated</span>';
                         } else {
                             return '<span class="badge bg-secondary">Deactivated</span>';
                         }
@@ -222,16 +215,16 @@ class AdModule {
     }
     add() {
         this.modalAd = this.configApp.createModal("AdModal");
-        $('#AdBody').html(''); // Xóa nội dung cũ trong dialog
+        $('#adBody').html(''); // Xóa nội dung cũ trong dialog
         // set title    
-        $('#AdTitle').text('Thêm mới danh mục');
+        $('#adTitle').text('Thêm mới danh mục');
         mvcInstance.get('/Ad/Create')
             .then(html => {
-                $('#AdBody').html(html);
+                $('#adBody').html(html);
                 // set button create show, hide update
                 $('.btn-update').hide();
                 $('.btn-create').show();
-                this.form = configInstance.initValidatorForm("AdBody");
+                this.form = configInstance.initValidatorForm("adBody");
                 this.modalAd.show();
             }).catch((err) => {
                 console.error('Lỗi tải form thêm mới:', err);
@@ -246,15 +239,15 @@ class AdModule {
     edit(id, name) {
         console.log("id = ", id);
         this.modalAd = this.configApp.createModal("AdModal");
-        $('#AdBody').html(''); // Xóa nội dung cũ trong dialog
+        $('#adBody').html(''); // Xóa nội dung cũ trong dialog
         // set title    
-        $('#AdTitle').text('Cập nhật danh mục');
+        $('#adTitle').text('Cập nhật danh mục');
         mvcInstance.get('/Ad/Edit/' + id)
             .then(html => {
-                $('#AdBody').html(html);
+                $('#adBody').html(html);
                 $('.btn-update').show();
                 $('.btn-create').hide();
-                this.form = configInstance.initValidatorForm("AdBody");
+                this.form = configInstance.initValidatorForm("adBody");
                 this.modalAd.show();
             }).catch((err) => {
                 console.error('Lỗi tải form thêm mới:', err);

@@ -28,6 +28,7 @@ namespace ActiveOfficeLife.Application
             services.AddScoped<ITagService, TagService>();  
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<IRoleService, RoleService>();
+            services.AddScoped<IAdService, AdService>();
             return services;
 
         }

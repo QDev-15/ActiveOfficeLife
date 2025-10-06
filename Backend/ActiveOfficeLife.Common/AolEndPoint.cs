@@ -1,88 +1,99 @@
-﻿namespace ActiveOfficeLife.Common
+﻿using System.Runtime.CompilerServices;
+
+namespace ActiveOfficeLife.Common
 {
     public static class AOLEndPoint
     {
         // Base URL for the API
         // Authentication Endpoints
-        public static string AuthLogin = "/api/Auth/login";
-        public static string AuthLogout = "/api/Auth/logout";
-        public static string AuthRefresh = "/api/Auth/refresh";
-        public static string AuthResetPassword = "/api/Auth/resetpassword";
-        public static string AuthMe = "/api/Auth/me";
+        public const string AuthLogin = "/api/Auth/login";
+        public const string AuthLogout = "/api/Auth/logout";
+        public const string AuthRefresh = "/api/Auth/refresh";
+        public const string AuthResetPassword = "/api/Auth/resetpassword";
+        public const string AuthMe = "/api/Auth/me";
+        // Ad Endpoints
+        public const string AdGetAll = "/api/ad/all";
+        public const string AdGetById = "/api/ad/getbyid";
+        public const string AdCreate = "/api/ad/create";
+        public const string AdUpdate = "/api/ad/update";
+        public const string AdDelete = "/api/ad/delete";
         // User Endpoints
-        public static string UserRegister = "/api/User/register";
-        public static string UserGetUser = "/api/User/getuser";
-        public static string UserGetHistory = "/api/User/login-history";
-        public static string UserGetById = "/api/User/getbyid";
-        public static string UserGetAll = "/api/User/getall";
-        public static string UserUpdate = "/api/User/update";
-        public static string UserDelete = "/api/User/delete";
-        public static string UserChangePassword = "/api/User/changepassword";
-        public static string UserForgotPassword = "/api/User/forgotpassword";
-        public static string UserGetByEmail = "/api/User/getbyemail";
-        public static string UserGetByUsername = "/api/User/getbyusername"; 
-        public static string UserGetByPhoneNumber = "/api/User/getbyphonenumber";
+        public const string UserRegister = "/api/User/register";
+        public const string UserGetUser = "/api/User/getuser";
+        public const string UserGetHistory = "/api/User/login-history";
+        public const string UserGetById = "/api/User/getbyid";
+        public const string UserGetAll = "/api/User/getall";
+        public const string UserUpdate = "/api/User/update";
+        public const string UserDelete = "/api/User/delete";
+        public const string UserChangePassword = "/api/User/changepassword";
+        public const string UserForgotPassword = "/api/User/forgotpassword";
+        public const string UserGetByEmail = "/api/User/getbyemail";
+        public const string UserGetByUsername = "/api/User/getbyusername"; 
+        public const string UserGetByPhoneNumber = "/api/User/getbyphonenumber";
         // Category Endpoints
-        public static string CategoryGetAll = "/api/category/all";
-        public static string CategoryGetById = "/api/category/getbyid";
-        public static string CategoryCreate = "/api/category/create";
-        public static string CategoryUpdate = "/api/category/update";
-        public static string CategoryDelete = "/api/category/delete";
+        public const string CategoryGetAll = "/api/category/all";
+        public const string CategoryGetById = "/api/category/getbyid";
+        public const string CategoryCreate = "/api/category/create";
+        public const string CategoryUpdate = "/api/category/update";
+        public const string CategoryDelete = "/api/category/delete";
         // Post Endpoints
-        public static string PostGetAll = "/api/post/getall";
-        public static string PostGetById = "/api/Post/get";
-        public static string PostGetBySlug = "/api/Post/get-by-slug";
-        public static string PostCreate = "/api/post/create";
-        public static string PostUpdate = "/api/post/update";
-        public static string PostDelete = "/api/post/delete";
+        public const string PostGetAll = "/api/post/getall";
+        public const string PostGetById = "/api/Post/get";
+        public const string PostGetBySlug = "/api/Post/get-by-slug";
+        public const string PostCreate = "/api/post/create";
+        public const string PostUpdate = "/api/post/update";
+        public const string PostDelete = "/api/post/delete";
         // tag Endpoints
         /// <summary>
         /// api/tag/all?search=&pageNumber=1&pageSize=10
         /// </summary>
-        public static string TagGetAll = "/api/tag/all";
+        public const string TagGetAll = "/api/tag/all";
         /// <summary>
         /// /api/tag/getbyid?id=...
         /// </summary>
-        public static string TagGetById = "/api/tag/getbyid";
+        public const string TagGetById = "/api/tag/getbyid";
         /// <summary>
         /// /api/tag/create
         /// </summary>
-        public static string TagCreate = "/api/tag/create";
-        public static string TagUpdate = "/api/tag/update";
-        public static string TagDelete = "/api/tag/delete";
-        public static string PatchTag = "/api/tag/patch";
+        public const string TagCreate = "/api/tag/create";
+        public const string TagUpdate = "/api/tag/update";
+        public const string TagDelete = "/api/tag/delete";
+        public const string PatchTag = "/api/tag/patch";
         // Comment Endpoints
-        public static string CommentGetAll = "/api/comment/getall";
-        public static string CommentGetById = "/api/comment/getbyid";
-        public static string CommentCreate = "/api/comment/create";
-        public static string CommentUpdate = "/api/comment/update";
-        public static string CommentDelete = "/api/comment/delete";
+        public const string CommentGetAll = "/api/comment/getall";
+        public const string CommentGetById = "/api/comment/getbyid";
+        public const string CommentCreate = "/api/comment/create";
+        public const string CommentUpdate = "/api/comment/update";
+        public const string CommentDelete = "/api/comment/delete";
         // Like Endpoints
-        public static string LikeGetAll = "/api/like/getall";
-        public static string LikeGetById = "/api/like/getbyid";
-        public static string LikeCreate = "/api/like/create";
-        public static string LikeUpdate = "/api/like/update";
-        public static string LikeDelete = "/api/like/delete";
+        public const string LikeGetAll = "/api/like/getall";
+        public const string LikeGetById = "/api/like/getbyid";
+        public const string LikeCreate = "/api/like/create";
+        public const string LikeUpdate = "/api/like/update";
+        public const string LikeDelete = "/api/like/delete";
         // Notification Endpoints
-        public static string NotificationGetAll = "/api/notification/getall";
-        public static string NotificationGetById = "/api/notification/getbyid";
-        public static string NotificationCreate = "/api/notification/create";
-        public static string NotificationUpdate = "/api/notification/update";
-        public static string NotificationDelete = "/api/notification/delete";
+        public const string NotificationGetAll = "/api/notification/getall";
+        public const string NotificationGetById = "/api/notification/getbyid";
+        public const string NotificationCreate = "/api/notification/create";
+        public const string NotificationUpdate = "/api/notification/update";
+        public const string NotificationDelete = "/api/notification/delete";
         // File Endpoints
-        public static string FileUpload = "/api/file/upload";
-        public static string FileDownload = "/api/file/download";
-        public static string FileDelete = "/api/file/delete";
+        public const string FileUpload = "/api/file/upload";
+        public const string FileDownload = "/api/file/download";
+        public const string FileDelete = "/api/file/delete";
         // Settings Endpoints
-        public static string SettingsGetAll = "/api/settings/getall";
-        public static string SettingsGetById = "/api/settings/getbyid";
-        public static string SettingsUpdate = "/api/settings/update";
-        public static string SettingsDelete = "/api/settings/delete";
+        public const string SettingsGetAll = "/api/settings/getall";
+        public const string SettingsGetById = "/api/settings/getbyid";
+        public const string SettingsUpdate = "/api/settings/update";
+        public const string SettingsDelete = "/api/settings/delete";
         // Analytics Endpoints
-        public static string AnalyticsGetUserActivity = "/api/analytics/useractivity";
-        public static string AnalyticsGetPostEngagement = "/api/analytics/postengagement";
-        public static string AnalyticsGetCategoryPerformance = "/api/analytics/categoryperformance";
+        public const string AnalyticsGetUserActivity = "/api/analytics/useractivity";
+        public const string AnalyticsGetPostEngagement = "/api/analytics/postengagement";
+        public const string AnalyticsGetCategoryPerformance = "/api/analytics/categoryperformance";
         // log Endpoints
-        public static string LogGetAll = "/api/logs/all";
+        public const string LogGetAll = "/api/logs/all";
+        // get name api endpoints ex: /api/controller/action return action
+        
     }
+
 }
