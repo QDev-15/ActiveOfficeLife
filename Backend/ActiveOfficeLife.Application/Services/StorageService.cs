@@ -1,4 +1,5 @@
-﻿using ActiveOfficeLife.Application.ExtensitionModel;
+﻿using ActiveOfficeLife.Application.Common;
+using ActiveOfficeLife.Application.ExtensitionModel;
 using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Common;
 using ActiveOfficeLife.Common.Enums;
@@ -180,57 +181,69 @@ namespace ActiveOfficeLife.Application.Services
         }
         public async Task<MediaModel?> UploadFileToGoogleDriveAsync(IFormFile file, string settingId, string userId)
         {
-            // max size 10MB
-            var maxSize = _appConfigService.AppConfigs.FileStorage.MaxFileSizeMB * 1024 * 1024;
-            if (file == null || file.Length == 0)
-                throw new Exception("File rỗng.");
-            if (file.Length > maxSize)
-                throw new Exception("File quá lớn. Vui lòng chọn file nhỏ hơn 10MB.");
+            try
+            {
+                // max size 10MB
+                var maxSize = _appConfigService.AppConfigs.FileStorage.MaxFileSizeMB * 1024 * 1024;
+                if (file == null || file.Length == 0)
+                    throw new Exception("File rỗng.");
+                if (file.Length > maxSize)
+                    throw new Exception("File quá lớn. Vui lòng chọn file nhỏ hơn 10MB.");
 
-            Guid.TryParse(settingId, out Guid settingGuid);
-            var setting = await _settingRepository.GetByIdAsync(settingGuid);
-            var media = new Media();
-            if (setting == null)
-            {
-                throw new Exception("Setting not found");
-            }
-            // check token expire
-            var tokenExpire = await _googleDriveInterface.CheckIsExpiredToken(setting.GoogleToken, new ClientSecrets()
-            {
-                ClientId = setting.GoogleClientId,
-                ClientSecret = setting.GoogleClientSecretId
-            });
-            if (tokenExpire)
-            {
-                var refreshToken = await _googleDriveInterface.RefreshToken(setting.GoogleToken, new ClientSecrets()
+                Guid.TryParse(settingId, out Guid settingGuid);
+                var setting = await _settingRepository.GetByIdAsync(settingGuid);
+                var media = new Media();
+                if (setting == null)
+                {
+                    throw new Exception("Setting not found");
+                }
+                if (setting.GoogleToken == null)
+                {
+                    throw new Exception("Google drive disconnected");
+                }
+                // check token expire
+                var tokenExpire = await _googleDriveInterface.CheckIsExpiredToken(setting.GoogleToken, new ClientSecrets()
                 {
                     ClientId = setting.GoogleClientId,
                     ClientSecret = setting.GoogleClientSecretId
                 });
-                setting.GoogleToken = refreshToken.ConvertToJsonToken();
+                if (tokenExpire)
+                {
+                    var refreshToken = await _googleDriveInterface.RefreshToken(setting.GoogleToken, new ClientSecrets()
+                    {
+                        ClientId = setting.GoogleClientId,
+                        ClientSecret = setting.GoogleClientSecretId
+                    });
+                    setting.GoogleToken = refreshToken.ConvertToJsonToken();
+                    await _unitOfWork.SaveChangesAsync();
+                }
+                var uploader = await _googleDriveInterface.UploadFileAndMakePublicAsync(file, setting.GoogleFolderId, setting.GoogleToken, new ClientSecrets()
+                {
+                    ClientId = setting.GoogleClientId,
+                    ClientSecret = setting.GoogleClientSecretId
+                }, _appConfigService.AppConfigs.ApplicationName);
+                if (!string.IsNullOrEmpty(uploader.TokenRefreshed))
+                {
+                    setting.GoogleToken = uploader.TokenRefreshed;
+                }
+                media.Id = Guid.NewGuid();
+                media.FileName = file.FileName;
+                media.FileId = uploader.FileId;
+                media.FilePath = uploader.FileLink;
+                media.FileType = uploader.FileType;
+                media.MediaType = MediaType.Image;
+                Guid.TryParse(userId, out Guid userGuid);
+                media.UploadedByUserId = userGuid;
+                media.UploadedAt = DateTime.UtcNow;
+                await _mediaRepository.AddAsync(media);
                 await _unitOfWork.SaveChangesAsync();
+                return media.ReturnModel();
             }
-            var uploader = await _googleDriveInterface.UploadFileAndMakePublicAsync(file, setting.GoogleFolderId, setting.GoogleToken, new ClientSecrets()
+            catch (Exception ex)
             {
-                ClientId = setting.GoogleClientId,
-                ClientSecret = setting.GoogleClientSecretId
-            }, _appConfigService.AppConfigs.ApplicationName);
-            if (!string.IsNullOrEmpty(uploader.TokenRefreshed))
-            {
-                setting.GoogleToken = uploader.TokenRefreshed;
+                AOLLogger.Error(ex.Message, ex.Source, userId, ex.StackTrace);
+                throw new Exception(ex.Message);
             }
-            media.Id = Guid.NewGuid();
-            media.FileName = file.FileName;
-            media.FileId = uploader.FileId;
-            media.FilePath = uploader.FileLink;
-            media.FileType = uploader.FileType;
-            media.MediaType = MediaType.Image;
-            Guid.TryParse(userId, out Guid userGuid);
-            media.UploadedByUserId = userGuid;
-            media.UploadedAt = DateTime.UtcNow;
-            await _mediaRepository.AddAsync(media);
-            await _unitOfWork.SaveChangesAsync();
-            return media.ReturnModel();
         }
         public async Task<Stream> DownloadFileFromGoogleDriveAsync(string fileId, string settingId)
         {

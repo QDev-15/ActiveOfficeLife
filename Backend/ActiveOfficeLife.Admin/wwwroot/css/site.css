@@ -26,7 +26,7 @@ main.content {
         padding: 15px !important;
         border-radius: 0;
         box-shadow: 0 1px 4px 0 rgb(0 0 0 / 38%);
-        z-index: 999;
+        z-index: 99;
     }
     main.content .main-body-container {
         overflow: auto;
@@ -94,7 +94,9 @@ mark {
     transform: none !important;
     transition: transform 0.3s ease !important;
 }
-
+.article-action-top {
+    z-index: 98;
+}
 .btn {
     box-shadow: 1px 2px 2px rgb(187 187 187), inset 1px 1px 1px rgb(243 243 243) !important;
 }
@@ -102,4 +104,14 @@ mark {
     padding: 10px;
     border-radius: 50px;
     box-shadow: 1px 1px 3px rgb(171 171 171), inset 1px 1px 2px rgb(243 243 243) !important;
+}
+
+.ck-editor__main .ck-content.ck-editor__editable {
+    min-height: 200px;
+}
+.ck-powered-by {
+    display: none;
+}
+.dataTables_wrapper .dt-row {
+    overflow: auto !important;
 }

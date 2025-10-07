@@ -1,10 +1,7 @@
 ﻿import { apiInstance } from './core/api.module.js';
-import { mvcInstance } from './core/mvc.module.js';
 import { configInstance } from './core/config.module.js';
 import { messageInstance } from './core/messages.module.js';
 import { spinnerInstance } from './core/spinner.module.js';
-import { broadCastInstance } from './core/broadcast.module.js';
-import { dialogInstance } from './core/dialog.module.js';
 import { utilities } from './core/utilities.module.js';
 
 class AdModule {
@@ -23,7 +20,7 @@ class AdModule {
         this.modalAd = null;
         this.tableId = "adTable";
         this.tableInstance = null;
-        this.Enpoints = {
+        this.Endpoints = {
             getAll: '/Ad/all',
             getById: '/Ad/getbyid',
             create: '/Ad/create',
@@ -149,21 +146,21 @@ class AdModule {
 
         const model = this._collectForm();
 
-        apiInstance.post(this.Endpoints.update, model)
+        apiInstance.put(this.Endpoints.update, model)
             .then(() => {
-                messageInstance.success('Đã cập nhật quảng cáo.');
-                this.modalAd?.hide();
+                messageInstance.toastSuccess('Đã cập nhật quảng cáo.');
+                //this.modalAd?.hide();
                 this.refreshData();
             })
             .catch(err => {
                 console.error('Lỗi cập nhật quảng cáo:', err);
-                messageInstance.error('Không thể cập nhật quảng cáo.');
+                messageInstance.toastError('Không thể cập nhật quảng cáo.');
             });
     }
 
     add() {
         // call api create 
-        apiInstance.post(this.Enpoints.create).then((resp) => {
+        apiInstance.post(this.Endpoints.create).then((resp) => {
             this.edit(null, resp);
         });
         
@@ -178,7 +175,7 @@ class AdModule {
             $('#adBody').html(formHtml);
             this._bindInteractions();
         } else {
-            apiInstance.get(this.Enpoints.getById, {id: id}).then((res) => {
+            apiInstance.get(this.Endpoints.getById, {id: id}).then((res) => {
                 // set form
                 var formHtml = this._formHtml(res);
                 $('#adBody').html(formHtml);
@@ -193,7 +190,7 @@ class AdModule {
 
     }
     delete(id, name) {
-        var message = "Bạn có chắc chắn muốn xóa danh mục <strong>" + name + "</strong> không?";
+        var message = "Bạn có chắc chắn muốn xóa quảng cáo: <strong>\"" + name + "\"</strong> không?";
         this.messageApp.confirm(message).then((result) => {
             if (result) {
                 apiInstance.delete('/Ad/delete?id=' + id)
@@ -203,7 +200,7 @@ class AdModule {
                     })
                     .catch(err => {
                         console.error(err);
-                        this.messageApp.error("Lỗi khi xóa danh mục!");
+                        this.messageApp.error("Lỗi khi xóa quảng cáo!");
                     });
             };
         });
@@ -236,15 +233,9 @@ class AdModule {
             </div>
 
             <div class="col-md-4">
-              <label for="ad_type" class="form-label">Loại</label>
-              <select id="ad_type" class="form-select" required>
-                <option value="" ${type === '' ? 'selected' : ''} disabled>-- Chọn loại --</option>
-                <option value="Banner" ${type === 'Banner' ? 'selected' : ''}>Banner</option>
-                <option value="Text" ${type === 'Text' ? 'selected' : ''}>Text</option>
-                <option value="Popup" ${type === 'Popup' ? 'selected' : ''}>Popup</option>
-                <option value="Video" ${type === 'Video' ? 'selected' : ''}>Video</option>
-              </select>
-              <div class="invalid-feedback">Vui lòng chọn loại quảng cáo.</div>
+              <label for="ad_type" class="form-label">Vị trí</label>
+              <input type="text" id="ad_type" class="form-control" value="${type}" required>
+              <div class="invalid-feedback">Vui lòng nhập vị trí quảng cáo.</div>
             </div>
 
             <div class="col-md-8">
@@ -372,13 +363,13 @@ class AdModule {
             return false;
         }
 
-        // 3) Ảnh bắt buộc với một số loại
-        const needImageTypes = ['Banner', 'Popup', 'Video'];
-        if (needImageTypes.includes(type) && !imageUrl) {
-            utilities._markInvalid(imageUrlEl, 'Loại này yêu cầu ảnh. Vui lòng nhập URL ảnh.');
-            imageUrlEl?.focus();
-            return false;
-        }
+        //// 3) Ảnh bắt buộc với một số loại
+        //const needImageTypes = ['Banner', 'Popup', 'Video'];
+        //if (needImageTypes.includes(type) && !imageUrl) {
+        //    utilities._markInvalid(imageUrlEl, 'Loại này yêu cầu ảnh. Vui lòng nhập URL ảnh.');
+        //    imageUrlEl?.focus();
+        //    return false;
+        //}
 
         // 4) URL hợp lệ (nếu có nhập)
         if (imageUrl && !utilities._isValidUrl(imageUrl)) {

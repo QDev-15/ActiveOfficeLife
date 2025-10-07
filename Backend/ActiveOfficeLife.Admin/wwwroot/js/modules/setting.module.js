@@ -9,6 +9,7 @@ class SettingModule {
         this.ENDPOINTS = {
             GET: 'Setting/get',     // GET -> trả { success, data }
             PUT: '/Setting/update',          // PUT body full model.
+            PATCH: '/Setting/patch',
             // THÊM 2 endpoint cho OAuth:
             GOOGLE_CONNECT_URL: (id) => `Setting/googledrive/connect?settingId=${encodeURIComponent(id)}`,
             GOOGLE_DISCONNECT: '/Setting/googledrive/disconnect',
@@ -219,7 +220,7 @@ class SettingModule {
             setState('Đang lưu...');
 
             const payload = this.getPayloadFromForm();
-            const { data: res } = await apiInstance.patch(this.ENDPOINTS.PUT, payload);
+            const { data: res } = await apiInstance.patch(this.ENDPOINTS.PATCH, payload);
 
             setState('Đã lưu ✔');
             this.updatePreviewAndQuickView(payload.logo, payload);

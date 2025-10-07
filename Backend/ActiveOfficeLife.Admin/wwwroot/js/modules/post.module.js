@@ -6,6 +6,7 @@ import { spinnerInstance } from './core/spinner.module.js';
 import { broadCastInstance } from './core/broadcast.module.js';
 import { dialogInstance } from './core/dialog.module.js';
 import { utilities } from './core/utilities.module.js';
+import { initCK, updateSourceOnSubmit } from './core/ckeditor.module.js';
 class PostModule {
 
     constructor() {
@@ -211,6 +212,11 @@ class PostModule {
                     // render button
                     this.renderButtons(statusElement.value);
                     utilities.lastLoadedAt = Date.now(); // phục vụ auto-reload helper nếu có
+                    initck('#Content').then(editor => {
+                        // Đồng bộ nội dung khi submit form
+                        const form = document.querySelector('form'); // form hiện tại
+                        if (form) updateSourceOnSubmit(form);
+                    }).catch(console.error);;
                 }).catch((err) => {
                     console.error('Lỗi tải form', err);
                     messageInstance.error('Không thể tải form');
@@ -429,6 +435,9 @@ class PostModule {
         //window.open(`/Articles/View/${encodeURIComponent(id)}?preview=1`, '_blank');
         window.location.href = `/Articles/View/${encodeURIComponent(id)}?preview=1`;
     }
+
+
+   
 
 }
 export const postInstance = new PostModule(); 

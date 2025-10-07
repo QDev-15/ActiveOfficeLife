@@ -8,6 +8,102 @@ export const MessageType = {
 };
 
 class MessageModule {
+    static ensureInjected({ selectorParent = 'body', id = 'toastContainer', placement = { top: true, end: true } } = {}) {
+        let container = document.getElementById(id);
+        if (!container) {
+            const parent = document.querySelector(selectorParent) || document.body;
+            container = document.createElement('div');
+            container.id = id;
+            container.className = 'toast-container position-fixed p-3';
+            container.style.zIndex = '1080';
+            parent.appendChild(container);
+            // đặt vị trí mặc định
+            container.classList.add(placement.top ? 'top-0' : 'bottom-0');
+            container.classList.add(placement.end ? 'end-0' : 'start-0');
+        }
+        return container;
+    }
+    static _ensureContainer() {
+        // dùng ensureInjected với mặc định body / góc phải trên
+        return this.ensureInjected();
+    }
+    static setPlacement({ top = true, end = true, id = 'toastContainer' } = {}) {
+        const c = document.getElementById(id) || this.ensureInjected({ id });
+        c.className = 'toast-container position-fixed p-3';
+        c.classList.add(top ? 'top-0' : 'bottom-0');
+        c.classList.add(end ? 'end-0' : 'start-0');
+    }
+
+    static showToast({ type = ToastType.Info, title = '', message = '', delay = 3000, autohide = true, progress = true, containerId = 'toastContainer' } = {}) {
+        // đảm bảo container đã có trước khi render
+        const container = this.ensureInjected({ id: containerId });
+
+        const conf = {
+            [ToastType.Success]: { headerClass: 'text-bg-success', icon: 'bi-check-circle-fill', defaultTitle: 'Thành công' },
+            [ToastType.Info]: { headerClass: 'text-bg-info', icon: 'bi-info-circle-fill', defaultTitle: 'Thông báo' },
+            [ToastType.Warning]: { headerClass: 'text-bg-warning', icon: 'bi-exclamation-triangle-fill', defaultTitle: 'Cảnh báo' },
+            [ToastType.Error]: { headerClass: 'text-bg-danger', icon: 'bi-x-circle-fill', defaultTitle: 'Lỗi' }
+        }[type] || { headerClass: 'text-bg-secondary', icon: 'bi-bell-fill', defaultTitle: 'Thông báo' };
+
+        const toastEl = document.createElement('div');
+        toastEl.className = 'toast align-items-center show';
+        toastEl.setAttribute('role', 'status');
+        toastEl.setAttribute('aria-live', 'polite');
+        toastEl.setAttribute('aria-atomic', 'true');
+
+        const header = document.createElement('div');
+        header.className = `toast-header ${conf.headerClass} text-white`;
+        header.innerHTML = `
+      <i class="bi ${conf.icon} me-2"></i>
+      <strong class="me-auto">${title || conf.defaultTitle}</strong>
+      <small class="text-white-50"></small>
+      <button type="button" class="btn-close btn-close-white ms-2 mb-1" data-bs-dismiss="toast" aria-label="Close"></button>
+    `;
+
+        const body = document.createElement('div');
+        body.className = 'toast-body';
+        if (typeof message === 'string') {
+            body.innerHTML = message;
+        } else if (message instanceof Node) {
+            body.appendChild(message);
+        }
+
+        // progress bar
+        let progressEl, timerId, startTs;
+        if (progress && autohide && delay > 0) {
+            progressEl = document.createElement('div');
+            progressEl.className = 'progress mt-2';
+            progressEl.innerHTML = `<div class="progress-bar" role="progressbar" style="width: 100%"></div>`;
+            body.appendChild(progressEl);
+        }
+
+        toastEl.appendChild(header);
+        toastEl.appendChild(body);
+        container.appendChild(toastEl);
+
+        const toast = bootstrap.Toast.getOrCreateInstance(toastEl, { autohide, delay });
+
+        if (progressEl) {
+            const bar = progressEl.querySelector('.progress-bar');
+            startTs = Date.now();
+            timerId = setInterval(() => {
+                const elapsed = Date.now() - startTs;
+                const remain = Math.max(delay - elapsed, 0);
+                const pct = (remain / delay) * 100;
+                if (bar) bar.style.width = `${pct}%`;
+                if (remain <= 0) clearInterval(timerId);
+            }, 50);
+        }
+
+        toastEl.addEventListener('hidden.bs.toast', () => {
+            if (timerId) clearInterval(timerId);
+            toastEl.remove();
+        });
+
+        toast.show();
+        return toast;
+    }
+
     static destroy() {
         const modalEl = document.getElementById("globalMessageModal");
         const modalTitle = document.getElementById("globalMessageModalTitle");
@@ -144,7 +240,7 @@ class MessageModule {
             modal.show();
         });
     }
-
+    // methods message
     static success(message, opts = {}) {
         return this.show({
             type: MessageType.Success, message, ...opts
@@ -167,7 +263,19 @@ class MessageModule {
     static confirm(message, opts = {}) {
         return this.show({ type: MessageType.Confirm, message, ...opts });
     }
+    // methods toast
+    static toastSuccess(msg, opts = {}) { return this.showToast({ type: ToastType.Success, message: msg, ...opts }); }
+    static toastInfo(msg, opts = {}) { return this.showToast({ type: ToastType.Info, message: msg, ...opts }); }
+    static toastWarning(msg, opts = {}) { return this.showToast({ type: ToastType.Warning, message: msg, ...opts }); }
+    static toastError(msg, opts = {}) { return this.showToast({ type: ToastType.Error, message: msg, ...opts }); }
 }
 
 
 export const messageInstance = MessageModule;
+
+export const ToastType = {
+    Success: 'success',
+    Info: 'info',
+    Warning: 'warning',
+    Error: 'error'
+};
