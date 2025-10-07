@@ -1,12 +1,7 @@
 ﻿// ===== Upload Adapter =====
 import { configInstance } from './config.module.js';
-class DriveUploadAdapterModule {
-    constructor(loader, { endpoint, headers, resize }) {
-        this.loader = loader;
-        this.endpoint = endpoint;
-        this.headers = headers;   // function or object
-        this.resize = resize;     // {maxWidth, maxHeight, quality} | false
-        this.abortController = null;
+class UploaderModule {
+    constructor() {
         this.endpoints = {
             uploadToGoogleDriver: '/FTP/upload/googledrive'
         }
@@ -74,45 +69,6 @@ class DriveUploadAdapterModule {
     async uploadToGoogleDriver(formData) {
         return this.request(this.endpoints.uploadToGoogleDriver, formData);
     }
-    async upload() {
-        this.abortController = new AbortController();
-        let file = await this.loader.file;
-
-        // (Optional) Resize client-side
-        if (this.resize) {
-            try { file = await resizeImageIfNeeded(file, this.resize); } catch { /* ignore */ }
-        }
-
-        const form = new FormData();
-        form.append('file', file, file.name);
-
-        const h = typeof this.headers === 'function' ? this.headers() : (this.headers || {});
-        const resp = await fetch(this.endpoint, {
-            method: 'POST',
-            body: form,
-            headers: h,
-            signal: this.abortController.signal
-        });
-
-        if (!resp.ok) throw new Error(`Upload failed (${resp.status})`);
-
-        const ctype = resp.headers.get('content-type') || '';
-        let url;
-        if (ctype.includes('application/json')) {
-            const data = await resp.json();
-            url = data.url || data.link || data.Location || data.href;
-        } else {
-            const text = (await resp.text() || '').trim();
-            if (/^https?:\/\//i.test(text)) url = text;
-        }
-        if (!url) throw new Error('Không tìm thấy URL ảnh trong phản hồi server.');
-
-        return { default: url };
-    }
-
-    abort() {
-        if (this.abortController) this.abortController.abort();
-    }
 }
 
-export const uploaderModule = new DriveUploadAdapterModule();
+export const uploaderModule = new UploaderModule();

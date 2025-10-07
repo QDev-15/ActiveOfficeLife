@@ -189,9 +189,17 @@ namespace ActiveOfficeLife.Application.Services
                     throw new Exception("File rỗng.");
                 if (file.Length > maxSize)
                     throw new Exception("File quá lớn. Vui lòng chọn file nhỏ hơn 10MB.");
-
+                var setting = new Setting();
                 Guid.TryParse(settingId, out Guid settingGuid);
-                var setting = await _settingRepository.GetByIdAsync(settingGuid);
+                // check settingGuid is empty
+                if (settingGuid == Guid.Empty)
+                {
+                    setting = await _settingRepository.GetSettingDefault();
+                } else
+                {
+                    setting = await _settingRepository.GetByIdAsync(settingGuid);
+                }
+
                 var media = new Media();
                 if (setting == null)
                 {
@@ -215,6 +223,7 @@ namespace ActiveOfficeLife.Application.Services
                         ClientSecret = setting.GoogleClientSecretId
                     });
                     setting.GoogleToken = refreshToken.ConvertToJsonToken();
+                    _settingRepository.Update(setting);
                     await _unitOfWork.SaveChangesAsync();
                 }
                 var uploader = await _googleDriveInterface.UploadFileAndMakePublicAsync(file, setting.GoogleFolderId, setting.GoogleToken, new ClientSecrets()

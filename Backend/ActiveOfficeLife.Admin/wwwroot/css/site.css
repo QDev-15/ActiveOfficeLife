@@ -112,6 +112,10 @@ mark {
 .ck-powered-by {
     display: none;
 }
+.ck-content img {
+    max-width: 100%;
+    height: auto;
+}
 .dataTables_wrapper .dt-row {
     overflow: auto !important;
 }

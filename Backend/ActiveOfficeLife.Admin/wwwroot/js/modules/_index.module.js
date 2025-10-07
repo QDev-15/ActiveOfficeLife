@@ -10,7 +10,6 @@ import { logInstance } from './log.module.js';
 import { postInstance } from './post.module.js';
 import { tagInstance } from './tag.module.js';
 import { adInstance } from './ad.module.js';
-import { initCK, updateSourceOnSubmit } from './core/ckeditor.module.js';
 
 // (Tùy chọn) gắn global để gọi từ inline script
 window.configInstance = configInstance;

@@ -52,19 +52,26 @@ namespace GoogleApi.Adapter
         }
         public async Task<TokenResponse> RefreshToken(string jsonToken, ClientSecrets clientSecrets)
         {
-            var token = JsonConvert.DeserializeObject<TokenResponse>(jsonToken);
+            var token = JsonConvert.DeserializeObject<TokenResponse>(jsonToken)
+                ?? throw new ArgumentException("jsonToken invalid");
+
             var flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
             {
                 ClientSecrets = clientSecrets,
-                Scopes = new[] { DriveService.ScopeConstants.DriveFile }
+                Scopes = new[] { DriveService.Scope.DriveFile } // hoặc ScopeConstants.DriveFile
             });
 
-            if (token != null && token.IsExpired(SystemClock.Default))
-            {
-                await flow.RefreshTokenAsync("user", token.RefreshToken, CancellationToken.None);
-            }
+            // "user" là userId tuỳ bạn đặt, miễn nhất quán (per-user token store)
+            var credential = new UserCredential(flow, "user", token);
 
-            return token;
+            // Hàm này sẽ:
+            // - nếu token hết hạn -> gọi refresh
+            // - cập nhật credential.Token (access_token, expires_in, issued_at...)
+            var refreshed = await credential.RefreshTokenAsync(CancellationToken.None);
+
+            // refreshed = true nếu đã gọi refresh hoặc đang còn hạn hợp lệ
+            // -> luôn trả về token hiện hành trong credential
+            return credential.Token;
         }
         public async Task<DriveService> GetDriveServiceAsync(string jsonToken, ClientSecrets clientSecrets, string appName = "myGoogleApplication")
         {
@@ -169,13 +176,23 @@ namespace GoogleApi.Adapter
                 Type = "anyone"
             };
             await driveService.Permissions.Create(permission, fileId).ExecuteAsync();
-
+            // Xây CDN link cho ảnh (nếu là image/*). Có thể thêm tham số size nếu muốn.
+            string cdnLink = string.Empty;
+            if (contentType?.StartsWith("image/", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                // Gốc:
+                // cdnLink = $"https://lh3.googleusercontent.com/d/{fileId}";
+                // Có size (ví dụ bề rộng 1600px, Google giữ tỉ lệ):
+                // cdnLink = $"https://lh3.googleusercontent.com/d/{fileId}=s1600";
+                // hoặc chi tiết:
+                cdnLink = $"https://lh3.googleusercontent.com/d/{fileId}=w1600-h0";
+            }
             var response = new UpLoadResponse
             {
                 FileName = fileName,
                 FileId = fileId,
                 FileType = contentType,
-                FileLink = $"https://drive.google.com/uc?id={fileId}",
+                FileLink = cdnLink, //$"https://drive.google.com/uc?id={fileId}",
                 ErrorMessage = string.Empty,
                 TokenRefreshed = tokenRefreshed
             };

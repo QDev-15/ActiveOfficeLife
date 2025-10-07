@@ -2,6 +2,7 @@
 import { messageInstance } from './core/messages.module.js'
 import { spinnerInstance } from './core/spinner.module.js';
 import { utilities } from './core/utilities.module.js';
+import { uploaderModule } from './core/uploader.module.js'
 class SettingModule {
     constructor(
     ) {
@@ -167,20 +168,21 @@ class SettingModule {
             form.append('settingId', settingId);
             form.append('File', file);  
             // Gọi upload
-            const media = await apiInstance.postForm(
-                this.ENDPOINTS.UPLOAD_LOGO,
-                form
-            );
+            //const media = await apiInstance.postForm(
+            //    this.ENDPOINTS.UPLOAD_LOGO,
+            //    form
+            //);
+            const media = await uploaderModule.uploadToGoogleDriver(form);
 
             // media = MediaModel: { fileId, filePath, ... }
-            if (!media || !media.fileId) throw new Error('Upload không trả về fileId');
+            if (!media || !media.filePath) throw new Error('Upload không trả về filePath');
 
-            // 1) Gán FileId vào trường logo (yêu cầu của bạn)
+            // 1) Gán filePath vào trường logo (yêu cầu của bạn)
             const logoInput = document.querySelector('#setting-logo');
-            if (logoInput) logoInput.value = media.fileId;
+            if (logoInput) logoInput.value = media.filePath;
 
             // 2) Preview ngay bằng FilePath (URL public)
-            const urlForPreview = media.filePath || media.fileId;
+            const urlForPreview = media.filePath;
             this.updatePreviewAndQuickView(urlForPreview);
 
             if (state) state.textContent = 'Upload xong, đang lưu setting...';
