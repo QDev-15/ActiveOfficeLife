@@ -26,15 +26,18 @@ namespace ActiveOfficeLife.Application.Services
         private readonly JwtTokens _jwtSettings;
         private readonly IUserTokenRepository _userTokenRepository;
         private readonly IUserRepository _userRepository;
+        private readonly ISettingRepository _settingRepository;
         private readonly IUnitOfWork _unitOfWork;
 
-        public TokenService(IOptions<JwtTokens> jwtOptions, IUserRepository userRepository, IUnitOfWork iUnitOfWork, IUserTokenRepository userTokenRepository)
+        public TokenService(IOptions<JwtTokens> jwtOptions, IUserRepository userRepository, 
+            IUnitOfWork iUnitOfWork, IUserTokenRepository userTokenRepository, ISettingRepository settingRepository)
         {
             _jwtSettings = jwtOptions.Value;
             _secretKey = Encoding.UTF8.GetBytes(_jwtSettings.SecretKey);
             _userRepository = userRepository;
             _unitOfWork = iUnitOfWork;
             _userTokenRepository = userTokenRepository;
+            _settingRepository = settingRepository;
         }
 
         public async Task<AuthResponse> CreateAsync(UserModel userModel, string ipAddress)
@@ -235,6 +238,14 @@ namespace ActiveOfficeLife.Application.Services
                     var verified = DomainHelper.VerifyPassword(user.PasswordHash, loginRequest.Password);
                     if (verified.Success)
                     {
+                        if (string.IsNullOrEmpty(loginRequest.OrgId))
+                        {
+                            var setting = await _settingRepository.GetSettingDefault();
+                            if (setting != null)
+                            {
+                                loginRequest.OrgId = setting.Id.ToString();
+                            }
+                        }
                         // update settingId user
                         if (!string.IsNullOrEmpty(loginRequest.OrgId) && user.SettingId != loginRequest.OrgId)
                         {
