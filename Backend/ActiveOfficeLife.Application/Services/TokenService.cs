@@ -62,6 +62,7 @@ namespace ActiveOfficeLife.Application.Services
                     Email = userModel.Email,
                     Role = string.Join(",", userModel.Roles.ToList()),
                     UserId = userModel.Id.ToString(),
+                    SettingId = userModel.SettingId ?? string.Empty,
                     Status = userModel.Status.ToString()
                 };
             }
@@ -86,6 +87,7 @@ namespace ActiveOfficeLife.Application.Services
                 Email = userModel.Email,
                 Role = string.Join(",", userModel.Roles.ToList()),
                 UserId = userModel.Id.ToString(),
+                SettingId = userModel.SettingId ?? string.Empty,
                 Status = userModel.Status.ToString()
             };
         }
