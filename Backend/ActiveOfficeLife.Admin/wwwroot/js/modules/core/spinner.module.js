@@ -2,6 +2,22 @@
 
 class SpinnerModule {
     static globalSpinnerId = 'volt-body';
+    static mainContainer = 'main-container';
+    static _resolveElement(target) {
+        if (!target) return null;
+        if (target instanceof HTMLElement) return target;
+        if (typeof target === 'string') {
+            const selector = target.startsWith('#') ? target : `#${target}`;
+            return document.querySelector(selector);
+        }
+        return null;
+    }
+    // Đợi render xong (2 rAF để chắc chắn đã paint)
+    static _waitForPaint() {
+        return new Promise(res => requestAnimationFrame(() =>
+            requestAnimationFrame(res)
+        ));
+    }
 
     static showGlobal() {
         // Nếu đã tồn tại thì không thêm nữa
@@ -35,42 +51,115 @@ class SpinnerModule {
         }
     }
 
-    static showFor(idElement) {
-        if (!idElement) return;
-        const targetElement = document.getElementById(idElement);
-        if (!targetElement) return;
-        targetElement.style.position = 'relative';
+    // Hiển thị spinner trên 1 phần tử (hoặc selector)
+    static showFor(target, opts = {}) {
+        const el = this._resolveElement(target);
+        if (!el) return null;
 
-        const spinner = document.createElement('div');
-        spinner.classList.add('local-spinner-overlay');
-        spinner.style.cssText = `
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        `;
-        spinner.innerHTML = `
-            <div class="spinner-border text-secondary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-        `;
+        // Tránh tạo trùng
+        if (el.querySelector(':scope > .local-spinner-overlay')) return el.querySelector(':scope > .local-spinner-overlay');
 
-        targetElement.appendChild(spinner);
+        const {
+            bg = 'rgba(255,255,255,0.7)',
+            zIndex = 1000,
+            message = '',               // ví dụ: 'Đang tải...'
+            spinnerClass = 'text-secondary', // bootstrap color: text-primary|secondary|light|...
+            rounded = true              // bo góc theo container
+        } = opts;
+
+        // Nhớ lại position gốc để khôi phục khi hide
+        const cs = getComputedStyle(el);
+        const shouldSetRelative = cs.position === 'static' || !cs.position;
+        if (this.shouldSetSetRelative(el)) el.dataset._spinnerRestorePosition = '1';
+        if (shouldSetRelative) el.style.position = 'relative';
+
+        const overlay = document.createElement('div');
+        overlay.className = 'local-spinner-overlay';
+        overlay.style.cssText = `
+      position: absolute;
+      inset: 0;
+      background: ${bg};
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      z-index: ${zIndex};
+      ${rounded ? `border-radius: ${cs.borderRadius};` : ''}
+    `;
+
+        overlay.innerHTML = `
+      <div class="spinner-border ${spinnerClass}" role="status" aria-live="polite" aria-busy="true">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      ${message ? `<div class="small text-muted">${this.escapeHtml(message)}</div>` : ''}
+    `;
+
+        el.appendChild(overlay);
+        return overlay;
     }
 
-    static hideFor(idElement) {
-        if (!idElement) return;
-        const targetElement = document.getElementById(idElement);
-        if (!targetElement) return;
-        const overlay = targetElement.querySelector('.local-spinner-overlay');
-        if (overlay) {
-            overlay.remove();
+    // Ẩn spinner của phần tử
+    static hideFor(target) {
+        const el = this._resolveElement(target);
+        if (!el) return false;
+        const overlay = el.querySelector(':scope > .local-spinner-overlay');
+        if (overlay) overlay.remove();
+
+        // Khôi phục position nếu là mình set
+        if (el.dataset._spinnerRestorePosition === '1') {
+            el.style.position = '';
+            delete el.dataset._spinnerRestorePosition;
         }
+        return true;
+    }
+
+    static showForMainContainer(opts = {}) {
+        return this.showFor(this.mainContainer, opts);
+    }
+    static hideForMainContainer() {
+        return this.hideFor(this.mainContainer);
+    }
+
+    // ❗️Hàm async: chỉ resolve sau khi spinner đã PAINT xong
+    static async showForAsync(target, opts = {}) {
+        const overlay = this.showFor(target, opts);
+        await this._waitForPaint();
+        return overlay;
+    }
+    static async hideForAsync(target, opts = {}) {
+        const overlay = this.hideFor(target);
+        await this._waitForPaint();
+        return overlay;
+    }
+    static async showForMainContainerAsync(opts = {}) {
+        const overlay = this.showForMainContainer(opts);
+        await this._waitForPaint();
+        return overlay;
+    }
+    static async hideForMainContainerAsync() {
+        const overlay = this.hideForMainContainer();
+        await this._waitForPaint();
+        return overlay;
+    }
+
+    // Tiện ích bao trọn quy trình: hiển thị → đợi paint → chạy action → ẩn
+    static async withSpinner(target, action, opts = {}) {
+        await this.showForAsync(target, opts);
+        try {
+            return await action();
+        } finally {
+            this.hideFor(target);
+        }
+    }
+
+    // Helpers
+    static shouldSetSetRelative(el) {
+        const cs = getComputedStyle(el);
+        return cs.position === 'static' || !cs.position;
+    }
+    static escapeHtml(s = '') {
+        return s.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
     }
 }
 

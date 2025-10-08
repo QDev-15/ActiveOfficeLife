@@ -192,10 +192,10 @@ class PostModule {
     }
     async loadData() {
         try {
-            spinnerInstance.show?.();
-            $('#content-artile-edit').html('');
+            await spinnerInstance.showForMainContainerAsync();
             mvcInstance.get('/Articles/form?id=' + this.id)
                 .then(html => {
+                    $('#content-artile-edit').html('');
                     $('#content-artile-edit').html(html);
                     this.form = configInstance.initValidatorForm("content-artile-edit");
                     var statusElement = document.getElementById('Status');
@@ -223,7 +223,7 @@ class PostModule {
             console.error(e);
             messageInstance.error(e?.message || 'Tải dữ liệu thất bại');
         } finally {
-            spinnerInstance.hide?.();
+            await spinnerInstance.hideForMainContainerAsync();
         }
     }
     validate() {
@@ -365,25 +365,24 @@ class PostModule {
     }
     async save() {
         try {
-            spinnerInstance.show?.();
+            await spinnerInstance.showForMainContainerAsync();
             const body = this.gatherPayload();
             // Nếu API của bạn phân biệt UPDATE vs PATCH, chọn cái bạn muốn:
             const res = await apiInstance.put?.(this.ENDPOINTS.UPDATE, body)
                 ?? await apiInstance.post(this.ENDPOINTS.UPDATE, body);
+            await spinnerInstance.hideForMainContainerAsync();
             messageInstance.success('Đã lưu bài viết.');
             // reload lại để đồng bộ timestamp/status nếu server thay đổi
-            await this.loadData();
+            //await this.loadData();
         } catch (e) {
             console.error(e);
             messageInstance.error(e?.message || 'Lưu thất bại.');
-        } finally {
-            spinnerInstance.hide?.();
         }
     }
 
     async changeStatus(nextStatus) {
         try {
-            spinnerInstance.show?.();
+            await spinnerInstance.showForMainContainerAsync();
             const res = await apiInstance.patch(this.ENDPOINTS.PATCH, { id: this.id, status: nextStatus });
             messageInstance.success('Trạng thái đã cập nhật.');
             await this.loadData();
@@ -391,14 +390,14 @@ class PostModule {
             console.error(e);
             messageInstance.error(e?.message || 'Đổi trạng thái thất bại.');
         } finally {
-            spinnerInstance.hide?.();
+            await spinnerInstance.hideForMainContainerAsync();
         }
     }
 
     async delete() {
         try {
             if (!confirm('Xóa bài viết này?')) return;
-            spinnerInstance.show?.();
+            await spinnerInstance.showForMainContainerAsync();
             await apiInstance.delete?.(this.ENDPOINTS.DELETE(this.id))
                 ?? await apiInstance.post(this.ENDPOINTS.DELETE(this.id)); // tùy API
             messageInstance.success('Đã xóa.');
@@ -407,7 +406,7 @@ class PostModule {
             console.error(e);
             messageInstance.error(e?.message || 'Xóa thất bại.');
         } finally {
-            spinnerInstance.hide?.();
+            await spinnerInstance.hideForMainContainerAsync();
         }
     }
 

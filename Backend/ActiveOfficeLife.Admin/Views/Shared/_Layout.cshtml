@@ -66,7 +66,8 @@
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/utc.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dayjs@1/plugin/timezone.js"></script>
     <!-- CKEditor 5 Classic build (CDN) -->
-    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
+
     <script>
         dayjs.extend(window.dayjs_plugin_utc);
         dayjs.extend(window.dayjs_plugin_timezone);
@@ -86,7 +87,7 @@
     @Html.Partial("/Views/Shared/Partials/_navBar.cshtml")
     <main class="content flex-fill d-flex flex-column">
         @Html.Partial("/Views/Shared/Partials/_topBar.cshtml")
-        <div class="main-body-container flex-fill">
+        <div id="main-container" class="main-body-container flex-fill">
             @RenderBody()
         </div>
         @Html.Partial("_footer.cshtml")
