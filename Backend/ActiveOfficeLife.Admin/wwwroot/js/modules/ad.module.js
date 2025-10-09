@@ -161,6 +161,7 @@ class AdModule {
     add() {
         // call api create 
         apiInstance.post(this.Endpoints.create).then((resp) => {
+            this.refreshData();
             this.edit(null, resp);
         });
         
