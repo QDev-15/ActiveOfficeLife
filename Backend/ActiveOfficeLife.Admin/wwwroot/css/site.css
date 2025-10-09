@@ -119,3 +119,153 @@ mark {
 .dataTables_wrapper .dt-row {
     overflow: auto !important;
 }
+
+/* ====== Base container ====== */
+.tags-input {
+    --ti-bg: #fff;
+    --ti-border: #d0d7de;
+    --ti-border-focus: #6ea8fe;
+    --ti-text: #111827;
+    --ti-placeholder: #94a3b8;
+    --ti-chip-bg: #eef2ff;
+    --ti-chip-text: #1e293b;
+    --ti-chip-x: #475569;
+    --ti-chip-x-hover: #0f172a;
+    --ti-shadow-focus: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    min-height: 42px;
+    max-height: 160px; /* có thể tăng nếu muốn */
+    overflow-y: auto; /* scroll khi quá cao */
+    padding: 6px 8px;
+    border: 1px solid var(--ti-border);
+    border-radius: 10px;
+    background: var(--ti-bg);
+    color: var(--ti-text);
+    transition: border-color .15s ease, box-shadow .15s ease, background-color .2s ease;
+}
+
+    /* Focus trạng thái khi input con nhận focus */
+    .tags-input:focus-within {
+        border-color: var(--ti-border-focus);
+        box-shadow: var(--ti-shadow-focus);
+    }
+
+    /* ====== Tag chip ====== */
+    .tags-input .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        max-width: 100%;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--ti-chip-bg);
+        color: var(--ti-chip-text);
+        font-size: 13px;
+        line-height: 1;
+        user-select: none;
+        white-space: nowrap;
+    }
+
+        .tags-input .tag .label {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Nút xóa “x” */
+        .tags-input .tag .remove {
+            display: inline-grid;
+            place-items: center;
+            width: 16px;
+            height: 16px;
+            border: none;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            line-height: 1;
+            cursor: pointer;
+            color: #333333;
+            background: #bfbfbf;
+            transition: background-color .15s ease, color .15s ease, transform .08s ease-in-out;
+            padding: 0px 1px 1px 1px;
+        }
+
+            .tags-input .tag .remove:hover {
+                background: rgba(15, 23, 42, 0.08);
+                color: var(--ti-chip-x-hover);
+            }
+
+            .tags-input .tag .remove:active {
+                transform: scale(0.9);
+            }
+
+    /* ====== Input field ====== */
+    .tags-input > input[type="text"] {
+        flex: 1 0 140px; /* đủ rộng, nhưng có thể thu nhỏ */
+        min-width: 120px;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: var(--ti-text);
+        font-size: 14px;
+        line-height: 1.4;
+        padding: 6px 4px;
+    }
+
+    /* Placeholder style */
+    .tags-input > input::placeholder {
+        color: var(--ti-placeholder);
+    }
+
+    /* Khi container disabled */
+    .tags-input.is-disabled,
+    .tags-input[aria-disabled="true"] {
+        opacity: 0.65;
+        pointer-events: none;
+    }
+
+    /* Trạng thái invalid (ví dụ quá số lượng tag, tag trùng, v.v.) */
+    .tags-input.is-invalid {
+        border-color: #ef4444;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+    }
+
+    /* ====== Compact size (tùy chọn) ====== */
+    .tags-input.is-compact {
+        min-height: 34px;
+        padding: 4px 6px;
+    }
+
+        .tags-input.is-compact .tag {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+
+        .tags-input.is-compact > input[type="text"] {
+            padding: 4px 2px;
+            font-size: 13px;
+        }
+
+/* ====== Dark mode cơ bản (ưu tiên theo data-theme) ====== */
+[data-theme="dark"] .tags-input {
+    --ti-bg: #0b1220;
+    --ti-border: #273449;
+    --ti-border-focus: #70b8ff;
+    --ti-text: #e5e7eb;
+    --ti-placeholder: #64748b;
+    --ti-chip-bg: #1b2333;
+    --ti-chip-text: #e5e7eb;
+    --ti-chip-x: #aab4c4;
+    --ti-chip-x-hover: #ffffff;
+}
+
+/* ====== Hỗ trợ RTL (nếu cần) ====== */
+[dir="rtl"] .tags-input {
+    direction: rtl;
+}
+
+    [dir="rtl"] .tags-input .tag {
+        direction: rtl;
+    }

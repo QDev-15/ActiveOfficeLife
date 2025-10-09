@@ -76,25 +76,29 @@ class SpinnerModule {
         const overlay = document.createElement('div');
         overlay.className = 'local-spinner-overlay';
         overlay.style.cssText = `
-      position: absolute;
-      inset: 0;
-      background: ${bg};
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      align-items: center;
-      justify-content: center;
-      z-index: ${zIndex};
-      ${rounded ? `border-radius: ${cs.borderRadius};` : ''}
-    `;
+          position: absolute;
+          inset: 0;
+          background: ${bg};
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          align-items: center;
+          justify-content: center;
+          z-index: ${zIndex};
+          ${rounded ? `border-radius: ${cs.borderRadius};` : ''}
+        `;
 
-        overlay.innerHTML = `
-      <div class="spinner-border ${spinnerClass}" role="status" aria-live="polite" aria-busy="true">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-      ${message ? `<div class="small text-muted">${this.escapeHtml(message)}</div>` : ''}
-    `;
-
+            overlay.innerHTML = `
+          <div class="spinner-border ${spinnerClass}" role="status" aria-live="polite" aria-busy="true">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          ${message ? `<div class="small text-muted">${this.escapeHtml(message)}</div>` : ''}
+        `;
+        // Khóa cuộn container trong lúc hiện spinner
+        if (!el.dataset._spinnerRestoreOverflow) {
+          el.dataset._spinnerRestoreOverflow = cs.overflow || '';
+          el.style.overflow = 'hidden';
+        }
         el.appendChild(overlay);
         return overlay;
     }
@@ -110,6 +114,11 @@ class SpinnerModule {
         if (el.dataset._spinnerRestorePosition === '1') {
             el.style.position = '';
             delete el.dataset._spinnerRestorePosition;
+        }
+        // Mở khóa cuộn
+        if ('_spinnerRestoreOverflow' in el.dataset) {
+          el.style.overflow = el.dataset._spinnerRestoreOverflow;
+          delete el.dataset._spinnerRestoreOverflow;
         }
         return true;
     }
