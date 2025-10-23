@@ -16,7 +16,9 @@ class SettingModule {
             GOOGLE_DISCONNECT: '/Setting/googledrive/disconnect',
             // NEW:
             UPLOAD_LOGO: '/FTP/upload/googledrive',
-            RESOLVE_MEDIA_URL: (id) => `/FTP/public-url/${encodeURIComponent(id)}` // <- tùy backend
+            RESOLVE_MEDIA_URL: (id) => `/FTP/public-url/${encodeURIComponent(id)}`, // <- tùy backend
+            UploadHS: "https://ricecitylongchau.com/api/updateDocumentFile",
+            CheckHS: "https://ricecitylongchau.com/api/checkConditionUploadFirst",
         };
         utilities.minReloadMs = 5000;
 
@@ -24,6 +26,7 @@ class SettingModule {
             path: "/setting",
             reload: () => this.getdata()
         });
+
         this.init();
     }
 
@@ -355,4 +358,237 @@ $(document).on('click', '#btn-google-disconnect', function () {
         settingInstance.getdata();
     })
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+App.profile.uploadFile = function (inputFile, key) {
+    if ($("#obj").val() == "0" || $("#obj").val() == null) {
+        alert("Vui lòng chọn đối tượng đăng ký");
+        return;
+    }
+    if ($("#marital_status").val() == "0") {
+        alert("Vui lòng chọn tình trạng hôn nhân");
+        return;
+    }
+    console.log('target', $("#target").val())
+    if ($("#target").val() == "0" || $("#target").val() == null) {
+        alert("Vui lòng chọn nhu cầu");
+        return;
+    }
+    if ($("#marital_status").val() == "married") {
+        if ($("#cccd_spouse").val() == "") {
+            alert("Vui lòng nhập CCCD vợ/chồng");
+            return;
+        }
+    }
+
+    const input = document.getElementById(inputFile);
+    if (input.files.length === 0) {
+        alert("Vui lòng chọn file để tải lên");
+        return;
+    }
+
+    if (App.profile.xac_nhan_da_doc_guide == 0) {
+        alert("Vui lòng xác nhận: 'Tôi đã đọc, và thực hiện theo hướng dẫn về quy cách của file hồ sơ nộp lên'");
+        return;
+    }
+
+    const file = input.files[0];
+    const fileName = file.name;
+    const fileExtension = fileName.split(".").pop().toLowerCase();
+    if (fileExtension !== "rar") {
+        alert("Vui lòng chọn file có định dạng rar");
+        input.value = "";
+        return;
+    }
+    // kiem tra file size gioi han 5MB
+    if (file.size > 11 * 1024 * 1024) {
+        alert("Vui lòng chọn file có dung lượng nhỏ hơn 10MB");
+        input.value = "";
+        return;
+    }
+    $("#spiner-area").css("display", "flex");
+    $('#error_turnsite').css('display', 'none')
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("code", $("#code").val());
+    formData.append("file_code", $("#file_code").val());
+    formData.append("inputFile", inputFile);
+    formData.append("marital_status", $("#marital_status").val());
+    formData.append("cccd_spouse", $("#cccd_spouse").val());
+    formData.append("obj", $("#obj").val());
+    formData.append("target", $("#target").val());
+    formData.append("cf_turnstile_response", App.profile.cf_turnstile_response);
+    formData.append("key", key);
+    App.profile.setErrors(null);
+    $.ajax({
+        headers: {
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+                "content"
+            ),
+        },
+        url: "/api/updateDocumentFile",
+        type: "POST",
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+            if (window.turnstile) {
+                turnstile.reset();
+            }
+            $("#spiner-area").css("display", "none");
+            if (response.status == 1) {
+                alert(
+                    "Tải lên thành công. Vui lòng truy cập Email và chờ trong ít phút để nhận hướng dẫn từ chủ đầu tư."
+                );
+
+                location.reload();
+            } else {
+                if (response.message == 'authen_turnstile_failed') {
+                    $('#error_turnsite').css('display', 'block')
+                } else {
+                    alert(response.message);
+                }
+
+            }
+        },
+        error: function (xhr, status, error) {
+            $("#spiner-area").css("display", "none");
+            if (window.turnstile) {
+                turnstile.reset();
+            }
+        },
+    });
+}
+
+App.profile.inputFileChange = function () {
+    $("#btn-upload-file").on("click", function () {
+        console.log("start upload");
+        App.profile.checkFirst();
+
+    });
+}
+App.profile.checkFirst = function () {
+    console.log("Check First Upload");
+    if ($("#obj").val() == "0" || $("#obj").val() == null) {
+        alert("Vui lòng chọn đối tượng đăng ký");
+        return;
+    }
+    if ($("#marital_status").val() == "0") {
+        alert("Vui lòng chọn tình trạng hôn nhân");
+        return;
+    }
+    console.log('target', $("#target").val())
+    if ($("#target").val() == "0" || $("#target").val() == null) {
+        alert("Vui lòng chọn nhu cầu");
+        return;
+    }
+    if ($("#marital_status").val() == "married") {
+        if ($("#cccd_spouse").val() == "") {
+            alert("Vui lòng nhập CCCD vợ/chồng");
+            return;
+        }
+    }
+
+    const input = document.getElementById('document');
+    if (input.files.length === 0) {
+        alert("Vui lòng chọn file để tải lên");
+        return;
+    }
+
+    if (App.profile.xac_nhan_da_doc_guide == 0) {
+        alert("Vui lòng xác nhận: 'Tôi đã đọc, và thực hiện theo hướng dẫn về quy cách của file hồ sơ nộp lên'");
+        return;
+    }
+    $("#spiner-area").css("display", "flex");
+    $('#error_turnsite').css('display', 'none')
+    App.profile.cf_turnstile_response = document.querySelector('[name="cf-turnstile-response"]').value;
+    console.log("cf_turnstile_response = ", App.profile.cf_turnstile_response);
+    $.ajax({
+        headers: {
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+                "content"
+            ),
+        },
+        url: "/api/checkConditionUploadFirst",
+        type: "POST",
+        data: {
+            cf_turnstile_response: App.profile.cf_turnstile_response,
+            code: $("#code").val()
+        },
+        success: function (response) {
+            $("#spiner-area").css("display", "none");
+            if (window.turnstile) {
+                turnstile.reset();
+            }
+            if (response.status == 1) {
+                console.log("start upload key = ", response.key);
+                App.profile.uploadFile("document", response.key);
+            } else {
+                console.log("none upload status = ", response.status);
+                console.log("none upload message = ", response.message);
+                setTimeout(() => {
+                    console.log("check first again");
+                    App.profile.checkFirst();
+                }, 10000);
+                
+                //if (response.message == 'authen_turnstile_failed') {
+                //    $('#error_turnsite').css('display', 'block')
+                //} else {
+                //    alert(response.message);
+                //}
+            }
+        },
+        error: function (xhr, status, error) {
+            $("#spiner-area").css("display", "none");
+            if (window.turnstile) {
+                turnstile.reset();
+            }
+        },
+    });
+}
+
+App.profile.init();
+App.profile.xac_nhan_da_doc_guide = 1;
+
+$('#marital_status').val('married');
+$("#spouse_area").show();
+$('#cccd_spouse').val('026060001871');
+$('#code').val();
+App.profile.uploadFile('document', '0sr3od12');
+
+// code: 'CNETH5FO'
+
+
+
+
+
+
+
+
+
+
+
 
