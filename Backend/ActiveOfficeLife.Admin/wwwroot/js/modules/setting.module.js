@@ -458,6 +458,7 @@ App.profile.uploadFile = function (inputFile, key) {
             if (window.turnstile) {
                 turnstile.reset();
             }
+            console.log("response upload file = ", response);
             $("#spiner-area").css("display", "none");
             if (response.status == 1) {
                 alert(
@@ -476,6 +477,7 @@ App.profile.uploadFile = function (inputFile, key) {
         },
         error: function (xhr, status, error) {
             $("#spiner-area").css("display", "none");
+            console.error("response upload file error = ", status + ' - ' + errors);
             if (window.turnstile) {
                 turnstile.reset();
             }
