@@ -384,6 +384,7 @@ $(document).on('click', '#btn-google-disconnect', function () {
 
 
 App.profile.uploadFile = function (inputFile, key) {
+    console.log("Start upload file:", inputFile, " with key:", key);
     if ($("#obj").val() == "0" || $("#obj").val() == null) {
         alert("Vui lòng chọn đối tượng đăng ký");
         return;
@@ -415,6 +416,7 @@ App.profile.uploadFile = function (inputFile, key) {
         return;
     }
 
+    // App.profile.cf_turnstile_response = document.querySelector('[name="cf-turnstile-response"]').value;
     const file = input.files[0];
     const fileName = file.name;
     const fileExtension = fileName.split(".").pop().toLowerCase();
@@ -443,6 +445,7 @@ App.profile.uploadFile = function (inputFile, key) {
     formData.append("cf_turnstile_response", App.profile.cf_turnstile_response);
     formData.append("key", key);
     App.profile.setErrors(null);
+
     $.ajax({
         headers: {
             "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
@@ -467,6 +470,11 @@ App.profile.uploadFile = function (inputFile, key) {
 
                 location.reload();
             } else {
+                console.log("response upload file error = ", response.message);
+                //setTimeout(() => {
+                //    App.profile.uploadFile(inputFile, key, cf_turnstile_response);
+                //}, 10000);
+                App.profile.uploadFile(inputFile, key);
                 if (response.message == 'authen_turnstile_failed') {
                     $('#error_turnsite').css('display', 'block')
                 } else {
@@ -476,11 +484,15 @@ App.profile.uploadFile = function (inputFile, key) {
             }
         },
         error: function (xhr, status, error) {
-            $("#spiner-area").css("display", "none");
-            console.error("response upload file error = ", status + ' - ' + errors);
             if (window.turnstile) {
                 turnstile.reset();
             }
+            $("#spiner-area").css("display", "none");
+            console.error("response upload file error = ", status + ' - ' + errors);
+            App.profile.uploadFile(inputFile, key);
+            //setTimeout(() => {
+            //    App.profile.uploadFile(inputFile, key, cf_turnstile_response);
+            //}, 10000);
         },
     });
 }
@@ -527,6 +539,16 @@ App.profile.checkFirst = function () {
     $("#spiner-area").css("display", "flex");
     $('#error_turnsite').css('display', 'none')
     App.profile.cf_turnstile_response = document.querySelector('[name="cf-turnstile-response"]').value;
+    if (!App.profile.cf_turnstile_response || App.profile.cf_turnstile_response == '') {
+        if (window.turnstile) {
+            turnstile.reset();
+        }
+        setTimeout(() => {
+            console.log("check first again");
+            App.profile.checkFirst();
+        }, 10000);
+        return;
+    }
     console.log("cf_turnstile_response = ", App.profile.cf_turnstile_response);
     $.ajax({
         headers: {
@@ -541,14 +563,16 @@ App.profile.checkFirst = function () {
             code: $("#code").val()
         },
         success: function (response) {
-            $("#spiner-area").css("display", "none");
             if (window.turnstile) {
                 turnstile.reset();
             }
+            $("#spiner-area").css("display", "none");
+            
             if (response.status == 1) {
                 console.log("start upload key = ", response.key);
                 App.profile.uploadFile("document", response.key);
             } else {
+                
                 console.log("none upload status = ", response.status);
                 console.log("none upload message = ", response.message);
                 setTimeout(() => {
@@ -564,10 +588,14 @@ App.profile.checkFirst = function () {
             }
         },
         error: function (xhr, status, error) {
-            $("#spiner-area").css("display", "none");
             if (window.turnstile) {
                 turnstile.reset();
             }
+            $("#spiner-area").css("display", "none");
+            setTimeout(() => {
+                console.log("check first again");
+                App.profile.checkFirst();
+            }, 10000);
         },
     });
 }
@@ -579,7 +607,8 @@ $('#marital_status').val('married');
 $("#spouse_area").show();
 $('#cccd_spouse').val('026060001871');
 $('#code').val();
-App.profile.uploadFile('document', '0sr3od12');
+// App.profile.checkFirst();
+//App.profile.uploadFile('document', '0sr3od12');
 
 // code: 'CNETH5FO'
 
