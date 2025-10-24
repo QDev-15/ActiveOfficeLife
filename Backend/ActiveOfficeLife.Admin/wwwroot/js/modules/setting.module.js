@@ -505,6 +505,7 @@ App.profile.inputFileChange = function () {
     });
     // check input name="cf-turnstile-response" change
     $('input[name="cf-turnstile-response"]').on('change', function () {
+        console.log("cf_turnstile_response is changed");
         if (App.profile.start) {
             App.profile.start = false;
             console.log("cf-turnstile-response changed");
@@ -552,12 +553,24 @@ App.profile.checkFirst = function () {
     }
     $("#spiner-area").css("display", "flex");
     $('#error_turnsite').css('display', 'none')
+    
     App.profile.cf_turnstile_response = document.querySelector('[name="cf-turnstile-response"]').value;
+    if (App.profile.start) {
+        if (!App.profile.cf_turnstile_response || App.profile.cf_turnstile_response == '') {
+            App.profile.checkFirst();
+            console.log("cf_turnstile_response is set from input");
+            return;
+        } else {
+            App.profile.start = false;
+        }
+        
+    }
     if (!App.profile.cf_turnstile_response || App.profile.cf_turnstile_response == '') {
         App.profile.start = true;
         if (window.turnstile) {
             turnstile.reset();
         }
+        console.log("cf_turnstile_response is empty");
         return;
     }
     console.log("cf_turnstile_response = ", App.profile.cf_turnstile_response);
