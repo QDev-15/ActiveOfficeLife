@@ -503,6 +503,20 @@ App.profile.inputFileChange = function () {
         App.profile.checkFirst();
 
     });
+    // check input name="cf-turnstile-response" change
+    $('input[name="cf-turnstile-response"]').on('change', function () {
+        if (App.profile.start) {
+            App.profile.start = false;
+            console.log("cf-turnstile-response changed");
+            if (!App.profile.cf_turnstile_response || App.profile.cf_turnstile_response == '') {
+                if (window.turnstile) {
+                    turnstile.reset();
+                }
+            }
+            App.profile.checkFirst();
+        }
+    });
+   
 }
 App.profile.checkFirst = function () {
     console.log("Check First Upload");
@@ -540,13 +554,10 @@ App.profile.checkFirst = function () {
     $('#error_turnsite').css('display', 'none')
     App.profile.cf_turnstile_response = document.querySelector('[name="cf-turnstile-response"]').value;
     if (!App.profile.cf_turnstile_response || App.profile.cf_turnstile_response == '') {
+        App.profile.start = true;
         if (window.turnstile) {
             turnstile.reset();
         }
-        setTimeout(() => {
-            console.log("check first again");
-            App.profile.checkFirst();
-        }, 10000);
         return;
     }
     console.log("cf_turnstile_response = ", App.profile.cf_turnstile_response);
