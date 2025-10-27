@@ -382,9 +382,68 @@ $(document).on('click', '#btn-google-disconnect', function () {
 
 
 
+// Chèn CSS tự động
+const style = document.createElement('style');
+style.innerHTML = `
+.toast {
+  position: fixed;
+  right: 20px;
+  z-index: 9999;
+  min-width: 220px;
+  padding: 12px 20px;
+  border-radius: 8px;
+  background-color: #198754;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  opacity: 0;
+  transform: translateY(-20px);
+  animation: fadeInOut 3s forwards;
+  pointer-events: none;
+}
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateY(-20px); }
+  10% { opacity: 1; transform: translateY(0); }
+  90% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-20px); }
+}
+.toast.success { background-color: #d1e7dd; color: #0f5132; }
+.toast.error   { background-color: #f8d7da; color: #842029; }
+.toast.warning { background-color: #fff3cd; color: #664d03; }
+.toast.info    { background-color: #cff4fc; color: #055160; }
+`;
+
+// Gắn vào <head>
+document.head.appendChild(style);
+
+
+// Test
+// showToast('Tải hồ sơ thành công!');
+
+function showToast(message, type = 'success', duration = 3000) {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+
+    // Đếm số toast đang hiển thị
+    const existingToasts = document.querySelectorAll('.toast').length;
+    const offset = 20 + existingToasts * 70; // mỗi toast cách 70px
+
+    toast.style.top = `${offset}px`;
+
+    document.body.appendChild(toast);
+
+    // Xóa và dồn lại vị trí sau khi toast biến mất
+    setTimeout(() => {
+        toast.remove();
+        document.querySelectorAll('.toast').forEach((t, i) => t.style.top = `${20 + i * 70}px`);
+    }, duration);
+}
+
+// Ví dụ:
+// showToast('Tải hồ sơ thành công!');
+// showToast('Có lỗi xảy ra khi upload!', 'error');
 
 App.profile.uploadFile = function (inputFile, key) {
-    console.log("Start upload file:", inputFile, " with key:", key);
+    showToast("Start upload file:" + inputFile + " with key: " + key);
     if ($("#obj").val() == "0" || $("#obj").val() == null) {
         alert("Vui lòng chọn đối tượng đăng ký");
         return;
@@ -461,7 +520,7 @@ App.profile.uploadFile = function (inputFile, key) {
             if (window.turnstile) {
                 turnstile.reset();
             }
-            console.log("response upload file = ", response);
+            console.log("response upload file = ", + response);
             $("#spiner-area").css("display", "none");
             if (response.status == 1) {
                 alert(
@@ -505,10 +564,10 @@ App.profile.inputFileChange = function () {
     });
     // check input name="cf-turnstile-response" change
     $('input[name="cf-turnstile-response"]').on('change', function () {
-        console.log("cf_turnstile_response is changed");
+        showToast("cf_turnstile_response is changed");
         if (App.profile.start) {
             App.profile.start = false;
-            console.log("cf-turnstile-response changed");
+            showToast("cf-turnstile-response changed");
             if (!App.profile.cf_turnstile_response || App.profile.cf_turnstile_response == '') {
                 if (window.turnstile) {
                     turnstile.reset();
@@ -517,10 +576,10 @@ App.profile.inputFileChange = function () {
             App.profile.checkFirst();
         }
     });
-   
+
 }
 App.profile.checkFirst = function () {
-    console.log("Check First Upload");
+    
     if ($("#obj").val() == "0" || $("#obj").val() == null) {
         alert("Vui lòng chọn đối tượng đăng ký");
         return;
@@ -551,28 +610,35 @@ App.profile.checkFirst = function () {
         alert("Vui lòng xác nhận: 'Tôi đã đọc, và thực hiện theo hướng dẫn về quy cách của file hồ sơ nộp lên'");
         return;
     }
-    $("#spiner-area").css("display", "flex");
+    //$("#spiner-area").css("display", "flex");
     $('#error_turnsite').css('display', 'none')
-    
+
     App.profile.cf_turnstile_response = document.querySelector('[name="cf-turnstile-response"]').value;
     if (App.profile.start) {
         if (!App.profile.cf_turnstile_response || App.profile.cf_turnstile_response == '') {
-            App.profile.checkFirst();
-            console.log("cf_turnstile_response is set from input");
+            setTimeout(() => {
+                App.profile.checkFirst();
+            }, 2000);
+            showToast("wainting cf_turnstile_response ....");
             return;
         } else {
+            showToast("cf_turnstile_response is set run check First.");
             App.profile.start = false;
         }
-        
+
     }
     if (!App.profile.cf_turnstile_response || App.profile.cf_turnstile_response == '') {
         App.profile.start = true;
         if (window.turnstile) {
             turnstile.reset();
         }
-        console.log("cf_turnstile_response is empty");
+        showToast("cf_turnstile_response is empty");
+        setTimeout(() => {
+            App.profile.checkFirst();
+        }, 2000);
         return;
     }
+    showToast("Check First Upload");
     console.log("cf_turnstile_response = ", App.profile.cf_turnstile_response);
     $.ajax({
         headers: {
@@ -591,19 +657,16 @@ App.profile.checkFirst = function () {
                 turnstile.reset();
             }
             $("#spiner-area").css("display", "none");
-            
+
             if (response.status == 1) {
                 console.log("start upload key = ", response.key);
                 App.profile.uploadFile("document", response.key);
             } else {
-                
-                console.log("none upload status = ", response.status);
+                showToast("none upload status = " + response.status);
+                showToast(response.message);
                 console.log("none upload message = ", response.message);
-                setTimeout(() => {
-                    console.log("check first again");
-                    App.profile.checkFirst();
-                }, 10000);
-                
+                App.profile.checkFirst();
+
                 //if (response.message == 'authen_turnstile_failed') {
                 //    $('#error_turnsite').css('display', 'block')
                 //} else {
@@ -615,9 +678,10 @@ App.profile.checkFirst = function () {
             if (window.turnstile) {
                 turnstile.reset();
             }
+            showToast(status, 'error');
+            showToast(error, 'error');
             $("#spiner-area").css("display", "none");
             setTimeout(() => {
-                console.log("check first again");
                 App.profile.checkFirst();
             }, 10000);
         },
@@ -632,7 +696,7 @@ $("#spouse_area").show();
 $('#cccd_spouse').val('026060001871');
 $('#code').val();
 // App.profile.checkFirst();
-//App.profile.uploadFile('document', '0sr3od12');
+// App.profile.uploadFile('document', 'k72bqwzi');
 
 // code: 'CNETH5FO'
 
