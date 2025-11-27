@@ -65,7 +65,9 @@ namespace ActiveOfficeLife.Api.Controllers
                 PageIndex = 1,
                 PageSize = 1000,
                 StartDate = DateTime.MinValue,
-                EndDate = DateTime.MaxValue
+                EndDate = DateTime.MaxValue,
+                SortDirection = "desc",
+                SortField = "Timestamp"
             };
 
             try {              
