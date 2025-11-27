@@ -5,6 +5,7 @@ using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Common.Requests;
 using ActiveOfficeLife.Common.Responses;
 using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -25,6 +26,7 @@ namespace ActiveOfficeLife.Api.Controllers
             _appConfigService = appConfigService;
         }
 
+        [AllowAnonymous]
         [HttpGet(AOLEndPoint.AdGetAll)]
         public async Task<IActionResult> GetAll([FromQuery] PagingAdRequest pagingAdRequest)
         {
@@ -67,6 +69,7 @@ namespace ActiveOfficeLife.Api.Controllers
                 return BadRequest(new ResultError(ex.Message));
             }
         }
+        [AllowAnonymous]
         [HttpGet(AOLEndPoint.AdGetById)]
         public async Task<IActionResult> GetById(Guid id)
         {

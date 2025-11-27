@@ -4,6 +4,7 @@ using ActiveOfficeLife.Application.Services;
 using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Common.Requests;
 using ActiveOfficeLife.Common.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 
@@ -24,6 +25,7 @@ namespace ActiveOfficeLife.Api.Controllers
         }
 
         // get all with paging using GET method and query parameters sortField = 'name', sortDirection = 'asc', pageIndex = 1, pageSize = 10
+        [AllowAnonymous]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllCategoriesPaging([FromQuery] PagingCategoryRequest request)
         {
@@ -57,6 +59,7 @@ namespace ActiveOfficeLife.Api.Controllers
                 return BadRequest(new ResultError("Failed to retrieve paginated categories.", "400"));
             }
         }
+        [AllowAnonymous]
         [HttpGet("getbyid")]
         public async Task<IActionResult> GetCategoryById(Guid id)
         {

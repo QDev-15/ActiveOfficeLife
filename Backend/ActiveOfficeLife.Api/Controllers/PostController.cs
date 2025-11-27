@@ -5,6 +5,7 @@ using ActiveOfficeLife.Common;
 using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Common.Requests;
 using ActiveOfficeLife.Common.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 using System.Text.Json;
@@ -30,6 +31,7 @@ namespace ActiveOfficeLife.Api.Controllers
             _appConfigService = appConfigService;
             serviceName = this.GetType().Name;
         }
+        [AllowAnonymous]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllPostPaging([FromQuery] PagingPostRequest request)
         {
@@ -67,6 +69,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
         }
         // get post by id
+        [AllowAnonymous]
         [HttpGet("get/{id}")]
         public async Task<IActionResult> GetPostById(Guid id)
         {
@@ -99,6 +102,7 @@ namespace ActiveOfficeLife.Api.Controllers
         }
 
         // get post by slug
+        [AllowAnonymous]
         [HttpGet("get-by-slug/{slug}")]
         public async Task<IActionResult> GetPostBySlug(string slug)
         {
@@ -130,6 +134,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
         }
         // get post by category id
+        [AllowAnonymous]
         [HttpGet("get-by-category/{categoryId}")]
         public async Task<IActionResult> GetPostsByCategory(Guid categoryId)
         {

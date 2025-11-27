@@ -2,6 +2,7 @@
 using ActiveOfficeLife.Application.Interfaces;
 using ActiveOfficeLife.Application.Services;
 using GoogleApi;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ActiveOfficeLife.Api.Controllers
@@ -39,6 +40,7 @@ namespace ActiveOfficeLife.Api.Controllers
             return Ok(new { Url = fileUrl });
         }
         // download file from local server by filename
+        [AllowAnonymous]
         [HttpGet("download/{fileName}")]
         public IActionResult DownloadFromLocal(string fileName)
         {
@@ -90,6 +92,7 @@ namespace ActiveOfficeLife.Api.Controllers
         /// </summary>
         /// <param name="mediaId"></param>
         /// <returns></returns>
+        [AllowAnonymous]
         [HttpGet("download/googledrive/{mediaId}")]
         public async Task<IActionResult> DownloadFromGoogleDrive(string mediaId, string orgId)
         {

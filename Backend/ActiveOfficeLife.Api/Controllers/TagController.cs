@@ -4,6 +4,7 @@ using ActiveOfficeLife.Application.Services;
 using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Common.Requests;
 using ActiveOfficeLife.Common.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -21,6 +22,7 @@ namespace ActiveOfficeLife.Api.Controllers
             _cache = cache;
             _appConfigService = appConfigService;
         }
+        [AllowAnonymous]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllTags([FromQuery] PagingTagRequest request)
         {
@@ -41,6 +43,7 @@ namespace ActiveOfficeLife.Api.Controllers
                 return BadRequest(new ResultError("Failed to retrieve paginated tags.", "400"));
             }
         }
+        [AllowAnonymous]
         [HttpGet("getbyid")]
         public async Task<IActionResult> GetTagById(Guid id)
         {

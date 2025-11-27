@@ -4,6 +4,7 @@ using ActiveOfficeLife.Application.Services;
 using ActiveOfficeLife.Common;
 using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Common.Responses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 using System.Text.Json;
@@ -24,6 +25,7 @@ namespace ActiveOfficeLife.Api.Controllers
             _cache = customMemoryCache ?? throw new ArgumentNullException(nameof(customMemoryCache));
             _appConfigService = appConfigService ?? throw new ArgumentNullException(nameof(appConfigService));
         }
+        [AllowAnonymous]
         [HttpGet("get")]
         public async Task<IActionResult> Get([FromQuery] string id) { 
             try 

@@ -60,7 +60,8 @@ namespace ActiveOfficeLife.Application.Services
                     AccessToken = userToken.AccessToken,
                     RefreshToken = userToken.RefreshToken,
                     Email = userModel.Email,
-                    Role = string.Join(",", userModel.Roles.ToList()),
+                    Role = string.Join(",", userModel.Roles),
+                    Roles = userModel.Roles,
                     UserId = userModel.Id.ToString(),
                     SettingId = userModel.SettingId ?? string.Empty,
                     Status = userModel.Status.ToString()
@@ -85,7 +86,8 @@ namespace ActiveOfficeLife.Application.Services
                 AccessToken = newUserToken.AccessToken,
                 RefreshToken = newUserToken.RefreshToken,
                 Email = userModel.Email,
-                Role = string.Join(",", userModel.Roles.ToList()),
+                Role = string.Join(",", userModel.Roles),
+                Roles = userModel.Roles,
                 UserId = userModel.Id.ToString(),
                 SettingId = userModel.SettingId ?? string.Empty,
                 Status = userModel.Status.ToString()

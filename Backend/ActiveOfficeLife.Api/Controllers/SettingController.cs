@@ -31,7 +31,7 @@ namespace ActiveOfficeLife.Api.Controllers
             _settingService = settingService;
             _controllerName = this.GetType().Name;
         }
-
+        [AllowAnonymous]
         [HttpGet("get")]
         public async Task<IActionResult> Get(string? id)
         {
