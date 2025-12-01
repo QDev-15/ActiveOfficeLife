@@ -168,5 +168,15 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             }
             return defaultCategory;
         }
+
+        public async Task<IEnumerable<Category>> GetByCategoryType(Guid typeId)
+        {
+            var categories = await _context.Categories
+                .Where(c => c.CategoryTypeId == typeId && c.IsDeleted == false)
+                .Include(c => c.SeoMetadata)
+                .Include(c => c.Children)
+                .ToListAsync();
+            return categories;
+        }
     }
 }

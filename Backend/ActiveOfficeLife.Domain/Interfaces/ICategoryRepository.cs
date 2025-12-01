@@ -13,6 +13,7 @@ namespace ActiveOfficeLife.Domain.Interfaces
         Task<Category> GetDefaultCategoryAsync();
         Task<(IEnumerable<Category> Categories, int Count)> GetAllWithPaging(PagingCategoryRequest request);
         Task<IEnumerable<Category>> GetByParrentId(Guid parentId);
+        Task<IEnumerable<Category>> GetByCategoryType(Guid typeId);
         Task<Category?> GetById(Guid id);
         Task<bool> CheckExitsByName(string name, Guid id);
         Task<bool> CheckExitsBySlug(string slug, Guid id);

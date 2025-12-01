@@ -42,6 +42,10 @@ namespace ActiveOfficeLife.Domain.EFCore.Configurations
                    .WithOne()
                    .HasForeignKey<Category>(c => c.SeoMetadataId)
                    .OnDelete(DeleteBehavior.SetNull);
+            builder.HasOne(c => c.CategoryType)
+                   .WithMany(ct => ct.Categories)
+                   .HasForeignKey(c => c.CategoryTypeId)
+                   .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

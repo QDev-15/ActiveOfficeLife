@@ -25,6 +25,7 @@ namespace ActiveOfficeLife.Domain.EFCore.DBContext
         public DbSet<Role> Roles => Set<Role>();
         public DbSet<Post> Posts => Set<Post>();
         public DbSet<Category> Categories => Set<Category>();
+        public DbSet<CategoryType> CategoryTypes => Set<CategoryType>();
         public DbSet<Tag> Tags => Set<Tag>();
         public DbSet<Comment> Comments => Set<Comment>();
         public DbSet<Media> Media => Set<Media>();

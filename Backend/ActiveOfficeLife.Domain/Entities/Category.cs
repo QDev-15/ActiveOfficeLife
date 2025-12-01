@@ -17,6 +17,9 @@ namespace ActiveOfficeLife.Domain.Entities
         public Guid? SeoMetadataId { get; set; }
         public SeoMetadata? SeoMetadata { get; set; }
 
+        public Guid? CategoryTypeId { get; set; }
+        public CategoryType CategoryType { get; set; } = null!;
+
         public bool IsActive { get; set; } = true; // Trạng thái hoạt động của chuyên mục
         public bool IsDeleted { get; set; } = false; // Trạng thái đã xóa (soft delete)
         public Guid? ParentId { get; set; }                   // FK đến Category.Id (có thể null nếu là cha)
