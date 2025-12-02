@@ -64,7 +64,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"Error fetching paginated categories: {ex.Message}", ex.Source, null, ex.StackTrace);
+                AOLLogger.Error($"Error fetching paginated categories: {ex.Message}", ex);
                 return BadRequest(new ResultError("Failed to retrieve paginated categories.", "400"));
             }
         }
@@ -96,7 +96,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"Error fetching post by ID: {ex.Message}", ex.Source, null, ex.StackTrace);
+                AOLLogger.Error($"Error fetching post by ID: {ex.Message}", ex);
                 return BadRequest(new ResultError("Failed to retrieve post.", "400"));
             }
         }
@@ -129,7 +129,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"Error fetching post by slug: {ex.Message}", ex.Source, null, ex.StackTrace);
+                AOLLogger.Error($"Error fetching post by slug: {ex.Message}", ex);
                 return BadRequest(new ResultError("Failed to retrieve post.", "400"));
             }
         }
@@ -161,7 +161,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"Error fetching posts by category: {ex.Message}", ex.Source, null, ex.StackTrace);
+                AOLLogger.Error($"Error fetching posts by category: {ex.Message}", ex);
                 return BadRequest(new ResultError("Failed to retrieve posts.", "400"));
             }
         }
@@ -181,7 +181,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"Error creating post: {ex.Message}", ex.Source, null, ex.StackTrace);
+                AOLLogger.Error($"Error creating post: {ex.Message}", ex);
                 return BadRequest(new ResultError("Failed to create post.", "400"));
             }
         }

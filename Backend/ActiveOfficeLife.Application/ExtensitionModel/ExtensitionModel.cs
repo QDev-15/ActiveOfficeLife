@@ -31,6 +31,14 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
                 Status = ad.Status
             };
         }
+        public static CategoryTypeModel ReturnModel(this CategoryType value)
+        {
+            return new CategoryTypeModel()
+            {
+                Name = value.Name,
+                Categories = value.Categories.Select(x => x.ReturnModel()).ToList()
+            };
+        }
         public static MediaModel ReturnModel(this Media media)
         {
             return new MediaModel()
@@ -193,6 +201,11 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
                     Description = category.Description,
                     SeoMetadataId = category.SeoMetadataId,
                     SeoMetadata = category.SeoMetadata?.ReturnModel(),
+                    CategoryTypeId = category.CategoryTypeId,
+                    CategoryType = category.CategoryType != null ? new CategoryTypeModel()
+                    {
+                        Name = category.CategoryType.Name
+                    } : null,
                     Children = []
                 };
             }
@@ -208,6 +221,11 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
                 SeoMetadata = category.SeoMetadata?.ReturnModel(),
                 ParentId = category.ParentId,
                 Parent = category.Parent?.ReturnModel(true),
+                CategoryTypeId = category.CategoryTypeId,
+                CategoryType = category.CategoryType != null ? new CategoryTypeModel()
+                {
+                    Name = category.CategoryType.Name
+                } : null,
                 Children = category.Children.Any() ? category.Children.Select(c => c.ReturnModel()).ToList() : [],
             };
         }

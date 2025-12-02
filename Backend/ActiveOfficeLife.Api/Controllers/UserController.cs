@@ -194,7 +194,7 @@ namespace ActiveOfficeLife.Api.Controllers
             // convert formbody request object to string    
             var requestString = request != null ? JsonConvert.SerializeObject(request) : "null";
             //log request data
-            AOLLogger.Info($"Register request received: {request?.Username}, {request?.Email}", requestString);
+            AOLLogger.Info($"Register request received: {request?.Username}, {request?.Email}, {requestString}");
             if (request == null || string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
             {
                 return BadRequest(new ResultError("Invalid registration data.", "400"));

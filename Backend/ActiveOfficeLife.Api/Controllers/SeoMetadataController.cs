@@ -45,7 +45,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"Error fetching SEO metadata: {ex.Message}", ex.Source, null, ex.StackTrace);
+                AOLLogger.Error($"Error fetching SEO metadata: {ex.Message}", ex);
                 return BadRequest(new { Message = "Failed to retrieve SEO metadata.", Code = "400" });
             }
         }
@@ -68,7 +68,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"Error deleting SEO metadata: {ex.Message}", ex.Source, null, ex.StackTrace);
+                AOLLogger.Error($"Error deleting SEO metadata: {ex.Message}", ex);
                 return BadRequest(new { Message = "Failed to delete SEO metadata.", Code = "400" });
             }
         }
@@ -86,7 +86,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"Error creating or updating SEO metadata: {ex.Message}", ex.Source, null, ex.StackTrace);
+                AOLLogger.Error($"Error creating or updating SEO metadata: {ex.Message}", ex);
                 return BadRequest(new { Message = "Failed to create or update SEO metadata.", Code = "400" });
             }
         }
@@ -104,7 +104,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"Error updating SEO metadata: {ex.Message}", ex.Source, null, ex.StackTrace);
+                AOLLogger.Error($"Error updating SEO metadata: {ex.Message}", ex);
                 return BadRequest(new { Message = "Failed to update SEO metadata.", Code = "400" });
             }
         }
@@ -150,7 +150,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"Error patching SEO metadata: {ex.Message}", ex.Source, null, ex.StackTrace);
+                AOLLogger.Error($"Error patching SEO metadata: {ex.Message}", ex);
                 return BadRequest(new { Message = "Failed to patch SEO metadata.", Code = "400" });
             }
         }

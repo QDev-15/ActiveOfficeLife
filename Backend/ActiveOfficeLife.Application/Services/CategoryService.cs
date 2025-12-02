@@ -62,6 +62,7 @@ namespace ActiveOfficeLife.Application.Services
                     Slug = category.Slug,
                     Description = category.Description,
                     ParentId = category.ParentId,
+                    CategoryTypeId = category.CategoryTypeId,
                 };
                 if (category.SeoMetadata != null) { 
                     categoryEntity.SeoMetadataId = Guid.NewGuid(); // Assuming you want to create a new SEO metadata entry
@@ -84,7 +85,7 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(ex.Message, "Error creating category: {CategoryName}", category?.Name ?? "Unknown");
+                AOLLogger.Error(ex.Message + " Error creating category: " + (category?.Name ?? "Unknown"), ex);
                 // Handle exceptions as needed, e.g., log them
                 throw new ApplicationException("An error occurred while creating the category", ex);
             }
@@ -118,7 +119,8 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(ex.Message, "Error deleting category with ID: {CategoryId}", id.ToString());
+                string messae = ex.Message + " Error deleting category with ID: " + id.ToString();
+                AOLLogger.Error(messae, ex);
                 throw new ApplicationException("An error occurred while deleting the category", ex);
             }
         }
@@ -130,7 +132,8 @@ namespace ActiveOfficeLife.Application.Services
             var cats = await _categoryRepository.GetAllAsync();
             if (cats == null || !cats.Any())
             {
-                AOLLogger.Error($"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-GetAll Category not found");
+                string messageError = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-GetAll Category not found";
+                AOLLogger.Error(new LogProperties() { Message = messageError });
                 throw new KeyNotFoundException($"Categories not found");
             }
             categories = [];
@@ -166,13 +169,15 @@ namespace ActiveOfficeLife.Application.Services
                 var cat = await _categoryRepository.GetById(id);
                 if (cat == null)
                 {
-                    AOLLogger.Error($"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-{MessageContext.NotFound}");
+                    string message = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-Get Category by Id:{id.ToString()} not found";
+                    AOLLogger.Error(new LogProperties() { Message = message});
                     throw new KeyNotFoundException("Get Cagegory not found");
                 }
                 return cat.ReturnModel();
             } catch (Exception ex)
             {
-                AOLLogger.Error($"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-Error:{ex.Message}", ex.Source, ex.StackTrace);
+                string messageError = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-Get Category by Id:{id.ToString()} faild";
+                AOLLogger.Error(new LogProperties() { Message = messageError });
                 throw new Exception("Get category faild");
             }
         }
@@ -185,7 +190,8 @@ namespace ActiveOfficeLife.Application.Services
                 var cat = await _categoryRepository.GetByIdAsync(category.Id);
                 if (cat == null)
                 {
-                    AOLLogger.Error(msg + $"-Error category Id:{category.Id.ToString()}-not found");
+                    string message = msg + $"-Get Category by Id:{category.Id.ToString()} not found";
+                    AOLLogger.Error(new LogProperties() { Message = message });
                     throw new KeyNotFoundException("not found category update");
                 }
                 if (category.Name == null || category.Name.Length < 3)
@@ -214,6 +220,7 @@ namespace ActiveOfficeLife.Application.Services
                 }
                 cat.Slug = category.Slug;
                 cat.ParentId = category.ParentId;
+                cat.CategoryTypeId = category.CategoryTypeId;
                 cat.Description = category.Description;
                 cat.Name = category.Name;
                 if (category.SeoMetadata != null) {
@@ -233,7 +240,8 @@ namespace ActiveOfficeLife.Application.Services
 
             } catch(Exception ex)
             {
-                AOLLogger.Error($"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-Error: {ex.Message}", ex.Source, "", ex.StackTrace);
+                string messageError = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-Update Category Id:{category.Id.ToString()} faild";
+                AOLLogger.Error(new LogProperties() { Message = messageError });
                 throw new Exception("update category faild");
             }
         }
@@ -257,7 +265,8 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-Error: {ex.Message}", ex.Source, "", ex.StackTrace);
+                string messageError = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-Get categories paging failed";
+                AOLLogger.Error(new LogProperties() { Message = messageError });
                 throw new Exception("Get categories paging failed");
             }
         }

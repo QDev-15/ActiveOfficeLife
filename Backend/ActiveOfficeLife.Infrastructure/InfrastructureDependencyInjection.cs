@@ -23,6 +23,7 @@ namespace ActiveOfficeLife.Infrastructure
             services.AddScoped<IUnitOfWork, _UnitOfWork>();
             services.AddScoped<IAdRepository, AdRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
+            services.AddScoped<ICategoryTypeRepository, CategoryTypeRepository>();
             services.AddScoped<ILogRepository, LogRepository>();
             services.AddScoped<IMediaRepository, MediaRepository>();
             services.AddScoped<IPostRepository, PostRepository>();

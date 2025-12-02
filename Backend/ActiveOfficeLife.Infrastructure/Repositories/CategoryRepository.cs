@@ -66,7 +66,7 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
         }
         public new async Task<IEnumerable<Category>> GetAllAsync()
         {
-            return await _context.Categories.Where(x => x.IsDeleted == false).Include(x => x.SeoMetadata).Include(x => x.Children).Include(x=> x.Parent).ToListAsync();
+            return await _context.Categories.Where(x => x.IsDeleted == false).Include(x => x.SeoMetadata).Include(x => x.Children).Include(x => x.CategoryType).Include(x=> x.Parent).ToListAsync();
         }
         public async Task<(IEnumerable<Category> Categories, int Count)> GetAllWithPaging(PagingCategoryRequest request)
         {
@@ -118,13 +118,13 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             }
 
             int count = await query.CountAsync();
-            var categories = await query.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize).Include(x => x.Parent).Include(x => x.SeoMetadata).ToListAsync();
+            var categories = await query.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize).Include(x => x.CategoryType).Include(x => x.Parent).Include(x => x.SeoMetadata).ToListAsync();
             return (categories, count);
         }
 
         public async Task<Category?> GetById(Guid id)
         {
-            return await _context.Categories.Include(x => x.SeoMetadata).Include(x => x.Parent).Include(x => x.Children).FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.Categories.Include(x => x.SeoMetadata).Include(x => x.CategoryType).Include(x => x.Parent).Include(x => x.Children).FirstOrDefaultAsync(x => x.Id == id);
         }
         // override Remove method to set IsDeleted = true instead of removing from database
         public new void Remove(Category entity)
@@ -148,7 +148,7 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
 
         public async Task<IEnumerable<Category>> GetByParrentId(Guid parentId)
         {
-            return await _context.Categories.Where(x => x.ParentId == parentId).Include(x => x.SeoMetadata).Include(x => x.Children).ToListAsync();
+            return await _context.Categories.Where(x => x.ParentId == parentId).Include(x => x.CategoryType).Include(x => x.SeoMetadata).Include(x => x.Children).ToListAsync();
         }
 
         public async Task<Category> GetDefaultCategoryAsync()

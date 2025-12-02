@@ -1,6 +1,7 @@
 ﻿using ActiveOfficeLife.Application.Common;
 using ActiveOfficeLife.Application.ExtensitionModel;
 using ActiveOfficeLife.Application.Interfaces;
+using ActiveOfficeLife.Common;
 using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Domain.Entities;
 using ActiveOfficeLife.Domain.Interfaces;
@@ -32,12 +33,13 @@ namespace ActiveOfficeLife.Application.Services
                 };
                 await _roleRepository.AddAsync(newRole);
                 await _iUnitOfWork.SaveChangesAsync();
-                AOLLogger.Info($"{msg} - Added Role - {newRole.Name}");
+
+                AOLLogger.Info( new LogProperties() { Message = $"{msg} - Added Role - {newRole.Name}" });
                 return newRole.ReturnModel();
                 
             } catch(Exception ex)
             {
-                AOLLogger.Error(ex.Message, ex.Source, null, ex.StackTrace);
+                AOLLogger.Error(ex);
                 throw new Exception("Role added");
             }
         }
@@ -59,7 +61,7 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(ex.Message, ex.Source, null, ex.StackTrace);
+                AOLLogger.Error(ex);
                 throw new Exception("Role delete Faild");
             }
         }
@@ -82,7 +84,7 @@ namespace ActiveOfficeLife.Application.Services
                 return updateRole.ReturnModel();
             } catch(Exception ex)
             {
-                AOLLogger.Error(ex.Message, ex.Source, null, ex.StackTrace);
+                AOLLogger.Error(ex);
                 throw new Exception("Role Update Faild");
             }
         }

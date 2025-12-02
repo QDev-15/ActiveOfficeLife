@@ -39,7 +39,10 @@ namespace ActiveOfficeLife.Application.Services
                 var existingTag = tagModel == null ? false : await this.IsExist(tagModel.Name);
                 if (existingTag)
                 {
-                    AOLLogger.Error("Tag already exists.", "TagService", null);
+                    string message = "Tag already exists with name: " + tagModel.Name;
+                    AOLLogger.Error(new LogProperties() {
+                        Message = message
+                    });
                     // Log the error (not implemented here)
                     throw new Exception("Tag already exists.");
                 }
@@ -67,7 +70,7 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(ex.Message, ex.Source, null, ex.StackTrace);
+                AOLLogger.Error(ex);
                 // Log the exception (not implemented here)
                 throw new Exception("Add tag error.");
             }
@@ -88,7 +91,7 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(ex.Message, ex.Source, null, ex.StackTrace);
+                AOLLogger.Error(ex);
                 // Log the exception (not implemented here)
                 throw new Exception("Delete tag error.");
             }
@@ -107,7 +110,8 @@ namespace ActiveOfficeLife.Application.Services
                 var tag = await _tagRepository.GetByIdAsync(Guid.Parse(id));
                 if (tag == null)
                 {
-                    AOLLogger.Error("Tag not found.", "TagService", null);
+                    string message = "Tag not found with id: " + id;
+                    AOLLogger.Error(new LogProperties() { Message = message });
                     // Log the error (not implemented here)
                     throw new Exception("Tag not found.");
                 }
@@ -115,7 +119,7 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(ex.Message, ex.Source, null, ex.StackTrace);
+                AOLLogger.Error(ex);
                 // Log the exception (not implemented here)
                 throw new Exception("Get tag by id error.");
             }
@@ -127,7 +131,8 @@ namespace ActiveOfficeLife.Application.Services
                 var tag = await _tagRepository.GetByNameAsync(name);
                 if (tag == null)
                 {
-                    AOLLogger.Error("Tag not found.", "TagService", null);
+                    string message = "Tag not found with name: " + name;
+                    AOLLogger.Error(new LogProperties() { Message = message });
                     // Log the error (not implemented here)
                     throw new Exception("Tag not found.");
                 }
@@ -135,7 +140,7 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(ex.Message, ex.Source, null, ex.StackTrace);
+                AOLLogger.Error(ex);
                 // Log the exception (not implemented here)
                 throw new Exception("Get tag by id error.");
             }
@@ -154,7 +159,7 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(ex.Message, ex.Source, null, ex.StackTrace);
+                AOLLogger.Error(ex);
                 // Log the exception (not implemented here)
                 throw new Exception("Check if tag exists error.");
             }
@@ -180,7 +185,8 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"{serviceName}-{nameof(Search)}: Error searching posts. Exception: {ex.Message}", ex.Source, null, ex.StackTrace);
+                string message = $"{serviceName}-{nameof(Search)}: Error searching tags. Exception: {ex.Message}";
+                AOLLogger.Error(message, ex);
                 throw new Exception(ex.Message);
             }
         }
@@ -236,7 +242,8 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"{msgHdr}: Error updating tag. Exception: {ex.Message}", ex.Source, null, ex.StackTrace);
+                string message = $"{msgHdr}: Exception occurred while updating tag. Exception: {ex.Message}";
+                AOLLogger.Error(message, ex);
                 throw new Exception("Update tag error.");
             }
         }

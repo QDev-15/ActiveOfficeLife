@@ -81,7 +81,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                AOLLogger.LogService.Error(ex.Message, ex.Source, ex.StackTrace);
+                AOLLogger.Error(ex);
                 return BadRequest(ex.Message);
             }
             

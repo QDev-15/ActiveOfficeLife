@@ -35,7 +35,8 @@ namespace ActiveOfficeLife.Application.Services
             try { 
                 if (post == null)
                 {
-                    AOLLogger.Error($"{msgHdr}: Post is null.");
+                    string message = msgHdr + ": Post cannot be null.";
+                    AOLLogger.Error(new LogProperties() { Message = message });
                     throw new ArgumentNullException(nameof(post), "Post cannot be null.");
                 }
                 if (string.IsNullOrWhiteSpace(post.Title))
@@ -78,7 +79,8 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"{serviceName}-{nameof(Create)}: Error creating post. Exception: {ex.Message}", ex.Source, null, ex.StackTrace);
+                string message = msgHdr + $"{serviceName}-{nameof(Create)}: Error creating post. Exception message: {ex.Message}";
+                AOLLogger.Error(message, ex);
                 throw;
             }
         }
@@ -90,7 +92,8 @@ namespace ActiveOfficeLife.Application.Services
                 var post = await _postRepository.GetByIdAsync(id);
                 if (post == null)
                 {
-                    AOLLogger.Error($"{msgHdr}: Post with id {id} not found.");
+                    string message = msgHdr + $": Post with id {id} not found.";
+                    AOLLogger.Error(new LogProperties() { Message = message });
                     return false; // Post not found
                 }
                 _postRepository.Remove(post);
@@ -101,7 +104,8 @@ namespace ActiveOfficeLife.Application.Services
             catch (Exception ex)
             {
                 // Handle exceptions and log errors
-                AOLLogger.Error($"{msgHdr}: Error deleting post with id {id}. Exception: {ex.Message}", ex.Source, null, ex.StackTrace);
+                string message = msgHdr + $": Exception occurred while deleting post with id {id}. Exception message: {ex.Message}";
+                AOLLogger.Error(message, ex);
                 return false;
             }
         }
@@ -113,14 +117,16 @@ namespace ActiveOfficeLife.Application.Services
                 var post = await _postRepository.GetByAliasAsync(slug);
                 if (post == null)
                 {
-                    AOLLogger.Error($"{msgHdr}: Post with slug {slug} not found.");
+                    string message = msgHdr + $": Post with slug {slug} not found.";
+                    AOLLogger.Error(new LogProperties() { Message = message });
                     return null; // Post not found
                 }
                 return post.ReturnModel();
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"{serviceName}-{nameof(GetByAlias)}: Error retrieving post by alias. Exception: {ex.Message}", ex.Source, null, ex.StackTrace);
+                string message = $"{serviceName}-{nameof(GetByAlias)}: Error retrieving post by alias. Exception: {ex.Message}";
+                AOLLogger.Error(message, ex);
                 throw new Exception(ex.Message);
             }
         }
@@ -132,14 +138,16 @@ namespace ActiveOfficeLife.Application.Services
                 var post = await _postRepository.GetByIdAsync(id);
                 if (post == null)
                 {
-                    AOLLogger.Error($"{msgHdr}: Post with id {id} not found.");
+                    string message = msgHdr + $": Post with id {id} not found.";
+                    AOLLogger.Error(new LogProperties() { Message = message });
                     return null; // Post not found
                 }
                 return post.ReturnModel();
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"{serviceName}-{nameof(GetById)}: Error retrieving post by id. Exception: {ex.Message}", ex.Source, null, ex.StackTrace);
+                string message = $"{serviceName}-{nameof(GetById)}: Error retrieving post by id. Exception: {ex.Message}";
+                AOLLogger.Error(message, ex);
                 throw new Exception(ex.Message);
             }
         }
@@ -158,7 +166,8 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"{serviceName}-{nameof(GetByKey)}: Error retrieving posts by keyword. Exception: {ex.Message}", ex.Source, null, ex.StackTrace);
+                string message = $"{serviceName}-{nameof(GetByKey)}: Error retrieving posts by keyword. Exception: {ex.Message}";
+                AOLLogger.Error(message, ex);
                 throw new Exception(ex.Message);
             }
         }
@@ -182,7 +191,8 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"{serviceName}-{nameof(Search)}: Error searching posts. Exception: {ex.Message}", ex.Source, null, ex.StackTrace);
+                string message = $"{serviceName}-{nameof(Search)}: Error searching posts. Exception: {ex.Message}";
+                AOLLogger.Error(message, ex);
                 throw new Exception(ex.Message);
             }
         }
@@ -237,7 +247,8 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"{serviceName}-{nameof(Update)}: Error updating post. Exception: {ex.Message}", ex.Source, null, ex.StackTrace);
+                string message = $"{serviceName}-{nameof(Update)}: Error updating post. Exception: {ex.Message}";
+                AOLLogger.Error(message, ex);
                 throw new Exception(ex.Message);
             }
         }
@@ -258,7 +269,8 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"{serviceName}-{nameof(GetByCategoryId)}: Error retrieving posts by category. Exception: {ex.Message}", ex.Source, null, ex.StackTrace);
+                string message = $"{serviceName}-{nameof(GetByCategoryId)}: Error retrieving posts by category. Exception: {ex.Message}";
+                AOLLogger.Error(message, ex);
                 throw new Exception(ex.Message);
             }
         }
@@ -282,7 +294,8 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-Error: {ex.Message}", ex.Source, "", ex.StackTrace);
+                string message = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-Error: {ex.Message}";
+                AOLLogger.Error(message, ex);
                 throw new Exception("Get categories paging failed");
             }
         }

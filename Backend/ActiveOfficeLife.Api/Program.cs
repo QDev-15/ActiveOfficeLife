@@ -111,6 +111,7 @@ builder.Services.AddScoped<IGoogleDriveInterface, GoogleDriveAdapter>();
 builder.Services.AddHostedService<LogBackgroundService>();
 
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor(); // get IpAddress on request
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

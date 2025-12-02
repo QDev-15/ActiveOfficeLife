@@ -1,6 +1,7 @@
 ﻿using ActiveOfficeLife.Application.Common;
 using ActiveOfficeLife.Application.ExtensitionModel;
 using ActiveOfficeLife.Application.Interfaces;
+using ActiveOfficeLife.Common;
 using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Domain.Entities;
 using ActiveOfficeLife.Domain.Interfaces;
@@ -33,7 +34,7 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(ex.Message, ex.Source, userId, ex.StackTrace);
+                AOLLogger.Error(ex);
                 // Log the exception (not implemented here)
                 throw new Exception("Add comment error.");
             }
@@ -46,7 +47,8 @@ namespace ActiveOfficeLife.Application.Services
                 var comment = await _commentRepository.GetByIdAsync(Guid.Parse(commentId));
                 if (comment == null || comment.UserId != Guid.Parse(userId))
                 {
-                    AOLLogger.Error("Comment not found or user not authorized to delete.", "CommentService", userId);
+                    string message = "Comment not found or user not authorized to delete.";
+                    AOLLogger.Error(new LogProperties() { Message = message });
                     return false;
                 }
                 _commentRepository.Remove(comment);
@@ -55,7 +57,7 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(ex.Message, ex.Source, userId, ex.StackTrace);
+                AOLLogger.Error(ex);
                 // Log the exception (not implemented here)
                 throw new NotImplementedException();
             }

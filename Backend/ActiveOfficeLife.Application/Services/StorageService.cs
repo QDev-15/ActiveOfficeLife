@@ -250,7 +250,7 @@ namespace ActiveOfficeLife.Application.Services
             }
             catch (Exception ex)
             {
-                AOLLogger.Error(ex.Message, ex.Source, userId, ex.StackTrace);
+                AOLLogger.Error(ex);
                 throw new Exception(ex.Message);
             }
         }

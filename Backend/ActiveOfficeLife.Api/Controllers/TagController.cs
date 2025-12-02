@@ -39,7 +39,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"Error fetching paginated tags: {ex.Message}", ex.Source, null, ex.StackTrace);
+                AOLLogger.Error($"Error fetching paginated tags: {ex.Message}", ex);
                 return BadRequest(new ResultError("Failed to retrieve paginated tags.", "400"));
             }
         }
@@ -71,7 +71,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"Error fetching tag: {ex.Message}", ex.Source, null, ex.StackTrace);
+                AOLLogger.Error($"Error fetching tag: {ex.Message}", ex);
                 return BadRequest(new ResultError("Failed to retrieve tag.", "400"));
             }
         }
@@ -89,7 +89,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"Error creating tag: {ex.Message}", ex.Source, null, ex.StackTrace);
+                AOLLogger.Error($"Error creating tag: {ex.Message}", ex);
                 return BadRequest(new ResultError(ex.Message));
 
             }
@@ -115,7 +115,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"Error deleting tag: {ex.Message}", ex.Source, null, ex.StackTrace);
+                AOLLogger.Error($"Error deleting tag: {ex.Message}", ex);
                 return BadRequest(new ResultError("Failed to delete tag.", "400"));
             }
         }
@@ -143,7 +143,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-                AOLLogger.Error($"Error updating tag: {ex.Message}", ex.Source, null, ex.StackTrace);
+                AOLLogger.Error($"Error updating tag: {ex.Message}", ex);
                 return BadRequest(new ResultError("Failed to update tag.", "400"));
             }
         }

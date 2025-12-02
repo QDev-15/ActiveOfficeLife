@@ -80,7 +80,7 @@ namespace ActiveOfficeLife.Api.Controllers
             catch (Exception ex)
             {
                 // Log the exception (optional)
-                AOLLogger.Error($"Error processing login request: {ex.Message}", ex.Source, null, ex.StackTrace, IpAddress);
+                AOLLogger.Error($"Error processing login request: {ex.Message}", ex);
                 return BadRequest(new ResultError($"Error processing login request: {ex.Message}", "400"));
             }
         }
@@ -96,9 +96,8 @@ namespace ActiveOfficeLife.Api.Controllers
             }
             catch (Exception ex)
             {
-
                 // Log the exception (optional)
-                AOLLogger.Error($"Error processing refresh token: {ex.Message}", ex.Source, null, ex.StackTrace, IpAddress);
+                AOLLogger.Error($"Error processing refresh token: {ex.Message}", ex);
                 return BadRequest(new ResultError($"Error processing refresh token: {ex.Message}", "400"));
             }
         }
