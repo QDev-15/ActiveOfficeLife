@@ -30,6 +30,23 @@ namespace ActiveOfficeLife.Admin.Controllers
         {
             var response = await _apiService.GetAsync(Common.AOLEndPoint.CategoryGetAll + "?pageSize=1000");
             var parents = await response.ToModelAsync<List<CategoryModel>>() ?? new List<CategoryModel>();
+            var typesResponse = await _apiService.GetAsync(Common.AOLEndPoint.CategoryTypeGetAll + "?pageSize=1000");
+            var types = await typesResponse.ToModelAsync<List<CategoryTypeModel>>() ?? new List<CategoryTypeModel>();
+
+            var typeSelectList = new List<SelectListItem>() { new SelectListItem()
+            {
+                Value = "0",
+                Text = "--None--"
+            } };
+            typeSelectList.Concat(types
+                .Select(t => new SelectListItem
+                {
+                    Value = t.Id.ToString(),
+                    Text = t.Name
+                })
+                .ToList());
+            ViewBag.categoryTypes = typeSelectList;
+
 
             var selectList = new List<SelectListItem>() { new SelectListItem()
             {
@@ -67,6 +84,23 @@ namespace ActiveOfficeLife.Admin.Controllers
             {
                 return NotFound();
             }
+            var typesResponse = await _apiService.GetAsync(Common.AOLEndPoint.CategoryTypeGetAll + "?pageSize=1000");
+            var types = await typesResponse.ToModelAsync<List<CategoryTypeModel>>() ?? new List<CategoryTypeModel>();
+
+            var typeSelectList = new List<SelectListItem>() { new SelectListItem()
+            {
+                Value = "0",
+                Text = "--None--"
+            } };
+            ViewBag.categoryTypes = typeSelectList.Concat(types
+                .Select(t => new SelectListItem
+                {
+                    Value = t.Id.ToString(),
+                    Text = t.Name
+                })
+                .ToList());
+
+
             var parentsResponse = await _apiService.GetAsync(Common.AOLEndPoint.CategoryGetAll + "?pageSize=1000");
             var parents = await parentsResponse.ToModelAsync<List<CategoryModel>>() ?? new List<CategoryModel>();
             var selectList = new List<SelectListItem>() { new SelectListItem()

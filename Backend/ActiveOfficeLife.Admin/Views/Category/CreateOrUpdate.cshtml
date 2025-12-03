@@ -32,6 +32,15 @@
 
         @* Parent Category *@
         <div class="mb-3">
+            <label asp-for="CategoryTypeId" class="form-label">Category Type</label>
+            <select asp-for="CategoryTypeId" class="form-select" asp-items="ViewBag.categoryTypes" id="categoryTypesSelect">
+                <option value="">-- None --</option>
+            </select>
+            <span asp-validation-for="CategoryTypeId" class="text-danger"></span>
+        </div>
+
+        @* Parent Category *@
+        <div class="mb-3">
             <label asp-for="ParentId" class="form-label">Parent Category</label>
             <select asp-for="ParentId" class="form-select" asp-items="ViewBag.ParentCategories" id="ParentCategorySelect">
                 <option value="">-- None --</option>

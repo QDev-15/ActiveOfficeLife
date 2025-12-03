@@ -4,6 +4,7 @@ using ActiveOfficeLife.Application.Services;
 using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Common.Requests;
 using ActiveOfficeLife.Common.Responses;
+using Azure.Core;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
@@ -134,14 +135,26 @@ namespace ActiveOfficeLife.Api.Controllers
                 var cacheCategoryTypes = _cache.Get<List<CategoryTypeModel>>(cacheKey);
                 if (cacheCategoryTypes != null && cacheCategoryTypes.Any())
                 {
-                    return Ok(new ResultSuccess(cacheCategoryTypes));
+                    return Ok(new ResultSuccess(new
+                    {
+                        Items = cacheCategoryTypes,
+                        TotalCount = cacheCategoryTypes.Count,
+                        PageIndex = 1,
+                        PageSize = 10000,
+                    }));
                 }
                 var categoryTypes = await _categoryTypeService.GetAll();
                 if (categoryTypes != null)
                 {
                     // set cache for category types
                     _cache.Set(cacheKey, categoryTypes.ToList(), TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout));
-                    return Ok(new ResultSuccess(categoryTypes));
+                    return Ok(new ResultSuccess(new
+                    {
+                        Items = categoryTypes.ToList(),
+                        TotalCount = categoryTypes.Count(),
+                        PageIndex = 1,
+                        PageSize = 10000,
+                    }));
                 }
                 return NotFound(new ResultError("Category types not found.", "404"));
             } catch(Exception ex)
@@ -215,7 +228,7 @@ namespace ActiveOfficeLife.Api.Controllers
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error deleting category type: {ex.Message}", ex);
-                return BadRequest(new ResultError("Failed to delete category type.", "400"));
+                return BadRequest(new ResultError(ex.Message, "400"));
             }
         }
         [HttpDelete("delete")]

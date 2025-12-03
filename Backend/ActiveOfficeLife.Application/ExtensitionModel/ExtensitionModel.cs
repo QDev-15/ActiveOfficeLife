@@ -35,6 +35,8 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
         {
             return new CategoryTypeModel()
             {
+                Id = value.Id,
+                IsActive = value.IsActive,
                 Name = value.Name,
                 Categories = value.Categories.Select(x => x.ReturnModel()).ToList()
             };

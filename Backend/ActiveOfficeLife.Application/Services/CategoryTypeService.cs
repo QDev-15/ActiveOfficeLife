@@ -43,13 +43,17 @@ namespace ActiveOfficeLife.Application.Services
             try
             {
                 var categoryType = await _categoryTypeRepository.GetById(id);
+                if (categoryType.Categories.Any())
+                {
+                    throw (new Exception($"{categoryType.Name} is being used and cannot be deleted."));
+                }
                 _categoryTypeRepository.Remove(categoryType!);
                 await _unitOfWork.SaveChangesAsync();
                 return true;
             }
             catch (Exception ex) {
                 AOLLogger.Error(ex);
-                return false;
+                throw new Exception(ex.Message);
             }
         }
 
@@ -82,10 +86,15 @@ namespace ActiveOfficeLife.Application.Services
         public async Task<CategoryTypeModel?> Update(CategoryTypeModel model)
         {
             try {                 
+                if (model == null || model.Id == null || model.Id == Guid.Empty)
+                {
+                    throw new ArgumentException("Invalid CategoryType Id");
+                }
                 var categoryType = await _categoryTypeRepository.GetById(model.Id);
                 if (categoryType != null)
                 {
                     categoryType.Name = model.Name;
+                    categoryType.IsActive = model.IsActive;
                     _categoryTypeRepository.Update(categoryType);
                     _unitOfWork.SaveChangesAsync().Wait();
                     return (categoryType.ReturnModel());

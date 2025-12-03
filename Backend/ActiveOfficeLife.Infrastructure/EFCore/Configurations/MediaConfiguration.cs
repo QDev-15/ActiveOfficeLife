@@ -16,6 +16,8 @@ namespace ActiveOfficeLife.Domain.EFCore.Configurations
             builder.ToTable("Medias");
 
             builder.HasKey(m => m.Id);
+            builder.Property(m => m.Id)
+                   .ValueGeneratedOnAdd();
 
             builder.Property(m => m.FileName)
                 .IsRequired()

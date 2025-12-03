@@ -2,7 +2,7 @@
 {
     public class CategoryTypeModel
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public string Name { get; set; } = null!;
         
         public bool IsActive { get; set; } = true; // Trạng thái hoạt động của chuyên mục

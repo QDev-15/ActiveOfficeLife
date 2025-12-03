@@ -36,6 +36,11 @@ namespace ActiveOfficeLife.Common
         public const string CategoryCreate = "/api/category/create";
         public const string CategoryUpdate = "/api/category/update";
         public const string CategoryDelete = "/api/category/delete";
+        // Category Type Endpoints
+        public const string CategoryTypeGetAll = "/api/category/types";
+        public const string CategoryTypeGetById = "/api/category/gettype-id";
+        public const string CategoryTypeCreate = "/api/category/create-type";
+        public const string CategoryTypeUpdate = "/api/category/update-type";
         // Post Endpoints
         public const string PostGetAll = "/api/post/getall";
         public const string PostGetById = "/api/Post/get";

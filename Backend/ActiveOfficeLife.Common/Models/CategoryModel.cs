@@ -13,7 +13,7 @@
         public Guid? SeoMetadataId { get; set; }
         public SeoMetadataModel? SeoMetadata { get; set; }
         public Guid? CategoryTypeId { get; set; }
-        public CategoryTypeModel CategoryType { get; set; } = null!;
+        public CategoryTypeModel? CategoryType { get; set; } = null!;
 
         public Guid? ParentId { get; set; }                   // FK đến Category.Id (có thể null nếu là cha)
         public CategoryModel? Parent { get; set; }                 // Category cha

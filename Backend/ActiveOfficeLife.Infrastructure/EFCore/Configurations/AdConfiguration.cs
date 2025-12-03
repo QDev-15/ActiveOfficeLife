@@ -16,6 +16,8 @@ namespace ActiveOfficeLife.Domain.EFCore.Configurations
             builder.ToTable("Ads");
 
             builder.HasKey(a => a.Id);
+            builder.Property(a => a.Id)
+                   .ValueGeneratedOnAdd();
 
             builder.Property(a => a.Name)
                 .IsRequired()

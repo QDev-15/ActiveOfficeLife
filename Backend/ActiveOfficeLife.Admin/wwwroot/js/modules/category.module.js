@@ -25,7 +25,15 @@ class CategoryModule {
         this.form = null;
         this.modalCategory = null;
         this.tableId = "categoryTable";
+        this.tableCategoryTypeId = "categoryCategoryTable";
         this.tableInstance = null;
+        this.tableInstanceCategoryType = null;
+        this.endpoints = {
+            createType: '/Category/create-type',
+            getTypes: '/Category/types',
+            updateType: '/Category/update-type',
+            deleteType: '/Category/delete-type'
+        }
     }
 
     debounce(func, delay) {
@@ -160,7 +168,91 @@ class CategoryModule {
         });
 
     }
-    
+
+    // init DataTable
+    initTableCategoryType() {
+        this.tableInstanceCategoryType = $(`#${this.tableCategoryTypeId}`).DataTable({
+            processing: true,
+            serverSide: true,
+            stateSave: true,
+            responsive: true,
+            searching: false,
+            searchDelay: 500, // searchDelay mặc định sau 0.5s mới search
+            order: [[1, 'desc']],
+            ajax: (d, callback) => {
+                apiInstance.get(this.endpoints.getTypes)
+                    .then(response => {
+                        this.pageSize = response.pageSize;
+                        this.pageIndex = response.pageIndex;
+                        callback({
+                            data: response.items || [],
+                            recordsTotal: response.totalCount || 0,
+                            recordsFiltered: response.totalCount || 0,
+                        });
+                    })
+                    .catch(error => {
+                        console.error("❌ Error loading categories:", error);
+                        callback({
+                            data: [],
+                            recordsTotal: 0,
+                            recordsFiltered: 0
+                        });
+                    });
+            },
+            columns: [
+                {
+                    data: null,
+                    title: "STT",
+                    className: "text-center",
+                    width: "60px",
+                    render: function (data, type, row, meta) {
+                        return meta.row + 1 + meta.settings._iDisplayStart;
+                    },
+                    orderable: false // Không sort theo STT
+                },
+                {
+                    data: "name",
+                    name: "name",
+                    title: "Category Type Name",
+                    className: "fw-bold text-primary",
+                    orderable: true
+                },
+                {
+                    data: null, // null để lấy toàn bộ row
+                    title: "Status",
+                    className: "text-center",
+                    orderable: false,
+                    render: function (data, type, row) {
+                        if (data.isActive) {
+                            return '<span class="badge bg-success">Active</span>';
+                        } else {
+                            return '<span class="badge bg-secondary">Deactivated</span>';
+                        }
+                    }
+                },
+                {
+                    data: null, // null để lấy toàn bộ row
+                    title: "Actions",
+                    className: "text-center",
+                    orderable: false,
+                    render: function (data, type, row) {
+                        return `<button class="btn btn-sm btn-warning btn-edit"
+                                    onclick="categoryInstance.editType(event)"
+                                    data-id="${row.id}" data-active="${row.isActive}"
+                                    data-name="${row.name}">Edit</button>
+                                <button class="btn btn-sm btn-danger btn-delete"
+                                    onclick="categoryInstance.deleteType(event)"
+                                    data-id="${row.id}"
+                                    data-name="${row.name}">Delete</button>
+                                `;
+                    }
+                }
+            ],
+            pageLength: 10
+        });
+
+    }
+
     save() {
         if (!this.validate()) return;
         const form = document.getElementById('form_add_category');
@@ -179,7 +271,7 @@ class CategoryModule {
             }
         };
         payload.parentId = payload.parentId === "0" ? null : payload.parentId;
-        apiInstance.post('/category/create', payload)
+        apiInstance.post(this.endpoints.createType, payload)
             .then(res => {
                 messageInstance.success("Thêm mới thành công!");
                 this.modalCategory.hide();
@@ -201,6 +293,7 @@ class CategoryModule {
             slug: form.querySelector('[name="Slug"]').value,
             description: form.querySelector('[name="Description"]').value,
             parentId: form.querySelector('[name="ParentId"]').value || null,
+            categoryTypeId: form.querySelector('[name="CategoryTypeId"]').value || null,
             seoMetadataId: form.querySelector('[name="SeoMetadataId"]').value || null,
             seoMetadata: {
                 title: form.querySelector('[name="SeoMetadata.Title"]').value,
@@ -279,8 +372,101 @@ class CategoryModule {
         });
     }
 
+    addType() {
+        // reset form data set new value for input typeName
+        $('#typeName').val('new types');
+        // reset hidden input typeId
+        $('#typeId').val('');
+        $('#typeIsActive').prop('checked', true);
+        this.showEditFormType(true);
+    }
+    editType(e) {
+        // get data-id and data-name from button
+        const id = $(e.currentTarget).data('id');
+        const name = $(e.currentTarget).data('name');
+        const isActive = $(e.currentTarget).data('active');
+        // set value for input typeName
+        $('#typeName').val(name);
+        // set value for hidden input typeId
+        $('#typeId').val(id);
+        $('#typeIsActive').prop('checked', isActive);
+        this.showEditFormType(true);
+    }
+    saveType() {
+        const type = {
+            id: $('#typeId').val() || null,
+            name: $('#typeName').val(),
+            isActive: $('#typeIsActive').prop('checked')
+        }
+        if (!type.name || type.name.trim() === '') {
+            this.messageApp.error("Vui lòng nhập tên loại danh mục!");
+            return;
+        }
+        if (!type.id) {
+            apiInstance.post(this.endpoints.createType, type)
+                .then(res => {    
+                    this.resetFormType();
+                    this.refreshTypeData();
+                    this.messageApp.success("Lưu loại danh mục thành công!");
+                })
+                .catch(err => {
+                    console.error(err);
+                    this.messageApp.error("Lỗi khi lưu loại danh mục!");
+                });
+        } else {
+            apiInstance.put(this.endpoints.updateType, type)
+                .then(res => {
+                    this.resetFormType();
+                    this.refreshTypeData();
+                    this.messageApp.success("Cập nhật loại danh mục thành công!");
+                })
+                .catch(err => {
+                    console.error(err);
+                    this.messageApp.error("Lỗi khi cập nhật loại danh mục!");
+                });
+        }
+    }
+    showEditFormType(show) {
+        // show or hide form <form id="category-type-form" style="display: none">
+        if (show) {
+            $('#category-type-form').show();
+            $('#card-body-title').hide();
+        } else {
+            $('#category-type-form').hide();
+            $('#card-body-title').show();
+        }
+    }
+    resetFormType() {
+        this.showEditFormType(false);
+        // reset form <form id="category-type-form">
+        $('#category-type-form')[0].reset();
+    }
+    deleteType(e) {
+        // get data-id and data-name from button
+        const id = $(e.currentTarget).data('id');
+        const name = $(e.currentTarget).data('name');
+        var message = "Bạn có chắc chắn muốn xóa loại danh mục <strong>" + name + "</strong> không?";
+        this.messageApp.confirm(message).then((result) => {
+            if (result) {
+                apiInstance.delete(this.endpoints.deleteType + '?id=' + id)
+                    .then(res => {
+                        this.messageApp.success("Xóa loại danh mục thành công!");
+                        this.refreshTypeData();
+                    })
+                    .catch(err => {
+                        //console.error(err);
+                        const messageError = err.message;
+                        this.messageApp.error(messageError);
+                    });
+            };
+        });
+    }
     refreshData() {
         this.tableInstance?.ajax.reload();
+    }
+    refreshTypeData() {
+        this.tableInstance?.ajax.reload();
+        this.tableInstanceCategoryType?.ajax.reload();
     }
 }
 

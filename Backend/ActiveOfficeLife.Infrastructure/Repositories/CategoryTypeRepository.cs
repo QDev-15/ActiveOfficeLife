@@ -26,7 +26,7 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             return cateTypes;
         }
 
-        public Task<CategoryType?> GetById(Guid id)
+        public Task<CategoryType> GetById(Guid? id)
         {
             var cateType = _context.CategoryTypes.Include(ct => ct.Categories)
                 .FirstOrDefaultAsync(ct => ct.Id == id);

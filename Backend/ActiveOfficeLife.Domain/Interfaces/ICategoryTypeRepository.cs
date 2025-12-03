@@ -11,6 +11,6 @@ namespace ActiveOfficeLife.Domain.Interfaces
     {
         // add, edit, delete inherited from _IRepository
         Task<IEnumerable<CategoryType>> GetAll();
-        Task<CategoryType?> GetById(Guid id);
+        Task<CategoryType> GetById(Guid? id);
     }
 }

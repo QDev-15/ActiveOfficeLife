@@ -31,6 +31,55 @@
     <table id="categoryTable" class="table table-bordered table-striped table-hover" style="width:100%"></table>
 
 </div>
+<div class="container">
+    <div class="d-flex justify-content-around align-items-center pt-3 pb-3">
+        <h4>Loại danh mục</h4>
+        <div>
+            <button class="btn btn-primary me-2" onclick="categoryInstance.addType()">➕ Add Loại danh mục</button>
+            <button class="btn btn-secondary" onclick="categoryInstance.refreshTypeData()">🔄 Refresh Loại danh mục</button>
+        </div>
+
+    </div>
+    <div class="row d-flex">
+        <!-- LEFT: TABLE -->
+        <div class="col-12 col-lg-7">
+            <div class="card pt-2 pb-2 shadow-sm">
+                <table id="categoryCategoryTable" class="table table-bordered table-striped table-hover" style="width:100%"></table>
+            </div>
+        </div>
+
+        <!-- RIGHT: FORM ADD/UPDATE -->
+        <div class="col-12 col-lg-5 mt-4 mt-lg-0">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <strong id="form-title">Detail</strong>
+                </div>
+
+                <div class="card-body">
+                    <h4 id="card-body-title">Chọn và sửa thông tin tại đây</h4>
+                    <form id="category-type-form" style="display: none">
+                        <input type="hidden" id="formMode" value="addnew" />
+                        <div class="mb-3">
+                            <label class="form-label">Tên loại</label>
+                            <input type="text" class="form-control" id="typeName" placeholder="Nhập tên loại..." />
+                        </div>
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="typeIsActive" checked>
+                            <label class="form-check-label" for="typeIsActive">Kích hoạt (IsActive)</label>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-secondary" onclick="categoryInstance.resetFormType()">Làm mới</button>
+                            <button type="button" class="btn btn-success" onclick="categoryInstance.saveType()">💾 Lưu</button>
+                        </div>
+
+                        <!-- Hidden ID for update -->
+                        <input type="hidden" id="typeId" />
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
@@ -66,6 +115,7 @@
 
 <script type="module">
     categoryInstance.initTable();
+    categoryInstance.initTableCategoryType();
 </script>
 
 

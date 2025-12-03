@@ -5,6 +5,9 @@ class ConfigModule {
         this.urlApiServer = 'https://api.aol.tkid.io.vn/api';
         this.urlApiLocal = 'https://localhost:7029/api';
         this.urlApi = window.apiUrl + "/api";
+        this.endpoints = {
+            getme: "/Auth/me"
+        };
         this.accesstokenKey = window.accesstokenKey;
         this.token = document.cookie
             .split('; ')
@@ -23,8 +26,41 @@ class ConfigModule {
             createdAt: null
         };
         this.initUserCookie();
+        this.getCurrentUser();
     }
+    async getCurrentUser() {
+        try {
+            const url = new URL(this.urlApi + this.endpoints.getme);
 
+            const res = await fetch(url.toString(), {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${this.token}`
+                }
+            });
+            if (res.status === 401 || res.status === 403) {
+                // Unauthorized -> logout
+                return this.logout();
+            };
+            const contentType = res.headers.get('content-type');
+            let result = null;
+            if (contentType && contentType.includes('application/json')) {
+                result = await res.json();
+            } else {
+                result = await res.text();
+            }
+
+            this.updateUser(result.data);
+
+            return result;
+        } catch {
+            const latencyMs = Math.round(performance.now() - t0);
+            const result = { ok: false, status: 0, latencyMs };
+            this.writeLog(latencyMs, false);
+
+            return result;
+        }
+    }
     createModal(id) {
         const modalEl = document.getElementById(id);
         return new bootstrap.Modal(modalEl);
@@ -43,32 +79,35 @@ class ConfigModule {
                 const decoded = decodeURIComponent(userInfo);
                 const userData = JSON.parse(decoded);
 
-                this.user.id = userData.Id || userData.id || null;
-                this.user.username = userData.Username || userData.username || '';
-                this.user.fullName = userData.FullName || userData.fullName || this.user.username;
-                this.user.email = userData.Email || '';
-                this.user.avatarUrl = userData.AvatarUrl || '';
-                this.user.phoneNumber = userData.PhoneNumber || '';
-                this.user.status = userData.Status ?? null;
-                this.user.createdAt = userData.CreatedAt || null;
-
-                this.user.createdAt = dateHelper.formatDefault(this.user.createdAt);
-                // Roles xử lý an toàn
-                let rawRoles = userData.Roles || userData.roles || [];
-                if (typeof rawRoles === 'string') {
-                    rawRoles = rawRoles.split(',').map(r => r.trim());
-                }
-                if (Array.isArray(rawRoles)) {
-                    this.user.roles = rawRoles;
-                } else {
-                    this.user.roles = [];
-                }
-                this.updateUI();
+                this.updateUser(userData);
 
             } catch (err) {
                 console.warn('Không thể parse userinfo cookie:', err);
             }
         }
+    }
+    updateUser(userData) {
+        this.user.id = userData.Id || userData.id || null;
+        this.user.username = userData.Username || userData.username || '';
+        this.user.fullName = userData.FullName || userData.fullName || this.user.username;
+        this.user.email = userData.Email || '';
+        this.user.avatarUrl = userData.AvatarUrl || '';
+        this.user.phoneNumber = userData.PhoneNumber || '';
+        this.user.status = userData.Status ?? null;
+        this.user.createdAt = userData.CreatedAt || null;
+
+        this.user.createdAt = dateHelper.formatDefault(this.user.createdAt);
+        // Roles xử lý an toàn
+        let rawRoles = userData.Roles || userData.roles || [];
+        if (typeof rawRoles === 'string') {
+            rawRoles = rawRoles.split(',').map(r => r.trim());
+        }
+        if (Array.isArray(rawRoles)) {
+            this.user.roles = rawRoles;
+        } else {
+            this.user.roles = [];
+        }
+        this.updateUI();
     }
     checkLogined() {
         const token = document.cookie
@@ -99,7 +138,7 @@ class ConfigModule {
         // Điều hướng sang trang login
         window.location.href = '/login';
     }
-    setUser(user) { this.user = user; }
+    setUser(user) { this.user = user; this.updateUser(this.user); }
     setToken(token) { this.token = token; }
     getUsername() { return this.user.username; }
     getFullname() { return this.user.fullname; }

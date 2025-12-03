@@ -16,6 +16,8 @@ namespace ActiveOfficeLife.Domain.EFCore.Configurations
             builder.ToTable("Comments");
 
             builder.HasKey(c => c.Id);
+            builder.Property(c => c.Id)
+                   .ValueGeneratedOnAdd();
 
             builder.Property(c => c.Content)
                 .IsRequired()

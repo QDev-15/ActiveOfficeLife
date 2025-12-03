@@ -16,6 +16,8 @@ namespace ActiveOfficeLife.Infrastructure.EFCore.Configurations
             builder.ToTable("Logs");
 
             builder.HasKey(l => l.Id);
+            builder.Property(l => l.Id)
+                   .ValueGeneratedOnAdd();
 
             builder.Property(l => l.Level)
                    .HasConversion<string>() // Chuyển đổi LogLevel sang string

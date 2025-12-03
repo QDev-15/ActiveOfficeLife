@@ -10,7 +10,7 @@ class ApiModule {
         return new Promise((resolve, reject) => {
             if (!configInstance.token) {
                 // Token null -> logout
-                window.location.href = '/login';
+                configInstance.logout();
                 return;
             }
             if (!endpoint.startsWith("/")) {
@@ -43,6 +43,11 @@ class ApiModule {
 
             fetch(url.toString(), options)
                 .then(async res => {
+                    if (res.status === 401) {
+                        // Unauthorized -> logout
+                        return configInstance.logout();
+
+                    }
                     const contentType = res.headers.get('content-type');
                     let result = null;
 
@@ -55,7 +60,7 @@ class ApiModule {
                     if (!res.ok) {
                         reject({
                             status: res.status,
-                            message: result?.message || res.statusText,
+                            message: result?.errors?.message || res.statusText,
                             result
                         });
                         return;
@@ -68,7 +73,7 @@ class ApiModule {
                         } else {
                             reject({
                                 status: res.status,
-                                message: result?.data?.message || res.statusText,
+                                message: result?.errors?.message || res.statusText,
                                 result
                             });
                             return;
