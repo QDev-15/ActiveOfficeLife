@@ -49,7 +49,7 @@ namespace ActiveOfficeLife.Api.Controllers
                         PageSize = request.PageSize,
                     }));
                 }
-                var result = await _postService.GetAll(request);
+                var result = await _postService.GetList(request);
                 if (result != default)
                 {
                     _memoryCache.Set(cacheKey, result, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout));

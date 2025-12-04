@@ -74,6 +74,7 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             {
                 { "name", "Name" },
                 { "slug", "Slug" },
+                { "type", "Type" },
                 { "isActive", "IsActive" },
                 { "parent", "parent" },
                 
@@ -91,7 +92,10 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             {
                 var search = $"%{request.SearchText.ToLower()}%";
                 query = query
-                    .Where(c => (c.Parent != null && EF.Functions.Like(c.Parent.Name.ToLower(), search)) || EF.Functions.Like(c.Name.ToLower(), search) || EF.Functions.Like(c.Slug.ToLower(), search));
+                    .Where(c => (c.Parent != null && EF.Functions.Like(c.Parent.Name.ToLower(), search))
+                    || (c.CategoryType != null && EF.Functions.Like(c.CategoryType.Name.ToLower(), search)) 
+                    || EF.Functions.Like(c.Name.ToLower(), search) 
+                    || EF.Functions.Like(c.Slug.ToLower(), search));
             }
 
             if (actualSortField == "parent")
@@ -105,7 +109,19 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
                     query = query.OrderByDescending(c => c.ParentId == null ? 0 : 1).ThenBy(c => c.Parent.Name).ThenBy(c => c.Name);
                 }
                     
-            } else if (!string.IsNullOrEmpty(actualSortField))
+            } else if (actualSortField == "Type")
+            {
+                //sort category first with parent null, and group by parent category
+                if (request.SortDirection.ToLower() == "asc")
+                {
+                    query = query.OrderBy(c => c.CategoryType.Name).ThenBy(c => c.Name);
+                }
+                else
+                {
+                    query = query.OrderByDescending(c => c.CategoryType.Name).ThenBy(c => c.Name);
+                }
+            }
+            else if (!string.IsNullOrEmpty(actualSortField))
             {
                 if (request.SortDirection.ToLower() == "asc")
                 {

@@ -299,5 +299,30 @@ namespace ActiveOfficeLife.Application.Services
                 throw new Exception("Get categories paging failed");
             }
         }
+
+        public async Task<(List<PostModel> Items, int count)> GetList(PagingPostRequest? request)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(request.SortField) || string.IsNullOrEmpty(request.SortDirection))
+                {
+                    request.SortField = "Title"; // Default sort field
+                    request.SortDirection = "asc"; // Default sort direction
+                }
+                var result = await _postRepository.GetList(request); // Get all categories
+                if (result.Items == null || !result.Items.Any())
+                {
+                    result.Items = new List<Post>();
+                }
+
+                return (result.Items.Select(x => x.ReturnModel()).ToList(), result.Count);
+            }
+            catch (Exception ex)
+            {
+                string message = $"{this.GetType().Name}-{MethodBase.GetCurrentMethod().Name}-Error: {ex.Message}";
+                AOLLogger.Error(message, ex);
+                throw new Exception("Get categories paging failed");
+            }
+        }
     }
 }

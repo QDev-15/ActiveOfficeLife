@@ -11,6 +11,7 @@ namespace ActiveOfficeLife.Domain.Interfaces
     public interface IPostRepository : _IRepository<Post>
     {
         Task<(List<Post> Items, int Count)> GetAllWithPaging(PagingPostRequest request);
+        Task<(List<Post> Items, int Count)> GetList(PagingPostRequest request);
         Task<Post?> GetByAliasAsync(string slug);
         Task<List<Post>> GetByKeyAsync(string keyWord);
         Task<List<Post>> SearchAsync(string keyWord, int pageNumber, int pageSize);

@@ -24,15 +24,21 @@ class CategoryModule {
 
         this.form = null;
         this.modalCategory = null;
+        this.categories = [];   
+        this.categorytypes = [];
         this.tableId = "categoryTable";
         this.tableCategoryTypeId = "categoryCategoryTable";
         this.tableInstance = null;
         this.tableInstanceCategoryType = null;
         this.endpoints = {
+            create: '/Category/create',
+            update: '/Category/update',
+            delete: (id) => `/Category/delete?id=${id}`, 
+            getall: '/Category/all',
             createType: '/Category/create-type',
             getTypes: '/Category/types',
             updateType: '/Category/update-type',
-            deleteType: '/Category/delete-type'
+            deleteType: (id) => `/Category/delete-type?id=${id}`
         }
     }
 
@@ -67,14 +73,15 @@ class CategoryModule {
                     pageIndex: (d.start / d.length) + 1,
                     pageSize: d.length,
                     keySearch: d.search.value || "",
-                    sortField: d.order.length > 0 ? d.columns[d.order[0].column].name : "name",
+                    sortField: d.order.length > 0 ? d.columns[d.order[0].column].name : "type",
                     sortDirection: d.order.length > 0 ? d.order[0].dir : "desc"
                 };
 
-                apiInstance.get('/Category/all', params)
+                apiInstance.get(this.endpoints.getall, params)
                     .then(response => {
                         this.pageSize = response.pageSize;
                         this.pageIndex = response.pageIndex;
+                        this.categories = response.items || [];
                         callback({
                             data: response.items || [],
                             recordsTotal: response.totalCount || 0,
@@ -121,16 +128,15 @@ class CategoryModule {
                 },
                 {
                     data: null, // null để lấy toàn bộ row
-                    name: "parent",
-                    title: "Parent name",
+                    name: "type",
+                    title: "Types",
                     className: "text-center",
                     orderable: true,
                     render: function (data, type, row) {
-                        if (data.parent && data.parent.name) {
-                            return data.parent.name;
-                        } else {
-                            return '----';
+                        if (data.categoryType) {
+                            return row.categoryType.name
                         }
+                        return '';
                     }
                 },
                 {
@@ -166,9 +172,29 @@ class CategoryModule {
             ],
             pageLength: 10
         });
-
+        this.initSearchCategoryDebounce();
     }
+    initSearchCategoryDebounce() {
+        // ID ô search mặc định của DataTables: <tableId>_filter input
+        const $searchInput = $(`#${this.tableId}_filter input`);
 
+        // Gỡ handler mặc định của DataTables
+        $searchInput.off('keyup.DT input.DT');
+
+        let typingTimer = null;
+        const delay = 500; // 500ms
+
+        $searchInput.on('keyup input', (e) => {
+            const value = e.target.value;
+
+            clearTimeout(typingTimer);
+
+            typingTimer = setTimeout(() => {
+                // Gọi search sau khi ngừng gõ 500ms
+                this.tableInstance.search(value).draw();
+            }, delay);
+        });
+    }
     // init DataTable
     initTableCategoryType() {
         this.tableInstanceCategoryType = $(`#${this.tableCategoryTypeId}`).DataTable({
@@ -184,6 +210,8 @@ class CategoryModule {
                     .then(response => {
                         this.pageSize = response.pageSize;
                         this.pageIndex = response.pageIndex;
+                        this.categorytypes = response.items || [];
+                        this.refreshData();
                         callback({
                             data: response.items || [],
                             recordsTotal: response.totalCount || 0,
@@ -262,8 +290,10 @@ class CategoryModule {
             name: form.querySelector('[name="Name"]').value,
             slug: form.querySelector('[name="Slug"]').value,
             description: form.querySelector('[name="Description"]').value,
-            parentId: form.querySelector('[name="ParentId"]').value || null,
-            seoMetadataId: form.querySelector('[name="SeoMetadataId"]').value || null,
+            parentId: form.querySelector('[name="ParentId"]')?.value || null,
+            categoryTypeId: form.querySelector('[name="CategoryTypeId"]')?.value || null,
+            seoMetadataId: form.querySelector('[name="SeoMetadataId"]')?.value || null,
+            isActive: form.querySelector('[name="IsActive"]').checked,
             seoMetadata: {
                 seoMetaTitle: form.querySelector('[name="SeoMetadata.Title"]').value,
                 seoMetaDescription: form.querySelector('[name="SeoMetadata.Description"]').value,
@@ -271,7 +301,7 @@ class CategoryModule {
             }
         };
         payload.parentId = payload.parentId === "0" ? null : payload.parentId;
-        apiInstance.post(this.endpoints.createType, payload)
+        apiInstance.post(this.endpoints.create, payload)
             .then(res => {
                 messageInstance.success("Thêm mới thành công!");
                 this.modalCategory.hide();
@@ -279,7 +309,8 @@ class CategoryModule {
             })
             .catch(err => {
                 console.error(err);
-                messageInstance.error("Lỗi khi thêm mới!");
+                var messageErr = err.message;
+                messageInstance.error(messageErr);
             });
     }
 
@@ -292,9 +323,10 @@ class CategoryModule {
             name: form.querySelector('[name="Name"]').value,
             slug: form.querySelector('[name="Slug"]').value,
             description: form.querySelector('[name="Description"]').value,
-            parentId: form.querySelector('[name="ParentId"]').value || null,
-            categoryTypeId: form.querySelector('[name="CategoryTypeId"]').value || null,
-            seoMetadataId: form.querySelector('[name="SeoMetadataId"]').value || null,
+            parentId: form.querySelector('[name="ParentId"]')?.value || null,
+            categoryTypeId: form.querySelector('[name="CategoryTypeId"]')?.value || null,
+            seoMetadataId: form.querySelector('[name="SeoMetadataId"]')?.value || null,
+            isActive: form.querySelector('[name="IsActive"]').checked,
             seoMetadata: {
                 title: form.querySelector('[name="SeoMetadata.Title"]').value,
                 description: form.querySelector('[name="SeoMetadata.Description"]').value,
@@ -302,7 +334,7 @@ class CategoryModule {
             }
         };
         payload.parentId = payload.parentId === "0" ? null : payload.parentId;
-        apiInstance.put('/category/update', payload)
+        apiInstance.put(this.endpoints.update, payload)
             .then(res => {
                 messageInstance.success("Cập nhật thành công!");
                 this.modalCategory.hide();
@@ -359,14 +391,19 @@ class CategoryModule {
         var message = "Bạn có chắc chắn muốn xóa danh mục <strong>" + name + "</strong> không?";
         this.messageApp.confirm(message).then((result) => {
             if (result) {
-                apiInstance.delete('/category/delete?id=' + id)
+                spinnerInstance.showFor(this.tableId);
+                apiInstance.delete(this.endpoints.delete(id))
                     .then(res => {
                         this.messageApp.success("Xóa thành công!");
                         this.refreshData();
                     })
                     .catch(err => {
                         console.error(err);
-                        this.messageApp.error("Lỗi khi xóa danh mục!");
+                        var messageErr = err.message;
+                        messageInstance.error(messageErr);
+                    })
+                    .finally(() => {
+                        spinnerInstance.hideFor(this.tableId);
                     });
             };
         });
@@ -448,7 +485,7 @@ class CategoryModule {
         var message = "Bạn có chắc chắn muốn xóa loại danh mục <strong>" + name + "</strong> không?";
         this.messageApp.confirm(message).then((result) => {
             if (result) {
-                apiInstance.delete(this.endpoints.deleteType + '?id=' + id)
+                apiInstance.delete(this.endpoints.deleteType(id))
                     .then(res => {
                         this.messageApp.success("Xóa loại danh mục thành công!");
                         this.refreshTypeData();
@@ -461,11 +498,15 @@ class CategoryModule {
             };
         });
     }
-    refreshData() {
+    refreshData(cache) {
+        if (cache) {
+            this.tableInstance?.ajax.reload(null, false); // reload giữ nguyên trang hiện tại
+            return;
+        }
         this.tableInstance?.ajax.reload();
     }
     refreshTypeData() {
-        this.tableInstance?.ajax.reload();
+        this.refreshData(true);
         this.tableInstanceCategoryType?.ajax.reload();
     }
 }

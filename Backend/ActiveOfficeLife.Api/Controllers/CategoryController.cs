@@ -35,17 +35,17 @@ namespace ActiveOfficeLife.Api.Controllers
             try
             {
                 string cacheKey = $"{_controllerName}-{MethodBase.GetCurrentMethod().Name}-{request.SortField}-{request.SortDirection}-{request.PageIndex}-{request.PageSize}-{request.SearchText}";
-                var cachedResult = _cache.Get<(List<CategoryModel> Categories, int count)>(cacheKey);
-                if (cachedResult.Categories != null && cachedResult.Categories.Any())
-                {
-                    return Ok(new ResultSuccess(new
-                    {
-                        Items = cachedResult.Categories,
-                        TotalCount = cachedResult.count,
-                        PageIndex = request.PageIndex,
-                        PageSize = request.PageSize,
-                    }));
-                }
+                //var cachedResult = _cache.Get<(List<CategoryModel> Categories, int count)>(cacheKey);
+                //if (cachedResult.Categories != null && cachedResult.Categories.Any())
+                //{
+                //    return Ok(new ResultSuccess(new
+                //    {
+                //        Items = cachedResult.Categories,
+                //        TotalCount = cachedResult.count,
+                //        PageIndex = request.PageIndex,
+                //        PageSize = request.PageSize,
+                //    }));
+                //}
                 var result = await _categoryService.GetAllCategoriesPagingAsync(request);
                 // Cache the result
                 _cache.Set(cacheKey, result, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout));
@@ -252,7 +252,7 @@ namespace ActiveOfficeLife.Api.Controllers
             catch (Exception ex)
             {
                 AOLLogger.Error($"Error deleting category: {ex.Message}", ex);
-                return BadRequest(new ResultError("Failed to delete category.", "400"));
+                return BadRequest(new ResultError(ex.Message, "400"));
             }
         }
 

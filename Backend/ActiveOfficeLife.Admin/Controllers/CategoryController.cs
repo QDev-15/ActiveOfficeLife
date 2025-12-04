@@ -33,19 +33,13 @@ namespace ActiveOfficeLife.Admin.Controllers
             var typesResponse = await _apiService.GetAsync(Common.AOLEndPoint.CategoryTypeGetAll + "?pageSize=1000");
             var types = await typesResponse.ToModelAsync<List<CategoryTypeModel>>() ?? new List<CategoryTypeModel>();
 
-            var typeSelectList = new List<SelectListItem>() { new SelectListItem()
-            {
-                Value = "0",
-                Text = "--None--"
-            } };
-            typeSelectList.Concat(types
+            ViewBag.categoryTypes = types
                 .Select(t => new SelectListItem
                 {
                     Value = t.Id.ToString(),
                     Text = t.Name
                 })
-                .ToList());
-            ViewBag.categoryTypes = typeSelectList;
+                .ToList();
 
 
             var selectList = new List<SelectListItem>() { new SelectListItem()

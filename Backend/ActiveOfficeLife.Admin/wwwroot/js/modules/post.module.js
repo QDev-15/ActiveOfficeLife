@@ -167,8 +167,6 @@ class PostModule {
 
     // ====== Life cycle ======
     initEditPage() {
-        // auto-Select2 toàn site (đã có util auto)
-        utilities.setupSelect2Auto?.();
 
         // lấy id từ dataset hoặc query
         const root = document.getElementById('post-edit-root');

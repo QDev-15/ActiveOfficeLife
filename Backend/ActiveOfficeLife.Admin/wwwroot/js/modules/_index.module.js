@@ -29,6 +29,8 @@ pingInstance.startAuthHeartbeat();
 
 
 document.addEventListener('DOMContentLoaded', () => {
+    // init select2 element
+    utilities.setupSelect2Auto();
     // Lấy fullName từ ConfigModule
     const fullName = configInstance.user.fullName || ConfigModule.user.username || 'Người dùng';
 

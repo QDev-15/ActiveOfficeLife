@@ -6,6 +6,7 @@ namespace ActiveOfficeLife.Application.Interfaces
     public interface IPostService
     {
         Task<(List<PostModel> Items, int count)> GetAll(PagingPostRequest? request);
+        Task<(List<PostModel> Items, int count)> GetList(PagingPostRequest? request);
         Task<PostModel> GetById(Guid id);
         Task<PostModel> GetByAlias(string slug);
         Task<List<PostModel>> GetByCategoryId(Guid categoryId, PagingPostRequest? request);

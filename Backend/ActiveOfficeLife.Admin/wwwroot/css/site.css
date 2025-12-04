@@ -269,3 +269,34 @@ mark {
     [dir="rtl"] .tags-input .tag {
         direction: rtl;
     }
+
+/* Giới hạn chiều cao của modal và cho phép cuộn bên trong */
+.modal-dialog {
+    max-height: calc(100vh - 50px); /* cách top-bottom 20px */
+}
+
+.modal-content {
+    max-height: calc(100vh - 50px);
+    overflow: hidden;
+}
+
+/* Body cuộn được */
+.modal-body {
+    overflow-y: auto;
+    max-height: calc(100vh - 140px);
+    /* trừ header ~60px + footer ~60px + margin */
+}
+
+select.form-select option {
+    padding: 8px;
+    background: #fff;
+    color: #333;
+    font-size: 15px;
+}
+    select.form-select option:hover {
+        background: #e9ecef !important;
+    }
+    select.form-select option:checked {
+        background: #6f42c1;
+        color: #fff;
+    }

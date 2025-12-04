@@ -106,8 +106,7 @@ namespace ActiveOfficeLife.Application.Services
                 var checkUsing = await _categoryRepository.CheckUsing(id);
                 if (checkUsing)
                 {
-                    category.IsActive = false; // If the category is being used, just deactivate it instead of deleting
-                    _categoryRepository.Update(category);
+                    throw new ApplicationException("Cannot delete category because it is being used");
                 }
                 else
                 {
@@ -121,7 +120,7 @@ namespace ActiveOfficeLife.Application.Services
             {
                 string messae = ex.Message + " Error deleting category with ID: " + id.ToString();
                 AOLLogger.Error(messae, ex);
-                throw new ApplicationException("An error occurred while deleting the category", ex);
+                throw new ApplicationException(ex.Message);
             }
         }
         public async Task<List<CategoryModel>> GetAllCategoriesAsync()
@@ -223,6 +222,7 @@ namespace ActiveOfficeLife.Application.Services
                 cat.CategoryTypeId = category.CategoryTypeId;
                 cat.Description = category.Description;
                 cat.Name = category.Name;
+                cat.IsActive = category.IsActive;
                 if (category.SeoMetadata != null) {
                     cat.SeoMetadata = new SeoMetadata()
                     {

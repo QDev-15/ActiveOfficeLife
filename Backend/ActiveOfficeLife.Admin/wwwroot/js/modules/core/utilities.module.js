@@ -152,6 +152,7 @@ class Utilities {
                     placeholder,
                     allowClear,
                     width: '100%',
+                    theme: "bootstrap-5",
                     minimumResultsForSearch: minSearch,
                     dropdownParent: $modal.length ? $modal : $(document.body)
                 });
