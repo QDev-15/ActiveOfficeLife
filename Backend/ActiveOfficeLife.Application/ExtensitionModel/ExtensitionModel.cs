@@ -228,6 +228,8 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
                 CategoryTypeId = category.CategoryTypeId,
                 CategoryType = category.CategoryType != null ? new CategoryTypeModel()
                 {
+                    Id = category.CategoryType.Id,
+                    IsActive = category.CategoryType.IsActive,
                     Name = category.CategoryType.Name
                 } : null,
                 Children = category.Children.Any() ? category.Children.Select(c => c.ReturnModel()).ToList() : [],
