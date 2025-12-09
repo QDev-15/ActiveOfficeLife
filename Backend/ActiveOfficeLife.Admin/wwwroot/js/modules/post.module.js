@@ -104,10 +104,54 @@ class PostModule {
                     title: "Slug",
                     className: "text-center",
                     orderable: true,
-                    //render: function (data) {
-                    //    if (!data) return "";
-                    //    return moment(data).format("DD/MM/YYYY HH:mm:ss");
-                    //}
+                },
+                {
+                    data: "isFeaturedHome",
+                    name: "isFeaturedHome",
+                    title: "Featured Home",
+                    className: "text-center",
+                    orderable: true,
+                    render: function (data, type, row) {
+                        if (data.isFeaturedHome) {
+                            return '<span class="badge bg-success">On</span>';
+                        } else {
+                            return '<span class="badge bg-secondary">Off</span>';
+                        }
+                    }
+                },
+                {
+                    data: "isHot",
+                    name: "isHot",
+                    title: "Hot",
+                    className: "text-center",
+                    orderable: true,
+                    render: function (data, type, row) {
+                        if (data.isHot) {
+                            return '<span class="badge bg-success">On</span>';
+                        } else {
+                            return '<span class="badge bg-secondary">Off</span>';
+                        }
+                    }
+                },
+                {
+                    data: "isCenterHighlight",
+                    name: "isCenterHighlight",
+                    title: "Center Highlight",
+                    className: "text-center",
+                    orderable: true,
+                    render: function (data, type, row) {
+                        if (data.isCenterHighlight) {
+                            return '<span class="badge bg-success">On</span>';
+                        } else {
+                            return '<span class="badge bg-secondary">Off</span>';
+                        }
+                    }
+                },
+                {
+                    data: "displayOrder",
+                    name: "displayOrder",
+                    title: "Order",
+                    className: "text-center",
                 },
                 {
                     data: null, // null để lấy toàn bộ row
@@ -330,6 +374,10 @@ class PostModule {
             slug: document.getElementById('Slug').value?.trim(),
             summary: document.getElementById('Summary').value?.trim(),
             content: document.getElementById('Content').value?.trim(),
+            isCenterHighlight: document.getElementById('IsCenterHighlight').checked,
+            isFeaturedHome: document.getElementById('IsFeatured').checked,
+            isHot: document.getElementById('IsHot').checked,
+            displayOrder: parseInt(document.getElementById('DisplayOrder').value) || 0,
             categoryId: $('#CategoryId').val() || null,
             tagIds: tags, // hoặc Tags: [{id},…] tùy API
             // ===== SEO =====

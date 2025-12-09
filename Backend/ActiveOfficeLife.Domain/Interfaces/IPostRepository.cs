@@ -13,6 +13,9 @@ namespace ActiveOfficeLife.Domain.Interfaces
         Task<(List<Post> Items, int Count)> GetAllWithPaging(PagingPostRequest request);
         Task<(List<Post> Items, int Count)> GetList(PagingPostRequest request);
         Task<Post?> GetByAliasAsync(string slug);
+        Task<List<Post>> GetFeaturedHomeAsync();
+        Task<List<Post>> GetCenterHighlightAsync();
+        Task<List<Post>> GetHotNewsAsync();
         Task<List<Post>> GetByKeyAsync(string keyWord);
         Task<List<Post>> SearchAsync(string keyWord, int pageNumber, int pageSize);
         Task<List<Post>> GetPostsByCategoryAsync(Guid categoryId, int pageNumber, int pageSize);

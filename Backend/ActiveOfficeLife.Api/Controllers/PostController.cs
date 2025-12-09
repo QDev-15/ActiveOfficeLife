@@ -32,6 +32,32 @@ namespace ActiveOfficeLife.Api.Controllers
             serviceName = this.GetType().Name;
         }
         [AllowAnonymous]
+        [HttpGet("hot-news")]
+        public async Task<IActionResult> GetHotNewsPost()
+        {
+            try
+            {
+                string cacheKey = $"{serviceName}-{MethodBase.GetCurrentMethod().Name}-hot-news";
+                var cachedResult = _memoryCache.Get<HotNewsResponse>(cacheKey);
+                if (cachedResult != default)
+                {
+                    return Ok(new ResultSuccess(cachedResult));
+                }
+                var hotNews = new HotNewsResponse();
+                hotNews = await _postService.GetHotNews();
+                if (hotNews != default)
+                {
+                    _memoryCache.Set(cacheKey, hotNews, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout));
+                }
+                return Ok(new ResultSuccess(hotNews!));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error fetching categories: {ex.Message}", ex);
+                return BadRequest(new ResultError("Failed to retrieve categories.", "400"));
+            }
+        }
+        [AllowAnonymous]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllPostPaging([FromQuery] PagingPostRequest request)
         {

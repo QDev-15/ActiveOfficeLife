@@ -61,6 +61,25 @@
             
         </div>
 
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" asp-for="IsCenterHighlight">
+            <label class="form-check-label" asp-for="IsCenterHighlight">Trung tâm trang</label>
+        </div>
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" asp-for="IsFeaturedHome">
+            <label class="form-check-label" asp-for="IsFeaturedHome">Tin Nổi bật</label>
+        </div>
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" asp-for="IsHot">
+            <label class="form-check-label" asp-for="IsHot">Tin Nóng</label>
+        </div>
+        <div class="col-12 col-lg-4">
+            <label asp-for="DisplayOrder" class="form-label">Thứ tự</label>
+            <div class="input-group">
+                <input asp-for="DisplayOrder" class="form-control" placeholder="Thứ tự hiển thị tin tức." />
+            </div>
+        </div>
+
         <!-- Summary -->
         <div class="col-12">
             <label asp-for="Summary" class="form-label"></label>

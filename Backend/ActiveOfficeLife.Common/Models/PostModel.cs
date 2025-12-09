@@ -10,6 +10,10 @@ namespace ActiveOfficeLife.Common.Models
         public string? Slug { get; set; } = null!;
         public string? Content { get; set; } = null!;
         public string? Summary { get; set; }
+        public bool? IsFeaturedHome { get; set; }      // Tin nổi bật trang chủ
+        public bool? IsHot { get; set; }               // Tin hot
+        public bool? IsCenterHighlight { get; set; }   // Bài tiêu biểu block trung tâm
+        public int? DisplayOrder { get; set; }        // Để sort trong mỗi nhóm
 
         public Guid? AuthorId { get; set; }
         public UserModel? Author { get; set; } = null!;

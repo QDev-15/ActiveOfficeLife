@@ -229,5 +229,51 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
                             .ToListAsync();
             return (items, count);
         }
+
+        public async Task<List<Post>> GetFeaturedHomeAsync()
+        {
+            // get 5 featured home posts order by DisplayOrder asc if featured home is true and status is published and created at desc
+            var query = await _context.Posts
+                .Where(p =>p.Status == Common.Enums.PostStatus.Published)
+                .OrderBy(p => p.IsFeaturedHome)
+                .ThenBy(p => p.DisplayOrder)
+                .ThenByDescending(p => p.UpdatedAt)
+                .Take(5)
+                .Include(p => p.Author)
+                .Include(p => p.Category)
+                .Include(p => p.Tags)
+                .ToListAsync();
+            return query;
+        }
+
+        public async Task<List<Post>> GetCenterHighlightAsync()
+        {
+            var query = await _context.Posts
+                .Where(p => p.Status == Common.Enums.PostStatus.Published)
+                .OrderBy(p => p.IsCenterHighlight)
+                .ThenBy(p => p.DisplayOrder)
+                .ThenByDescending(p => p.UpdatedAt)
+                .Take(5)
+                .Include(p => p.Author)
+                .Include(p => p.Category)
+                .Include(p => p.Tags)
+                .ToListAsync();
+            return query;
+        }
+
+        public async Task<List<Post>> GetHotNewsAsync()
+        {
+            var query = await _context.Posts
+                .Where(p => p.Status == Common.Enums.PostStatus.Published)
+                .OrderBy(p => p.IsHot)
+                .ThenBy(p => p.DisplayOrder)
+                .ThenByDescending(p => p.UpdatedAt)
+                .Take(5)
+                .Include(p => p.Author)
+                .Include(p => p.Category)
+                .Include(p => p.Tags)
+                .ToListAsync();
+            return query;
+        }
     }
 }

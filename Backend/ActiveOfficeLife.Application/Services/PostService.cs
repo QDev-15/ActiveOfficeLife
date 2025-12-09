@@ -5,6 +5,7 @@ using ActiveOfficeLife.Common;
 using ActiveOfficeLife.Common.Enums;
 using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Common.Requests;
+using ActiveOfficeLife.Common.Responses;
 using ActiveOfficeLife.Domain.Entities;
 using ActiveOfficeLife.Domain.Interfaces;
 using System.Net.WebSockets;
@@ -60,6 +61,10 @@ namespace ActiveOfficeLife.Application.Services
                     Summary = post.Summary,
                     AuthorId = post.AuthorId ?? Guid.Empty, // Assuming AuthorId is required
                     CategoryId = post.CategoryId ?? Guid.Empty, // Assuming CategoryId is required
+                    IsCenterHighlight = post.IsCenterHighlight ?? false,
+                    IsFeaturedHome = post.IsFeaturedHome ?? false,
+                    IsHot = post.IsHot ?? false,
+                    DisplayOrder = post.DisplayOrder ?? 0,
                     Status = string.IsNullOrEmpty(post.Status) ? PostStatus.Draft : Enum.Parse<PostStatus>(post.Status),
                     CreatedAt = DateTime.UtcNow,
                     UpdatedAt = DateTime.UtcNow,
@@ -222,7 +227,13 @@ namespace ActiveOfficeLife.Application.Services
                 existingPost.Slug = post.Slug ?? Helper.GenerateSlug(existingPost.Title);
                 existingPost.Content = post.Content ?? string.Empty;
                 existingPost.Summary = post.Summary;
-                existingPost.Status = string.IsNullOrEmpty(post.Status) ? PostStatus.Draft : (PostStatus)Enum.Parse(typeof(PostStatus), post.Status.Trim(), ignoreCase: true);
+                existingPost.IsCenterHighlight = post.IsCenterHighlight ?? false;
+                existingPost.IsFeaturedHome = post.IsFeaturedHome ?? false;
+                existingPost.IsHot = post.IsHot ?? false;
+                existingPost.DisplayOrder = post.DisplayOrder ?? 0;
+                existingPost.Status = string.IsNullOrEmpty(post.Status)
+                    ? PostStatus.Draft 
+                    : (PostStatus)Enum.Parse(typeof(PostStatus), post.Status.Trim(), ignoreCase: true);
                 existingPost.UpdatedAt = DateTime.UtcNow;
                 if (post.SeoMetadata != null)
                 {
@@ -323,6 +334,20 @@ namespace ActiveOfficeLife.Application.Services
                 AOLLogger.Error(message, ex);
                 throw new Exception("Get categories paging failed");
             }
+        }
+
+        public async Task<HotNewsResponse> GetHotNews()
+        {
+            var hostNewsResponse = new HotNewsResponse();
+            var hotNews = await _postRepository.GetHotNewsAsync();
+            var featuredHome = await _postRepository.GetFeaturedHomeAsync();
+            var centerHighlight = await _postRepository.GetCenterHighlightAsync();
+
+            hostNewsResponse.CenterHighlight = centerHighlight.Select(x => x.ReturnModel()).ToList();
+            hostNewsResponse.FeaturedHome = featuredHome.Select(x => x.ReturnModel()).ToList();
+            hostNewsResponse.HotNews = hotNews.Select(x => x.ReturnModel()).ToList();
+
+            return hostNewsResponse;
         }
     }
 }
