@@ -106,13 +106,13 @@ class PostModule {
                     orderable: true,
                 },
                 {
-                    data: "isFeaturedHome",
+                    data: null,
                     name: "isFeaturedHome",
                     title: "Featured Home",
                     className: "text-center",
                     orderable: true,
                     render: function (data, type, row) {
-                        if (data.isFeaturedHome) {
+                        if (row.isFeaturedHome) {
                             return '<span class="badge bg-success">On</span>';
                         } else {
                             return '<span class="badge bg-secondary">Off</span>';
@@ -120,13 +120,13 @@ class PostModule {
                     }
                 },
                 {
-                    data: "isHot",
+                    data: null,
                     name: "isHot",
                     title: "Hot",
                     className: "text-center",
                     orderable: true,
                     render: function (data, type, row) {
-                        if (data.isHot) {
+                        if (row.isHot) {
                             return '<span class="badge bg-success">On</span>';
                         } else {
                             return '<span class="badge bg-secondary">Off</span>';
@@ -134,13 +134,13 @@ class PostModule {
                     }
                 },
                 {
-                    data: "isCenterHighlight",
+                    data: null,
                     name: "isCenterHighlight",
                     title: "Center Highlight",
                     className: "text-center",
                     orderable: true,
                     render: function (data, type, row) {
-                        if (data.isCenterHighlight) {
+                        if (row.isCenterHighlight) {
                             return '<span class="badge bg-success">On</span>';
                         } else {
                             return '<span class="badge bg-secondary">Off</span>';
