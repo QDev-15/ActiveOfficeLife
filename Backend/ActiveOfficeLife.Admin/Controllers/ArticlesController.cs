@@ -46,7 +46,6 @@ namespace ActiveOfficeLife.Admin.Controllers
             return View(post);
         }
         // /Articles/View/{idOrSlug}?preview=1
-        [HttpGet("/Articles/View/{idOrSlug}")]
         public async Task<IActionResult> View(string idOrSlug, [FromQuery] bool preview = false)
         {
             var isGuid = Guid.TryParse(idOrSlug, out var gid);

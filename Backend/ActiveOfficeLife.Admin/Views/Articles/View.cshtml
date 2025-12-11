@@ -110,122 +110,123 @@
         
     </style>
 
-<a onclick="postInstance.edit('@Model?.Id.ToString()')" class="btn btn-outline-secondary">
-    <i class="bi bi-arrow-left me-1"></i>Quay lại
-</a>
-<div class="article-header py-4 mb-3">
-    <div class="container">
-        <nav class="small mb-2 text-muted">
-            <a href="/" class="text-muted text-decoration-none">Trang chủ</a>
-            <span class="mx-1">/</span>
-            @if (!string.IsNullOrWhiteSpace(category))
-            {
-                <a href="@Url.Content($"~/chuyen-muc/{Model.Category?.Slug ?? ""}")" class="text-muted text-decoration-none">@category</a>
+<div class="container-fluid pt-3">
+    <a onclick="postInstance.edit('@Model?.Id.ToString()')" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Quay lại
+    </a>
+    <div class="article-header py-4 mb-3">
+        <div class="container">
+            <nav class="small mb-2 text-muted">
+                <a href="/" class="text-muted text-decoration-none">Trang chủ</a>
                 <span class="mx-1">/</span>
-            }
-            <span class="text-muted">Bài viết</span>
-        </nav>
+                @if (!string.IsNullOrWhiteSpace(category))
+                {
+                    <a href="@Url.Content($"~/chuyen-muc/{Model.Category?.Slug ?? ""}")" class="text-muted text-decoration-none">@category</a>
+                    <span class="mx-1">/</span>
+                }
+                <span class="text-muted">Bài viết</span>
+            </nav>
 
-        <h1 class="h2 mb-2">@Model?.Title</h1>
-        <div class="d-flex flex-wrap gap-3 align-items-center text-muted">
-            @if (!string.IsNullOrEmpty(created))
-            {
-                <div><i class="bi bi-calendar3 me-1"></i> @created</div>
-            }
-            @if (!string.IsNullOrEmpty(updated))
-            {
-                <div><i class="bi bi-arrow-repeat me-1"></i> Cập nhật: @updated</div>
-            }
-            <div><i class="bi bi-clock me-1"></i> <span id="readingTime">~3 phút đọc</span></div>
-            @if (!string.IsNullOrEmpty(Model?.Status))
-            {
-                var s = (Model.Status ?? "").ToLowerInvariant();
-                var color = s switch { "published" => "success", "draft" => "secondary", "paused" => "warning", "closed" => "dark", _ => "secondary" };
-                <span class="badge bg-@color badge-status">@Model.Status</span>
-            }
-        </div>
-    </div>
-</div>
-
-<div class="container">
-    @* QUẢNG CÁO TOP *@
-    <div id="ad-top" class="ad-slot small mb-3">[ Quảng cáo Top - 728x90 / 970x90 ]</div>
-
-    <div class="row g-4">
-        <div class="col-lg-8">
-            @if (!string.IsNullOrWhiteSpace(Model?.Summary))
-            {
-                <p class="lead">@Model.Summary</p>
-            }
-
-            <article class="prose" id="articleContent">
-                @Html.Raw(Model?.Content ?? "")
-            </article>
-
-            @* IN-ARTICLE AD sẽ được JS cắm sau đoạn 2 *@
-            <div id="ad-in-article-1" class="ad-slot my-4">[ Quảng cáo In-Article ]</div>
-
-            @if (Model?.Tags?.Any() == true)
-            {
-                <div class="mt-4">
-                    <strong class="me-2">Tags:</strong>
-                    @foreach (var t in Model.Tags)
-                    {
-                        <a class="badge bg-light text-dark me-1 text-decoration-none" href="@Url.Content($"~/tag/{t.Slug}")">@t.Name</a>
-                    }
-                </div>
-            }
-
-            <hr class="my-4" />
-
-            <div class="share d-flex align-items-center gap-2">
-                <span class="text-muted me-1">Chia sẻ:</span>
-                <a class="btn btn-sm btn-outline-secondary" target="_blank"
-                   href="https://www.facebook.com/sharer/sharer.php?u=@Uri.EscapeDataString(url ?? "")">
-                    <i class="bi bi-facebook me-1"></i>Facebook
-                </a>
-                <a class="btn btn-sm btn-outline-secondary" target="_blank"
-                   href="https://twitter.com/intent/tweet?url=@Uri.EscapeDataString(url ?? "")&text=@Uri.EscapeDataString(Model?.Title ?? "")">
-                    <i class="bi bi-twitter-x me-1"></i>Twitter
-                </a>
-                <button class="btn btn-sm btn-outline-secondary" type="button" id="btnCopyLink">
-                    <i class="bi bi-link-45deg me-1"></i>Copy link
-                </button>
-            </div>
-
-            @* QUẢNG CÁO BOTTOM *@
-            <div id="ad-bottom" class="ad-slot my-4">[ Quảng cáo Bottom - 728x90 ]</div>
-        </div>
-
-        <div class="col-lg-4">
-            <div class="sticky-side">
-                @* QUẢNG CÁO SIDEBAR *@
-                <div id="ad-sidebar" class="ad-slot mb-3" style="min-height: 600px;">[ Quảng cáo Sidebar - 300x600 ]</div>
-
-                @* Gợi ý bài viết liên quan (placeholder) *@
-                <div class="card">
-                    <div class="card-header bg-white fw-semibold">Có thể bạn quan tâm</div>
-                    <ul class="list-group list-group-flush small">
-                        <li class="list-group-item d-flex">
-                            <i class="bi bi-chevron-right me-2"></i>
-                            <a class="text-decoration-none" href="#">Mẹo chăm sóc sức khỏe mùa mưa</a>
-                        </li>
-                        <li class="list-group-item d-flex">
-                            <i class="bi bi-chevron-right me-2"></i>
-                            <a class="text-decoration-none" href="#">5 thực phẩm nên ăn mỗi tuần</a>
-                        </li>
-                        <li class="list-group-item d-flex">
-                            <i class="bi bi-chevron-right me-2"></i>
-                            <a class="text-decoration-none" href="#">Tập thở đúng giúp ngủ ngon</a>
-                        </li>
-                    </ul>
-                </div>
+            <h1 class="h2 mb-2">@Model?.Title</h1>
+            <div class="d-flex flex-wrap gap-3 align-items-center text-muted">
+                @if (!string.IsNullOrEmpty(created))
+                {
+                    <div><i class="bi bi-calendar3 me-1"></i> @created</div>
+                }
+                @if (!string.IsNullOrEmpty(updated))
+                {
+                    <div><i class="bi bi-arrow-repeat me-1"></i> Cập nhật: @updated</div>
+                }
+                <div><i class="bi bi-clock me-1"></i> <span id="readingTime">~3 phút đọc</span></div>
+                @if (!string.IsNullOrEmpty(Model?.Status))
+                {
+                    var s = (Model.Status ?? "").ToLowerInvariant();
+                    var color = s switch { "published" => "success", "draft" => "secondary", "paused" => "warning", "closed" => "dark", _ => "secondary" };
+                    <span class="badge bg-@color badge-status">@Model.Status</span>
+                }
             </div>
         </div>
     </div>
+
+    <div class="container">
+        @* QUẢNG CÁO TOP *@
+        <div id="ad-top" class="ad-slot small mb-3">[ Quảng cáo Top - 728x90 / 970x90 ]</div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                @if (!string.IsNullOrWhiteSpace(Model?.Summary))
+                {
+                    <p class="lead">@Model.Summary</p>
+                }
+
+                <article class="prose" id="articleContent">
+                    @Html.Raw(Model?.Content ?? "")
+                </article>
+
+                @* IN-ARTICLE AD sẽ được JS cắm sau đoạn 2 *@
+                <div id="ad-in-article-1" class="ad-slot my-4">[ Quảng cáo In-Article ]</div>
+
+                @if (Model?.Tags?.Any() == true)
+                {
+                    <div class="mt-4">
+                        <strong class="me-2">Tags:</strong>
+                        @foreach (var t in Model.Tags)
+                        {
+                            <a class="badge bg-light text-dark me-1 text-decoration-none" href="@Url.Content($"~/tag/{t.Slug}")">@t.Name</a>
+                        }
+                    </div>
+                }
+
+                <hr class="my-4" />
+
+                <div class="share d-flex align-items-center gap-2">
+                    <span class="text-muted me-1">Chia sẻ:</span>
+                    <a class="btn btn-sm btn-outline-secondary" target="_blank"
+                       href="https://www.facebook.com/sharer/sharer.php?u=@Uri.EscapeDataString(url ?? "")">
+                        <i class="bi bi-facebook me-1"></i>Facebook
+                    </a>
+                    <a class="btn btn-sm btn-outline-secondary" target="_blank"
+                       href="https://twitter.com/intent/tweet?url=@Uri.EscapeDataString(url ?? "")&text=@Uri.EscapeDataString(Model?.Title ?? "")">
+                        <i class="bi bi-twitter-x me-1"></i>Twitter
+                    </a>
+                    <button class="btn btn-sm btn-outline-secondary" type="button" id="btnCopyLink">
+                        <i class="bi bi-link-45deg me-1"></i>Copy link
+                    </button>
+                </div>
+
+                @* QUẢNG CÁO BOTTOM *@
+                <div id="ad-bottom" class="ad-slot my-4">[ Quảng cáo Bottom - 728x90 ]</div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="sticky-side">
+                    @* QUẢNG CÁO SIDEBAR *@
+                    <div id="ad-sidebar" class="ad-slot mb-3" style="min-height: 600px;">[ Quảng cáo Sidebar - 300x600 ]</div>
+
+                    @* Gợi ý bài viết liên quan (placeholder) *@
+                    <div class="card">
+                        <div class="card-header bg-white fw-semibold">Có thể bạn quan tâm</div>
+                        <ul class="list-group list-group-flush small">
+                            <li class="list-group-item d-flex">
+                                <i class="bi bi-chevron-right me-2"></i>
+                                <a class="text-decoration-none" href="#">Mẹo chăm sóc sức khỏe mùa mưa</a>
+                            </li>
+                            <li class="list-group-item d-flex">
+                                <i class="bi bi-chevron-right me-2"></i>
+                                <a class="text-decoration-none" href="#">5 thực phẩm nên ăn mỗi tuần</a>
+                            </li>
+                            <li class="list-group-item d-flex">
+                                <i class="bi bi-chevron-right me-2"></i>
+                                <a class="text-decoration-none" href="#">Tập thở đúng giúp ngủ ngon</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
-
-
     <script>
         // Ước tính thời gian đọc (≈200 wpm)
         (() => {

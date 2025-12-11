@@ -94,9 +94,9 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
                     Id = value.CategoryId
                 } : value.Category.ReturnModel(),
                 CategoryId = value.CategoryId,
-                IsCenterHighlight = value.IsCenterHighlight,
-                IsFeaturedHome = value.IsFeaturedHome,
-                IsHot = value.IsHot,
+                IsCenterHighlight = value.IsCenterHighlight ?? false,
+                IsFeaturedHome = value.IsFeaturedHome ?? false,
+                IsHot = value.IsHot ?? false,
                 DisplayOrder = value.DisplayOrder,
                 Comments = value.Comments.Select(x => x.ReturnModel()).ToList(),
                 Content = value.Content,

@@ -61,9 +61,9 @@ namespace ActiveOfficeLife.Application.Services
                     Summary = post.Summary,
                     AuthorId = post.AuthorId ?? Guid.Empty, // Assuming AuthorId is required
                     CategoryId = post.CategoryId ?? Guid.Empty, // Assuming CategoryId is required
-                    IsCenterHighlight = post.IsCenterHighlight ?? false,
-                    IsFeaturedHome = post.IsFeaturedHome ?? false,
-                    IsHot = post.IsHot ?? false,
+                    IsCenterHighlight = post.IsCenterHighlight,
+                    IsFeaturedHome = post.IsFeaturedHome,
+                    IsHot = post.IsHot,
                     DisplayOrder = post.DisplayOrder ?? 0,
                     Status = string.IsNullOrEmpty(post.Status) ? PostStatus.Draft : Enum.Parse<PostStatus>(post.Status),
                     CreatedAt = DateTime.UtcNow,
@@ -227,9 +227,9 @@ namespace ActiveOfficeLife.Application.Services
                 existingPost.Slug = post.Slug ?? Helper.GenerateSlug(existingPost.Title);
                 existingPost.Content = post.Content ?? string.Empty;
                 existingPost.Summary = post.Summary;
-                existingPost.IsCenterHighlight = post.IsCenterHighlight ?? false;
-                existingPost.IsFeaturedHome = post.IsFeaturedHome ?? false;
-                existingPost.IsHot = post.IsHot ?? false;
+                existingPost.IsCenterHighlight = post.IsCenterHighlight;
+                existingPost.IsFeaturedHome = post.IsFeaturedHome;
+                existingPost.IsHot = post.IsHot;
                 existingPost.DisplayOrder = post.DisplayOrder ?? 0;
                 existingPost.Status = string.IsNullOrEmpty(post.Status)
                     ? PostStatus.Draft 
