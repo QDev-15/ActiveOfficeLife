@@ -14,12 +14,14 @@ namespace ActiveOfficeLife.Common.Requests
         public string SortDirection { get; set; } = "desc";
         public string SearchText
         {
-            get => search ?? keySearch ?? keyWord ?? string.Empty;
+            get => text ?? key ?? search ?? keySearch ?? keyWord ?? string.Empty;
             set => search = value;
         }
         public int DefaultIfNull { get; set; } = 1000;
         public string? search { set; get; } = null;
         public string? keySearch { set; get; } = null;
         public string? keyWord { set; get; } = null;
+        public string? key { set; get; } = null;
+        public string? text { set; get; } = null;
     }
 }

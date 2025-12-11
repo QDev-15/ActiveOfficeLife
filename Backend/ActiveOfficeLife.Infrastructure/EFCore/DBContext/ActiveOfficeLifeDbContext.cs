@@ -34,6 +34,8 @@ namespace ActiveOfficeLife.Domain.EFCore.DBContext
         public DbSet<Ad> Ads => Set<Ad>();
         public DbSet<Log> Logs => Set<Log>();
         public DbSet<Setting> Settings => Set<Setting>();
+        public DbSet<CustomTable> CustomTables => Set<CustomTable>();
+        public DbSet<Affiliate> Affiliates => Set<Affiliate>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

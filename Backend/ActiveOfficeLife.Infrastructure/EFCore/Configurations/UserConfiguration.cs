@@ -31,8 +31,7 @@ namespace ActiveOfficeLife.Domain.EFCore.Configurations
                 .IsRequired();
             builder.Property(u => u.Status)
                 .HasConversion<string>() // Chuyển đổi enum sang string
-                .HasMaxLength(50) // Giới hạn độ dài của chuỗi
-                .HasDefaultValue(UserStatus.Active);
+                .HasMaxLength(50); // Giới hạn độ dài của chuỗi
 
             builder.Property(u => u.Token)
                 .HasMaxLength(500);
