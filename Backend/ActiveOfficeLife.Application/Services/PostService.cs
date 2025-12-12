@@ -231,6 +231,7 @@ namespace ActiveOfficeLife.Application.Services
                 existingPost.IsFeaturedHome = post.IsFeaturedHome;
                 existingPost.IsHot = post.IsHot;
                 existingPost.DisplayOrder = post.DisplayOrder ?? 0;
+                existingPost.CategoryId = post.CategoryId ?? existingPost.CategoryId;
                 existingPost.Status = string.IsNullOrEmpty(post.Status)
                     ? PostStatus.Draft 
                     : (PostStatus)Enum.Parse(typeof(PostStatus), post.Status.Trim(), ignoreCase: true);

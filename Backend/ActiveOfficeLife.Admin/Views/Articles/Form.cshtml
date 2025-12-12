@@ -34,9 +34,9 @@
 
         <!-- Category -->
         <div class="col-12 col-md-4">
-            <label asp-for="CategoryId" class="form-label"></label>
+            <label asp-for="CategoryId" class="form-label">Chuyên mục</label>
             <select asp-for="CategoryId" class="form-select select2" required asp-items="ViewBag.Categories">
-                <option value="">-- Chọn danh mục --</option>
+                <option value="">-- Chọn chuyên mục --</option>
             </select>
             <span asp-validation-for="CategoryId" class="text-danger"></span>
         </div>
