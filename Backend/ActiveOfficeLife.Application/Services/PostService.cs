@@ -17,17 +17,19 @@ namespace ActiveOfficeLife.Application.Services
     {
         private string serviceName = "";
         private readonly IPostRepository _postRepository;
+        private readonly IUserRepository _userRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly ITagRepository _tagRepository;
         private readonly IUnitOfWork _unitOfWork;
         public PostService(IPostRepository postRepository, IUnitOfWork unitOfWork, 
-            ICategoryRepository categoryRepository, ITagRepository tagRepository)
+            ICategoryRepository categoryRepository, ITagRepository tagRepository, IUserRepository userRepository)
         {
             _postRepository = postRepository;
             _unitOfWork = unitOfWork;
             serviceName = this.GetType().Name;
             _categoryRepository = categoryRepository;
             _tagRepository = tagRepository;
+            _userRepository = userRepository;
         }
 
         public async Task<PostModel> Create(PostModel post)
@@ -51,6 +53,21 @@ namespace ActiveOfficeLife.Application.Services
                     var defaultCategory = await _categoryRepository.GetDefaultCategoryAsync();
                     // set default category id (you may want to fetch this from a config or constant)
                     post.CategoryId = defaultCategory.Id; // Replace with actual default category ID
+                }
+                if (post.AuthorId == null || post.AuthorId == Guid.Empty)
+                {
+                    var defaultAuthor = await _userRepository.GetByUserNameAsync("custom");
+                    if (defaultAuthor == null)
+                    {
+                        defaultAuthor = await _userRepository.GetByUserNameAsync("admin");
+                        if (defaultAuthor == null)
+                        {
+                            string message = msgHdr + ": Default author user not found.";
+                            AOLLogger.Error(new LogProperties() { Message = message });
+                            throw new Exception("Default author user not found.");
+                        }
+                    }
+                    post.AuthorId = defaultAuthor.Id; // Replace with actual default author ID
                 }
                 var newPost = new Post
                 {

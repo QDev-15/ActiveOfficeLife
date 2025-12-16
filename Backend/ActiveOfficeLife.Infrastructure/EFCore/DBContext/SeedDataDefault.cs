@@ -45,6 +45,7 @@ namespace ActiveOfficeLife.Infrastructure.EFCore.DBContext
             // new user admin
             Guid adminUserId = Guid.NewGuid();
             Guid userUserId = Guid.NewGuid();
+            Guid customUserId = Guid.NewGuid();
             var hasher = new PasswordHasher<User>();
             modelBuilder.Entity<User>().HasData(
                 new User
@@ -60,13 +61,21 @@ namespace ActiveOfficeLife.Infrastructure.EFCore.DBContext
                     Username = "user",
                     PasswordHash = hasher.HashPassword(null, "user123"),
                     Email = "activeoffice@gmail.com",
+                },
+                new User
+                {
+                    Id = customUserId,
+                    Username = "custom",
+                    PasswordHash = hasher.HashPassword(null, "custom123"),
+                    Email = "nguyenquynhvp.ictu@gmail.com"
                 }
             );
             // Seed bảng trung gian UserRoles (vì EF Core không tự seeding navigation property)
             modelBuilder.Entity("UserRoles").HasData(
                 new { UserId = adminUserId, RoleId = roleAdminId },
                 new { UserId = adminUserId, RoleId = roleUserId },
-                new { UserId = userUserId, RoleId = roleUserId }
+                new { UserId = userUserId, RoleId = roleUserId },
+                new { UserId = customUserId, RoleId = roleUserId }
             );
         }
     }

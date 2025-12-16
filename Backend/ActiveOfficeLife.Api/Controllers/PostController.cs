@@ -191,6 +191,30 @@ namespace ActiveOfficeLife.Api.Controllers
                 return BadRequest(new ResultError("Failed to retrieve posts.", "400"));
             }
         }
+        [AllowAnonymous]
+        [HttpPost("create-by-secret/{secret}")]
+        public async Task<IActionResult> CreatePostBySecret([FromBody] PostModel post, string secret)
+        {
+            if (secret != _appConfigService.AppConfigs.ApiPostSecretKey)
+            {
+                return Unauthorized(new ResultError("Invalid secret key.", "401"));
+            }
+            if (post == null)
+            {
+                return BadRequest(new ResultError("Post data is required.", "400"));
+            }
+            try
+            {
+                var createdPost = await _postService.Create(post);
+                _memoryCache.RemoveByPattern($"{serviceName}"); // Clear relevant caches
+                return Ok(new ResultSuccess(createdPost));
+            }
+            catch (Exception ex)
+            {
+                AOLLogger.Error($"Error creating post: {ex.Message}", ex);
+                return BadRequest(new ResultError("Failed to create post.", "400"));
+            }
+        }
         [HttpPost("create")]
         public async Task<IActionResult> CreatePost([FromBody] PostModel post)
         {

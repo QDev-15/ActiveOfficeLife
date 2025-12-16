@@ -19,6 +19,7 @@ namespace ActiveOfficeLife.Application.Services
             AppConfigs.StorageConfig = configuration.GetSection("Storagre").Get<StorageConfig>();
             AppConfigs.FileStorage = configuration.GetSection("FileStorage").Get<FileStorage>();
             AppConfigs.ApiUrl = configuration["ApiUrl"] ?? string.Empty;
+            AppConfigs.ApiPostSecretKey = configuration["ApiPostSecretKey"] ?? string.Empty;
             AppConfigs.ApplicationName = configuration["ApplicationName"] ?? string.Empty;
             AppConfigs.Version = configuration["Version"] ?? string.Empty;
             AppConfigs.Environment = configuration["Environment"] ?? string.Empty;
