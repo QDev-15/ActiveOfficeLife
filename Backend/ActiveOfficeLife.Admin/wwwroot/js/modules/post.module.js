@@ -235,35 +235,155 @@ class PostModule {
     async loadData() {
         try {
             await spinnerInstance.showForMainContainerAsync();
-            mvcInstance.get('/Articles/form?id=' + this.id)
-                .then(html => {
-                    $('#content-artile-edit').html('');
-                    $('#content-artile-edit').html(html);
-                    this.form = configInstance.initValidatorForm("content-artile-edit");
-                    var statusElement = document.getElementById('Status');
-                    // status text
-                    const statusText = document.getElementById('statusText');
-                    statusText.textContent = this.statusDisplay(statusElement.value);
-                    // category
-                    const categoryId = $('#CategoryId').val();
-                    const $cat = $('#CategoryId');
-                    if ($cat.length) {
-                        $cat.val(categoryId || '').trigger('change');
-                    }
-                    this.wireInputs();
-                    // render button
-                    this.renderButtons(statusElement.value);
-                    utilities.lastLoadedAt = Date.now(); // phục vụ auto-reload helper nếu có
-                    initck('#Content').then(editor => {
-                    }).catch(console.error);;
-                }).catch((err) => {
-                    console.error('Lỗi tải form', err);
-                    messageInstance.error('Không thể tải form');
-                });
-            
-        } catch (e) {
-            console.error(e);
-            messageInstance.error(e?.message || 'Tải dữ liệu thất bại');
+
+            // Load post, categories and tags in parallel from API
+            const [postRes, catRes, tagRes] = await Promise.all([
+                apiInstance.get(this.ENDPOINTS.GET_ONE(this.id)),
+                apiInstance.get(this.ENDPOINTS.CAT_ALL),
+                apiInstance.get(this.ENDPOINTS.TAG_ALL)
+            ]);
+
+            const post = postRes || {};
+            this.model = post;
+
+            const categories = (catRes && (catRes.items || catRes)) || [];
+            const tags = (tagRes && (tagRes.items || tagRes)) || [];
+
+            // build category options
+            const categoryOptions = (categories || []).map(c => {
+                const selected = (String(c.id) === String(post.categoryId)) ? 'selected' : '';
+                return `<option value="${utilities.escapeHtml(String(c.id || ''))}" ${selected}>${utilities.escapeHtml(c.name || '')}</option>`;
+            }).join('\n');
+
+            // build tags checkboxes
+            const postTagIds = (post.tagIds || []).map(String);
+            const tagsHtml = (tags || []).map(t => {
+                const checked = postTagIds.includes(String(t.id)) ? 'checked' : '';
+                return `<div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="tag_${utilities.escapeHtml(String(t.id || ''))}" value="${utilities.escapeHtml(String(t.id || ''))}" ${checked}>
+                            <label class="form-check-label" for="tag_${utilities.escapeHtml(String(t.id || ''))}">${utilities.escapeHtml(t.name || '')}</label>
+                        </div>`;
+            }).join('\n');
+
+            // ensure there is a SeoMetadata object shape for inputs
+            const seo = post.seoMetadata || {};
+            const seoId = post.seoMetadataId || seo.id || '';
+
+            // Build minimal form HTML matching element ids expected in other methods
+            const html = `
+                <form id="article-edit-form" novalidate>
+                    <input type="hidden" id="Id" value="${utilities.escapeHtml(String(post.id || ''))}">
+                    <input type="hidden" id="SeoMetadataId" value="${utilities.escapeHtml(String(seoId || ''))}">
+                    <input type="hidden" id="Status" value="${utilities.escapeHtml(String(post.status || ''))}">
+                    <div class="row g-3">
+                        <div class="col-12 col-lg-8">
+                            <label for="Title" class="form-label">Title</label>
+                            <input id="Title" name="Title" class="form-control" value="${utilities.escapeHtml(post.title || '')}" />
+                        </div>
+
+                        <div class="col-12 col-lg-4">
+                            <label for="Slug" class="form-label">Slug</label>
+                            <div class="input-group">
+                                <input id="Slug" name="Slug" class="form-control" value="${utilities.escapeHtml(post.slug || '')}" data-user-edited="false" data-last-auto="${utilities.escapeHtml(utilities.slugify(post.title || '') || '')}" />
+                                <button type="button" class="btn btn-outline-secondary" onclick="postInstance.reSlug()">Auto</button>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label for="CategoryId" class="form-label">Category</label>
+                            <select id="CategoryId" name="CategoryId" class="form-select select2">
+                                <option value="">-- Select --</option>
+                                ${categoryOptions}
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Tags</label>
+                            <div id="tagsContainer">
+                                ${tagsHtml}
+                            </div>
+                        </div>
+                        <div class="col-12 d-flex flex-wrap gap-5">
+                            <div class="form-check form-switch mb-3 col-auto">
+                                <input id="IsCenterHighlight" type="checkbox" class="form-check-input" ${post.isCenterHighlight ? 'checked' : ''}>
+                                <label class="form-check-label" for="IsCenterHighlight">Center Highlight</label>
+                            </div>
+                            <div class="form-check form-switch mb-3 col-auto">
+                                <input id="IsFeaturedHome" type="checkbox" class="form-check-input" ${post.isFeaturedHome ? 'checked' : ''}>
+                                <label class="form-check-label" for="IsFeaturedHome">Featured Home</label>
+                            </div>
+                            <div class="form-check form-switch mb-3 col-auto">
+                                <input id="IsHot" type="checkbox" class="form-check-input" ${post.isHot ? 'checked' : ''}>
+                                <label class="form-check-label" for="IsHot">Hot</label>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-4">
+                            <label for="DisplayOrder" class="form-label">Order</label>
+                            <input id="DisplayOrder" type="number" class="form-control" value="${utilities.escapeHtml(String(post.displayOrder ?? 0))}">
+                        </div>
+                        <div class="col-12">
+                            <label for="Summary" class="form-label">Summary</label>
+                            <textarea id="Summary" name="Summary" class="form-control" rows="3">${utilities.escapeHtml(post.summary || '')}</textarea>
+                            <small id="summaryCounter" class="text-muted">${(post.summary || '').length}</small>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="Content" class="form-label">Content</label>
+                            <textarea id="Content" name="Content" class="form-control" rows="10">${utilities.escapeHtml(post.content || '')}</textarea>
+                        </div>
+
+                        <hr/>
+                        <div class="border shadow p-3 rounded mb-3 bg-gray-200">
+                            <h6>SEO</h6>
+                            <div class="mb-3">
+                                <label for="SeoMetadata_MetaTitle" class="form-label">Meta Title</label>
+                                <input id="SeoMetadata_MetaTitle" class="form-control" value="${utilities.escapeHtml(seo.metaTitle || '')}">
+                                <small id="seoTitleCounter" class="text-muted">${(seo.metaTitle || '').length}</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="SeoMetadata_MetaDescription" class="form-label">Meta Description</label>
+                                <textarea id="SeoMetadata_MetaDescription" class="form-control" rows="2">${utilities.escapeHtml(seo.metaDescription || '')}</textarea>
+                                <small id="seoDescCounter" class="text-muted">${(seo.metaDescription || '').length}</small>
+                            </div>
+                            <div class="mb-3">
+                                <label for="SeoMetadata_MetaKeywords" class="form-label">Meta Keywords</label>
+                                <input id="SeoMetadata_MetaKeywords" class="form-control" value="${utilities.escapeHtml(seo.metaKeywords || '')}">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            `;
+
+            // render into existing container
+            $('#content-artile-edit').html(html);
+
+            // init validator (same call as before)
+            this.form = configInstance.initValidatorForm("content-artile-edit");
+
+            // set status text
+            const statusElement = document.getElementById('Status');
+            const statusText = document.getElementById('statusText');
+            if (statusText && statusElement) statusText.textContent = this.statusDisplay(statusElement.value);
+
+            // trigger category select change in case other code expects it
+            const $cat = $('#CategoryId');
+            if ($cat.length) {
+                $cat.val(post.categoryId || '').trigger('change');
+            }
+
+            // wire inputs, counters, buttons and editor
+            this.wireInputs();
+            this.renderButtons(statusElement?.value);
+
+            utilities.lastLoadedAt = Date.now();
+
+            // initialize CKEditor (use import name)
+            initCK('#Content').then(editor => {
+            }).catch(console.error);
+
+        } catch (err) {
+            console.error('Lỗi tải form (client render):', err);
+            messageInstance.error('Không thể tải form');
         } finally {
             await spinnerInstance.hideForMainContainerAsync();
         }
@@ -472,7 +592,7 @@ class PostModule {
         //    const query = s === 'published' ? '' : '?preview=1';
         //    window.open(`/bai-viet/${encodeURIComponent(slug)}${query}`, '_blank');
         //    return;
-        //}
+        // }
 
         // Fallback theo id (preview)
         //window.open(`/Articles/View/${encodeURIComponent(id)}?preview=1`, '_blank');
@@ -480,7 +600,6 @@ class PostModule {
     }
 
 
-   
 
 }
 export const postInstance = new PostModule(); 

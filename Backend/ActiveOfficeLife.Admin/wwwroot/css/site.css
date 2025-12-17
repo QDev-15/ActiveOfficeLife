@@ -300,3 +300,7 @@ select.form-select option {
         background: #6f42c1;
         color: #fff;
     }
+
+.form-switch *:hover {
+    cursor: pointer !important;
+}
