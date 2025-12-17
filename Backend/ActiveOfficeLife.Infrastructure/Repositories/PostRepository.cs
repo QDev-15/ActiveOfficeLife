@@ -223,9 +223,24 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
                 }
             }
 
+            query = query.AsNoTracking();
             int count = await query.CountAsync();
             var items = await query.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize)
-                            .Include(x => x.Category)
+                            .Select(x => new Post()
+                            {
+                                Id = x.Id,
+                                Title = x.Title,
+                                Status = x.Status,
+                                IsCenterHighlight = x.IsCenterHighlight,
+                                IsFeaturedHome = x.IsFeaturedHome,
+                                IsHot = x.IsHot,
+                                DisplayOrder = x.DisplayOrder,
+                                Category = new Category()
+                                {
+                                    Id = x.Category != null ? x.Category.Id : Guid.Empty,
+                                    Name = x.Category != null ? x.Category.Name : string.Empty
+                                }                                
+                            })
                             .ToListAsync();
             return (items, count);
         }

@@ -304,3 +304,88 @@ select.form-select option {
 .form-switch *:hover {
     cursor: pointer !important;
 }
+
+
+/*VIEW: Vùng bài viết “prose” */
+.prose {
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: #222;
+}
+
+    .prose h1, .prose h2, .prose h3 {
+        margin-top: 1.25em;
+        margin-bottom: .5em;
+        font-weight: 700;
+    }
+
+    .prose p {
+        margin: .85em 0;
+    }
+
+    .prose img, .prose video {
+        max-width: 100%;
+        height: auto;
+        border-radius: .5rem;
+    }
+
+    .prose blockquote {
+        border-left: 4px solid #e9ecef;
+        padding-left: 1rem;
+        color: #555;
+        margin: 1rem 0;
+    }
+
+    .prose pre, .prose code {
+        background: #f8f9fa;
+        border-radius: .375rem;
+    }
+
+    .prose pre {
+        padding: .75rem 1rem;
+        overflow: auto;
+    }
+
+/* Header */
+.article-header {
+    background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+    border-bottom: 1px solid #eef2f7;
+}
+
+/* Badge trạng thái */
+.badge-status {
+    text-transform: uppercase;
+    letter-spacing: .02em;
+}
+
+/* Quảng cáo */
+.ad-slot {
+    background: repeating-linear-gradient(45deg,#f8f9fa,#f8f9fa 10px,#ffffff 10px,#ffffff 20px);
+    border: 1px dashed #d0d7de;
+    border-radius: .5rem;
+    min-height: 120px; /* placeholder */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: .9rem;
+}
+
+    .ad-slot.small {
+        min-height: 80px;
+    }
+
+.sticky-side {
+    position: sticky;
+    top: 1.25rem;
+}
+
+/* Chia sẻ */
+.share a {
+    text-decoration: none;
+}
+
+.ck.ck-editor__main {
+    max-height: 500px;
+    overflow: auto;
+}

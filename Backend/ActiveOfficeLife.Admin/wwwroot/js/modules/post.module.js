@@ -99,13 +99,6 @@ class PostModule {
                     orderable: true
                 },
                 {
-                    data: "slug",
-                    name: "slug",
-                    title: "Slug",
-                    className: "text-center",
-                    orderable: true,
-                },
-                {
                     data: null,
                     name: "isFeaturedHome",
                     title: "Featured Home",
@@ -196,6 +189,10 @@ class PostModule {
                                     onclick="postInstance.edit('${row.id}', '${row.title}')"
                                     data-id="${row.id}"
                                     data-name="${row.title}">Edit</button>
+                                <button class="btn btn-sm btn-view"
+                                    onclick="postInstance.view('${row.id}')"
+                                    data-id="${row.id}"
+                                    data-name="${row.title}">View</button>
                                 <button class="btn btn-sm btn-danger btn-delete"
                                     onclick="postInstance.delete('${row.id}', '${row.title}')"
                                     data-id="${row.id}"
@@ -233,161 +230,371 @@ class PostModule {
         // window.location.href = `/Articles/Edit/${encodeURIComponent(id)}`;
     }
     async loadData() {
+        // 1) Render form ngay lập tức (skeleton/empty) để user thấy UI trước
         try {
             await spinnerInstance.showForMainContainerAsync();
 
-            // Load post, categories and tags in parallel from API
-            const [postRes, catRes, tagRes] = await Promise.all([
-                apiInstance.get(this.ENDPOINTS.GET_ONE(this.id)),
-                apiInstance.get(this.ENDPOINTS.CAT_ALL),
-                apiInstance.get(this.ENDPOINTS.TAG_ALL)
-            ]);
-
-            const post = postRes || {};
-            this.model = post;
-
-            const categories = (catRes && (catRes.items || catRes)) || [];
-            const tags = (tagRes && (tagRes.items || tagRes)) || [];
-
-            // build category options
-            const categoryOptions = (categories || []).map(c => {
-                const selected = (String(c.id) === String(post.categoryId)) ? 'selected' : '';
-                return `<option value="${utilities.escapeHtml(String(c.id || ''))}" ${selected}>${utilities.escapeHtml(c.name || '')}</option>`;
-            }).join('\n');
-
-            // build tags checkboxes
-            const postTagIds = (post.tagIds || []).map(String);
-            const tagsHtml = (tags || []).map(t => {
-                const checked = postTagIds.includes(String(t.id)) ? 'checked' : '';
-                return `<div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="tag_${utilities.escapeHtml(String(t.id || ''))}" value="${utilities.escapeHtml(String(t.id || ''))}" ${checked}>
-                            <label class="form-check-label" for="tag_${utilities.escapeHtml(String(t.id || ''))}">${utilities.escapeHtml(t.name || '')}</label>
-                        </div>`;
-            }).join('\n');
-
-            // ensure there is a SeoMetadata object shape for inputs
-            const seo = post.seoMetadata || {};
-            const seoId = post.seoMetadataId || seo.id || '';
-
-            // Build minimal form HTML matching element ids expected in other methods
-            const html = `
-                <form id="article-edit-form" novalidate>
-                    <input type="hidden" id="Id" value="${utilities.escapeHtml(String(post.id || ''))}">
-                    <input type="hidden" id="SeoMetadataId" value="${utilities.escapeHtml(String(seoId || ''))}">
-                    <input type="hidden" id="Status" value="${utilities.escapeHtml(String(post.status || ''))}">
-                    <div class="row g-3">
-                        <div class="col-12 col-lg-8">
-                            <label for="Title" class="form-label">Title</label>
-                            <input id="Title" name="Title" class="form-control" value="${utilities.escapeHtml(post.title || '')}" />
-                        </div>
-
-                        <div class="col-12 col-lg-4">
-                            <label for="Slug" class="form-label">Slug</label>
-                            <div class="input-group">
-                                <input id="Slug" name="Slug" class="form-control" value="${utilities.escapeHtml(post.slug || '')}" data-user-edited="false" data-last-auto="${utilities.escapeHtml(utilities.slugify(post.title || '') || '')}" />
-                                <button type="button" class="btn btn-outline-secondary" onclick="postInstance.reSlug()">Auto</button>
-                            </div>
-                        </div>
-
-                        <div class="col-12 col-md-4">
-                            <label for="CategoryId" class="form-label">Category</label>
-                            <select id="CategoryId" name="CategoryId" class="form-select select2">
-                                <option value="">-- Select --</option>
-                                ${categoryOptions}
-                            </select>
-                        </div>
-
-                        <div class="col-12">
-                            <label class="form-label">Tags</label>
-                            <div id="tagsContainer">
-                                ${tagsHtml}
-                            </div>
-                        </div>
-                        <div class="col-12 d-flex flex-wrap gap-5">
-                            <div class="form-check form-switch mb-3 col-auto">
-                                <input id="IsCenterHighlight" type="checkbox" class="form-check-input" ${post.isCenterHighlight ? 'checked' : ''}>
-                                <label class="form-check-label" for="IsCenterHighlight">Center Highlight</label>
-                            </div>
-                            <div class="form-check form-switch mb-3 col-auto">
-                                <input id="IsFeaturedHome" type="checkbox" class="form-check-input" ${post.isFeaturedHome ? 'checked' : ''}>
-                                <label class="form-check-label" for="IsFeaturedHome">Featured Home</label>
-                            </div>
-                            <div class="form-check form-switch mb-3 col-auto">
-                                <input id="IsHot" type="checkbox" class="form-check-input" ${post.isHot ? 'checked' : ''}>
-                                <label class="form-check-label" for="IsHot">Hot</label>
-                            </div>
-                        </div>
-                        <div class="col-12 col-lg-4">
-                            <label for="DisplayOrder" class="form-label">Order</label>
-                            <input id="DisplayOrder" type="number" class="form-control" value="${utilities.escapeHtml(String(post.displayOrder ?? 0))}">
-                        </div>
-                        <div class="col-12">
-                            <label for="Summary" class="form-label">Summary</label>
-                            <textarea id="Summary" name="Summary" class="form-control" rows="3">${utilities.escapeHtml(post.summary || '')}</textarea>
-                            <small id="summaryCounter" class="text-muted">${(post.summary || '').length}</small>
-                        </div>
-
-                        <div class="col-12">
-                            <label for="Content" class="form-label">Content</label>
-                            <textarea id="Content" name="Content" class="form-control" rows="10">${utilities.escapeHtml(post.content || '')}</textarea>
-                        </div>
-
-                        <hr/>
-                        <div class="border shadow p-3 rounded mb-3 bg-gray-200">
-                            <h6>SEO</h6>
-                            <div class="mb-3">
-                                <label for="SeoMetadata_MetaTitle" class="form-label">Meta Title</label>
-                                <input id="SeoMetadata_MetaTitle" class="form-control" value="${utilities.escapeHtml(seo.metaTitle || '')}">
-                                <small id="seoTitleCounter" class="text-muted">${(seo.metaTitle || '').length}</small>
-                            </div>
-                            <div class="mb-3">
-                                <label for="SeoMetadata_MetaDescription" class="form-label">Meta Description</label>
-                                <textarea id="SeoMetadata_MetaDescription" class="form-control" rows="2">${utilities.escapeHtml(seo.metaDescription || '')}</textarea>
-                                <small id="seoDescCounter" class="text-muted">${(seo.metaDescription || '').length}</small>
-                            </div>
-                            <div class="mb-3">
-                                <label for="SeoMetadata_MetaKeywords" class="form-label">Meta Keywords</label>
-                                <input id="SeoMetadata_MetaKeywords" class="form-control" value="${utilities.escapeHtml(seo.metaKeywords || '')}">
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            `;
-
-            // render into existing container
+            const html = this.buildEmptyEditFormHtml(); // render form trước
             $('#content-artile-edit').html(html);
 
-            // init validator (same call as before)
+            // init validator sớm để user có thể nhập luôn
             this.form = configInstance.initValidatorForm("content-artile-edit");
 
-            // set status text
+            // wire basic events/counters/buttons (chưa cần data)
+            this.wireInputs();
+
+            // init editor sớm (để user có thể nhập content ngay)
+            // tránh init lại nhiều lần
+            await this.ensureEditorInitialized();
+
+            // status text mặc định
             const statusElement = document.getElementById('Status');
             const statusText = document.getElementById('statusText');
-            if (statusText && statusElement) statusText.textContent = this.statusDisplay(statusElement.value);
+            if (statusText && statusElement) statusText.textContent = this.statusDisplay(statusElement.value || '');
 
-            // trigger category select change in case other code expects it
-            const $cat = $('#CategoryId');
-            if ($cat.length) {
-                $cat.val(post.categoryId || '').trigger('change');
-            }
-
-            // wire inputs, counters, buttons and editor
-            this.wireInputs();
+            // render buttons theo status mặc định
             this.renderButtons(statusElement?.value);
 
             utilities.lastLoadedAt = Date.now();
 
-            // initialize CKEditor (use import name)
-            initCK('#Content').then(editor => {
-            }).catch(console.error);
-
         } catch (err) {
-            console.error('Lỗi tải form (client render):', err);
-            messageInstance.error('Không thể tải form');
+            console.error('Lỗi render form trước:', err);
+            messageInstance.error('Không thể render form');
         } finally {
             await spinnerInstance.hideForMainContainerAsync();
         }
+
+        // 2) Chạy API nền: không await trực tiếp để không chặn UI
+        //    Bind UI theo từng phần khi dữ liệu về
+        const postPromise = apiInstance.get(this.ENDPOINTS.GET_ONE(this.id));
+        const catPromise = apiInstance.get(this.ENDPOINTS.CAT_ALL);
+        const tagPromise = apiInstance.get(this.ENDPOINTS.TAG_ALL);
+
+        // Post
+        postPromise
+            .then(postRes => {
+                const post = postRes || {};
+                this.model = post;
+
+                this.bindPostToForm(post);
+                this.bindSeoToForm(post);
+
+                // status text + buttons theo status thật
+                const statusElement = document.getElementById('Status');
+                const statusText = document.getElementById('statusText');
+                if (statusText && statusElement) statusText.textContent = this.statusDisplay(statusElement.value || '');
+                this.renderButtons(statusElement?.value);
+
+                // set editor content nếu editor đã init
+                this.setEditorContentSafely(post.content || '');
+
+                utilities.lastLoadedAt = Date.now();
+            })
+            .catch(err => {
+                console.error('Lỗi load post:', err);
+                messageInstance.error('Không thể tải bài viết');
+            });
+
+        // Categories
+        catPromise
+            .then(catRes => {
+                const categories = (catRes && (catRes.items || catRes)) || [];
+                this.bindCategories(categories);
+            })
+            .catch(err => {
+                console.error('Lỗi load categories:', err);
+                messageInstance.error('Không thể tải danh mục');
+            });
+
+        // Tags
+        tagPromise
+            .then(tagRes => {
+                const tags = (tagRes && (tagRes.items || tagRes)) || [];
+                // nếu post chưa về thì vẫn render tags, checked sẽ update sau trong bindPostToForm()
+                this.bindTags(tags);
+            })
+            .catch(err => {
+                console.error('Lỗi load tags:', err);
+                messageInstance.error('Không thể tải tags');
+            });
     }
+
+    /* ===========================
+       Helpers: build empty form
+    =========================== */
+    buildEmptyEditFormHtml() {
+        // giữ nguyên IDs để các method khác không hỏng
+        // tạo placeholder cho category/tags để bind sau
+        return `
+    <form id="article-edit-form" novalidate>
+      <input type="hidden" id="Id" value="">
+      <input type="hidden" id="SeoMetadataId" value="">
+      <input type="hidden" id="Status" value="">
+
+      <div class="row g-3">
+        <div class="col-12 col-lg-8">
+          <label for="Title" class="form-label">Title</label>
+          <input id="Title" name="Title" class="form-control" value="" />
+        </div>
+
+        <div class="col-12 col-lg-4">
+          <label for="Slug" class="form-label">Slug</label>
+          <div class="input-group">
+            <input id="Slug" name="Slug" class="form-control" value="" data-user-edited="false" data-last-auto="" />
+            <button type="button" class="btn btn-outline-secondary" onclick="postInstance.reSlug()">Auto</button>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label for="CategoryId" class="form-label">Category</label>
+          <select id="CategoryId" name="CategoryId" class="form-select select2">
+            <option value="">-- Select --</option>
+          </select>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">Tags</label>
+          <div id="tagsContainer">
+            <div class="text-muted small">Đang tải tags...</div>
+          </div>
+        </div>
+
+        <div class="col-12 d-flex flex-wrap gap-5">
+          <div class="form-check form-switch mb-3 col-auto">
+            <input id="IsCenterHighlight" type="checkbox" class="form-check-input">
+            <label class="form-check-label" for="IsCenterHighlight">Center Highlight</label>
+          </div>
+          <div class="form-check form-switch mb-3 col-auto">
+            <input id="IsFeaturedHome" type="checkbox" class="form-check-input">
+            <label class="form-check-label" for="IsFeaturedHome">Featured Home</label>
+          </div>
+          <div class="form-check form-switch mb-3 col-auto">
+            <input id="IsHot" type="checkbox" class="form-check-input">
+            <label class="form-check-label" for="IsHot">Hot</label>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-4">
+          <label for="DisplayOrder" class="form-label">Order</label>
+          <input id="DisplayOrder" type="number" class="form-control" value="0">
+        </div>
+
+        <div class="col-12">
+          <label for="Summary" class="form-label">Summary</label>
+          <textarea id="Summary" name="Summary" class="form-control" rows="3"></textarea>
+          <small id="summaryCounter" class="form-text text-end d-block">0</small>
+        </div>
+
+        <div class="col-12">
+          <label for="Content" class="form-label">Content</label>
+          <textarea id="Content" name="Content" class="form-control" rows="10"></textarea>
+        </div>
+
+        <hr/>
+
+        <div class="border shadow p-3 rounded mb-3 bg-gray-200">
+          <h6>SEO</h6>
+          <div class="mb-3">
+            <label for="SeoMetadata_MetaTitle" class="form-label">Meta Title</label>
+            <input id="SeoMetadata_MetaTitle" class="form-control" value="">
+            <small id="seoTitleCounter" class="form-text text-end d-block">0</small>
+          </div>
+
+          <div class="mb-3">
+            <label for="SeoMetadata_MetaDescription" class="form-label">Meta Description</label>
+            <textarea id="SeoMetadata_MetaDescription" class="form-control" rows="2"></textarea>
+            <small id="seoDescCounter" class="form-text text-end d-block">0</small>
+          </div>
+
+          <div class="mb-3">
+            <label for="SeoMetadata_MetaKeywords" class="form-label">Meta Keywords</label>
+            <input id="SeoMetadata_MetaKeywords" class="form-control" value="">
+          </div>
+        </div>
+      </div>
+    </form>
+  `;
+    }
+
+    /* ===========================
+       Helpers: bind data to UI
+    =========================== */
+    bindPostToForm(post) {
+        // Bảo vệ không overwrite những gì user đã gõ khi data về trễ
+        const $title = $('#Title');
+        const $slug = $('#Slug');
+
+        const titleChangedByUser = ($title.data('dirty') === true);
+        const slugChangedByUser = ($slug.attr('data-user-edited') === 'true');
+
+        if (!titleChangedByUser) $title.val(post.title || '');
+
+        // chỉ set slug nếu user chưa tự sửa
+        if (!slugChangedByUser) {
+            const auto = utilities.slugify(post.title || '') || '';
+            $slug.val(post.slug || auto);
+            $slug.attr('data-last-auto', utilities.escapeHtml(auto));
+        }
+
+        $('#Id').val(post.id || '');
+        $('#Status').val(post.status || '');
+        $('#DisplayOrder').val(post.displayOrder ?? 0);
+        $('#Summary').val(post.summary || '');
+        $('#summaryCounter').text((post.summary || '').length);
+
+        // switches
+        $('#IsCenterHighlight').prop('checked', !!post.isCenterHighlight);
+        $('#IsFeaturedHome').prop('checked', !!post.isFeaturedHome);
+        $('#IsHot').prop('checked', !!post.isHot);
+
+        // category (options có thể chưa có -> lưu tạm value; khi categories bind sẽ set lại)
+        $('#CategoryId').val(post.categoryId || '');
+
+        // update checked tags nếu tags đã render rồi
+        if (Array.isArray(post.tagIds)) {
+            const tagIds = post.tagIds.map(String);
+            $('#tagsContainer input[type="checkbox"]').each(function () {
+                const v = String(this.value || '');
+                this.checked = tagIds.includes(v);
+            });
+        }
+
+        // trigger change cho các code khác đang nghe
+        $('#CategoryId').trigger('change');
+    }
+
+    bindSeoToForm(post) {
+        const seo = post.seoMetadata || {};
+        const seoId = post.seoMetadataId || seo.id || '';
+
+        $('#SeoMetadataId').val(seoId || '');
+        $('#SeoMetadata_MetaTitle').val(seo.metaTitle || '');
+        $('#seoTitleCounter').text((seo.metaTitle || '').length);
+
+        $('#SeoMetadata_MetaDescription').val(seo.metaDescription || '');
+        $('#seoDescCounter').text((seo.metaDescription || '').length);
+
+        $('#SeoMetadata_MetaKeywords').val(seo.metaKeywords || '');
+    }
+
+    bindCategories(categories) {
+        const post = this.model || {};
+        const currentCategoryId = String($('#CategoryId').val() || post.categoryId || '');
+
+        const options = (categories || []).map(c => {
+            const id = String(c.id || '');
+            const selected = (id && id === String(currentCategoryId)) ? 'selected' : '';
+            return `<option value="${utilities.escapeHtml(id)}" ${selected}>${utilities.escapeHtml(c.name || '')}</option>`;
+        }).join('\n');
+
+        $('#CategoryId').html(`<option value="">-- Select --</option>\n${options}`);
+
+        // re-apply selected
+        $('#CategoryId').val(currentCategoryId).trigger('change');
+    }
+
+    bindTags(tags) {
+        const post = this.model || {};
+        const postTagIds = (post.tagIds || []).map(String);
+
+        const tagsHtml = (tags || []).map(t => {
+            const id = String(t.id || '');
+            const checked = postTagIds.includes(id) ? 'checked' : '';
+            return `
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="checkbox"
+          id="tag_${utilities.escapeHtml(id)}"
+          value="${utilities.escapeHtml(id)}" ${checked}>
+        <label class="form-check-label" for="tag_${utilities.escapeHtml(id)}">
+          ${utilities.escapeHtml(t.name || '')}
+        </label>
+      </div>
+    `;
+        }).join('\n');
+
+        $('#tagsContainer').html(tagsHtml || `<div class="text-muted small">Không có tags</div>`);
+    }
+
+    /* ===========================
+       CKEditor init safe
+    =========================== */
+    /* ===========================
+   CKEditor init safe (supports re-render DOM)
+=========================== */
+    async ensureEditorInitialized() {
+        const selector = '#Content';
+        const el = document.querySelector(selector);
+
+        // Không có textarea thì thôi (form chưa render xong)
+        if (!el) return null;
+
+        // Nếu đang init dở cho đúng element hiện tại thì dùng lại
+        if (this._editorInitPromise && this._editorHostEl === el) {
+            return this._editorInitPromise;
+        }
+
+        // Nếu đã có editor nhưng DOM đã re-render (host element khác / mất)
+        // thì destroy editor cũ trước khi init lại
+        if (this._editor) {
+            const attachedOk =
+                this._editorHostEl === el &&
+                (this._editor.sourceElement ? this._editor.sourceElement === el : true);
+
+            if (!attachedOk) {
+                try {
+                    await this._editor.destroy();
+                } catch (e) {
+                    console.warn('CKEditor destroy failed (ignored):', e);
+                } finally {
+                    this._editor = null;
+                    this._editorInitPromise = null;
+                    this._editorHostEl = null;
+                }
+            }
+        }
+
+        // Init mới cho element hiện tại
+        this._editorHostEl = el;
+        this._editorInitPromise = initCK(selector)
+            .then(editor => {
+                this._editor = editor;
+                // đảm bảo editor vẫn đúng element (phòng init xong nhưng DOM đổi tiếp)
+                const currentEl = document.querySelector(selector);
+                if (currentEl && currentEl !== this._editorHostEl) {
+                    // DOM đổi trong lúc init -> destroy editor vừa tạo để tránh leak
+                    try { editor.destroy(); } catch { }
+                    this._editor = null;
+                    this._editorInitPromise = null;
+                    this._editorHostEl = null;
+                    return null;
+                }
+                return editor;
+            })
+            .catch(err => {
+                console.error('CKEditor init failed:', err);
+                this._editor = null;
+                this._editorInitPromise = null;
+                this._editorHostEl = null;
+                return null;
+            });
+
+        return this._editorInitPromise;
+    }
+
+
+    setEditorContentSafely(html) {
+        // nếu editor đã init thì set vào editor, nếu chưa thì set vào textarea
+        if (this._editor && typeof this._editor.setData === 'function') {
+            // chỉ set nếu user chưa nhập gì (tránh overwrite)
+            const current = this._editor.getData?.() || '';
+            if (!current || current.trim().length === 0) this._editor.setData(html || '');
+        } else {
+            const $content = $('#Content');
+            if ($content.val() && String($content.val()).trim().length > 0) return;
+            $content.val(html || '');
+        }
+    }
+
     validate() {
         return this.form?.valid();
     }
@@ -462,6 +669,9 @@ class PostModule {
             const el = document.getElementById('SeoMetadata_MetaTitle');
             if (el && !el.value?.trim()) el.value = document.getElementById('Title').value || '';
             this.updateSeoCounters();
+        });
+        $('#Title').on('input', function () {
+            $(this).data('dirty', true);
         });
         // run first, after reload
         this.updateSummaryCounter();
@@ -582,19 +792,8 @@ class PostModule {
     backToDetail(id) {
 
     }
-    view() {
-        const id = this.id;
-        const slug = (document.getElementById('Slug')?.value || this.model?.slug || '').trim();
-        const s = (this.model?.status || '').toLowerCase();
-
-        //// Nếu có slug -> đi public URL; nếu chưa publish thì thêm ?preview=1
-        //if (slug) {
-        //    const query = s === 'published' ? '' : '?preview=1';
-        //    window.open(`/bai-viet/${encodeURIComponent(slug)}${query}`, '_blank');
-        //    return;
-        // }
-
-        // Fallback theo id (preview)
+    view(idPost) {
+        const id = idPost ?? this.id;
         //window.open(`/Articles/View/${encodeURIComponent(id)}?preview=1`, '_blank');
         window.location.href = `/Articles/View/${encodeURIComponent(id)}?preview=1`;
     }

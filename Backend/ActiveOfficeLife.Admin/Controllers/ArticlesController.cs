@@ -49,20 +49,10 @@ namespace ActiveOfficeLife.Admin.Controllers
         [HttpGet("/Articles/View/{idOrSlug}")]
         public async Task<IActionResult> View(string idOrSlug, [FromQuery] bool preview = false)
         {
-            var isGuid = Guid.TryParse(idOrSlug, out var gid);
-            var url = isGuid
-                ? $"{AOLEndPoint.PostGetById}/{gid}"
-                : $"{AOLEndPoint.PostGetBySlug}/{Uri.EscapeDataString(idOrSlug)}";
-
-            var resp = await _apiService.GetAsync(url);
-            var post = await resp.ToModelAsync<PostModel>();
-            if (post == null) return NotFound();
-
-            // Không cho xem public nếu chưa Published (trừ khi preview=1)
-            var isPublished = string.Equals(post.Status, "Published", StringComparison.OrdinalIgnoreCase);
-            if (!isPublished && !preview) return NotFound();
-
-            return View(post); // View ở /Views/Articles/View.cshtml
+            // Return the view shell only. Client will call API and render content.
+            ViewBag.IdOrSlug = idOrSlug;
+            ViewBag.Preview = preview;
+            return View();
         }
     }
 }
