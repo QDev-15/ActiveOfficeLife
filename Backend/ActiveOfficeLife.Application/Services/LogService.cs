@@ -84,5 +84,11 @@ namespace ActiveOfficeLife.Application.Services
             var log = GetLog(LogLevel.Trace, option);
             _logRepository.Enqueue(log);
         }
+
+        public void Warn(LogProperties option)
+        {
+            var log = GetLog(LogLevel.Warning, option);
+            _logRepository.Enqueue(log);
+        }
     }
 }

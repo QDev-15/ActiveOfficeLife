@@ -13,5 +13,6 @@ namespace ActiveOfficeLife.Application.Interfaces
         void Error(LogProperties option);
         void Debug(LogProperties option);
         void Trace(LogProperties option);
+        void Warn(LogProperties option);
     }
 }

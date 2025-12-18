@@ -1,4 +1,6 @@
 ﻿using ActiveOfficeLife.Application.Common;
+using ActiveOfficeLife.Application.Interfaces;
+using ActiveOfficeLife.Common;
 using ActiveOfficeLife.Common.Models;
 using ActiveOfficeLife.Common.Requests;
 using ActiveOfficeLife.Common.Responses;
@@ -13,9 +15,32 @@ namespace ActiveOfficeLife.Api.Controllers
     public class LogsController : BaseController
     {
         private readonly ILogRepository _logRepository;
-        public LogsController(ILogRepository logRepository)
+        private readonly ILogService _logService;
+        public LogsController(ILogRepository logRepository, ILogService logService)
         {
+            _logService = logService;
             _logRepository = logRepository ?? throw new ArgumentNullException(nameof(logRepository));
+        }
+        [AllowAnonymous]
+        [HttpPost("create-client")]
+        public async Task<IActionResult> CreateClient([FromBody] LogModel log)
+        {
+            if (log == null)
+            {
+                return BadRequest(new ResultError("Log data is required.", "400"));
+            }
+            var logOption = new LogProperties()
+            {
+                IpAddress = log.IpAddress,
+                Message = "Client-" + log.Message,
+                RequestPath = log.RequestPath,
+                Source = log.Source,
+                StackTrace = log.StackTrace,
+                Timestamp = log.Timestamp,
+                UserId = log.UserId,
+            };   
+            _logService.Error(logOption);
+            return Ok(new ResultSuccess("Log created successfully."));
         }
         [HttpGet("all")]
         public async Task<IActionResult> Index([FromQuery] PagingLogRequest request)
@@ -88,6 +113,7 @@ namespace ActiveOfficeLife.Api.Controllers
             }
            
         }
+
 
     }
 }
