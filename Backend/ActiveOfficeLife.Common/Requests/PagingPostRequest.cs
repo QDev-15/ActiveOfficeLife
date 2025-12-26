@@ -10,5 +10,6 @@ namespace ActiveOfficeLife.Common.Requests
     public class PagingPostRequest : PagingRequest
     {
         public PostStatus? Status { get; set; } = null;
+        public Guid? CategoryId { get; set; } = null;
     }
 }

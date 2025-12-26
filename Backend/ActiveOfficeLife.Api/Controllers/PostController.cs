@@ -179,7 +179,7 @@ namespace ActiveOfficeLife.Api.Controllers
                 var posts = await _postService.GetByCategoryId(categoryId, null);
                 if (posts == null || !posts.Any())
                 {
-                    return NotFound(new ResultError("No posts found for this category.", "404"));
+                    return Ok(new ResultSuccess(posts));
                 }
                 // Cache the posts for future requests
                 _memoryCache.Set(cacheKey, posts, TimeSpan.FromMinutes(_appConfigService.AppConfigs.CacheTimeout)); // Cache for 30 minutes

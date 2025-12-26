@@ -184,6 +184,10 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             {
                 query = query.Where(p => p.Status == request.Status);
             }
+            if (request.CategoryId != null)
+            {
+                query = query.Where(p => p.CategoryId == request.CategoryId);
+            }
 
             // check and filter by search text igonre case sensitivity
             if (!string.IsNullOrEmpty(request.SearchText))
