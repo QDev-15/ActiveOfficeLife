@@ -234,6 +234,7 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
                             {
                                 Id = x.Id,
                                 Title = x.Title,
+                                Slug = x.Slug,
                                 Status = x.Status,
                                 IsCenterHighlight = x.IsCenterHighlight,
                                 IsFeaturedHome = x.IsFeaturedHome,
@@ -242,8 +243,37 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
                                 Category = new Category()
                                 {
                                     Id = x.Category != null ? x.Category.Id : Guid.Empty,
-                                    Name = x.Category != null ? x.Category.Name : string.Empty
-                                }                                
+                                    Name = x.Category != null ? x.Category.Name : string.Empty,
+                                    Slug = x.Category != null ? x.Category.Slug : string.Empty,
+                                },
+                                Author = new User()
+                                {
+                                    Id = x.Author.Id,
+                                    FullName = x.Author.FullName,
+                                    AvatarUrl = x.Author.AvatarUrl                                    
+                                },
+                                Tags = x.Tags.Select(t => new Tag()
+                                {
+                                    Id = t.Id,
+                                    Name = t.Name,
+                                    Slug = t.Slug
+                                }).ToList(),
+                                Comments = x.Comments.Select(c => new Comment()
+                                {
+                                    Id = c.Id,
+                                    Content = c.Content,
+                                    CreatedAt = c.CreatedAt,
+                                    User = new User()
+                                    {
+                                        Id = c.User.Id,
+                                        FullName = c.User.FullName,
+                                        AvatarUrl = c.User.AvatarUrl
+                                    },
+                                }).ToList(),
+                                Content = x.Content,
+                                Summary = x.Summary,
+                                CreatedAt = x.CreatedAt,
+                                UpdatedAt = x.UpdatedAt
                             })
                             .ToListAsync();
             return (items, count);
