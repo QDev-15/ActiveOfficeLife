@@ -188,6 +188,13 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             {
                 query = query.Where(p => p.CategoryId == request.CategoryId);
             }
+            if (request.CategoryTypeId != null) {
+                query = query.Where(p => p.Category != null && p.Category.CategoryTypeId == request.CategoryTypeId);
+            }
+            if (!string.IsNullOrEmpty(request.CategorySlug))
+            {
+                query = query.Where(p => p.Category != null && p.Category.Slug.ToLower() == request.CategorySlug.ToLower());
+            }
 
             // check and filter by search text igonre case sensitivity
             if (!string.IsNullOrEmpty(request.SearchText))

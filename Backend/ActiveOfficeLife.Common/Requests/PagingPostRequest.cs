@@ -11,5 +11,7 @@ namespace ActiveOfficeLife.Common.Requests
     {
         public PostStatus? Status { get; set; } = null;
         public Guid? CategoryId { get; set; } = null;
+        public Guid? CategoryTypeId { get; set; } = null;
+        public string CategorySlug { get; set; } = null;
     }
 }
