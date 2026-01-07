@@ -6,14 +6,11 @@ using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Domain.Entities
 {
-    public class CategoryType
+    public class Subscriber
     {
         public Guid Id { get; set; }
-        public string Name { get; set; } = null!;
+        public string Email { get; set; } = null!;
+        public DateTime SubscribedAt { get; set; } = DateTime.UtcNow;
         public bool IsActive { get; set; } = true;
-        public int? ViewCount { get; set; }
-        public int? Order { get; set; }
-        public ICollection<Category> Categories { get; set; } = new List<Category>();
     }
-
 }

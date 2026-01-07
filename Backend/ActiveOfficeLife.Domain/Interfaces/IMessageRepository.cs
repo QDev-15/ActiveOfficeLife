@@ -6,11 +6,7 @@ using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Domain.Interfaces
 {
-    public interface IUnitOfWork
+    public interface IMessageRepository : _IRepository<Entities.Message>
     {
-        Task SaveChangesAsync();
-        void SaveChanges();
-        Task CommitChangesAsync();
-        void CommitChanges();
     }
 }

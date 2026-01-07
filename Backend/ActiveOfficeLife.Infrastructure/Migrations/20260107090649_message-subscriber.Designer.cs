@@ -4,6 +4,7 @@ using ActiveOfficeLife.Domain.EFCore.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ActiveOfficeLife.Infrastructure.Migrations
 {
     [DbContext(typeof(ActiveOfficeLifeDbContext))]
-    partial class ActiveOfficeLifeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260107090649_message-subscriber")]
+    partial class messagesubscriber
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -16,6 +16,21 @@ namespace ActiveOfficeLife.Infrastructure.Repositories
             _context = context;
         }
 
+        public void CommitChanges()
+        {
+            _context.SaveChanges();
+        }
+
+        public async Task CommitChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        public void SaveChanges()
+        {
+            _context.SaveChanges();
+        }
+
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();

@@ -19,6 +19,8 @@ namespace ActiveOfficeLife.Domain.Entities
         public bool? IsHot { get; set; }               // Tin hot
         public bool? IsCenterHighlight { get; set; }   // Bài tiêu biểu block trung tâm
         public int? DisplayOrder { get; set; }        // Để sort trong mỗi nhóm
+        public int? ViewCount { get; set; }
+        public int? ViewTimeSpan { get; set; }
 
         public Guid AuthorId { get; set; }
         public User Author { get; set; } = null!;

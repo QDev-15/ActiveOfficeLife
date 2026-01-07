@@ -41,6 +41,32 @@ namespace ActiveOfficeLife.Application.ExtensitionModel
                 Categories = value.Categories.Select(x => x.ReturnModel()).ToList()
             };
         }
+        public static MessageModel ReturnModel(this Message message)
+        {
+            return new MessageModel()
+            {
+                Id = message.Id,
+                Name = message.Name,
+                Email = message.Email,
+                Subject = message.Subject,
+                Content = message.Content,
+                SentAt = message.SentAt,
+                IsRead = message.IsRead,
+                IsActive = message.IsActive,
+                StatusMessage = message.StatusMessage,
+                IpAddress = message.IpAddress
+            };
+        }
+        public static SubscriberModel ReturnModel(this Subscriber subscriber)
+        {
+            return new SubscriberModel()
+            {
+                Id = subscriber.Id,
+                Email = subscriber.Email,
+                SubscribedAt = subscriber.SubscribedAt,
+                IsActive = subscriber.IsActive
+            };
+        }
         public static MediaModel ReturnModel(this Media media)
         {
             return new MediaModel()
