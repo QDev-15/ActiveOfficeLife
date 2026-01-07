@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace ActiveOfficeLife.Infrastructure.Repositories
 {
-    public class MessagesRepository : _Repository<Message>, IMessageRepository
+    public class MessageRepository : _Repository<Message>, IMessageRepository
     {
-        public MessagesRepository(ActiveOfficeLifeDbContext dbContext) : base(dbContext)
+        public MessageRepository(ActiveOfficeLifeDbContext dbContext) : base(dbContext)
         {
         }
     }

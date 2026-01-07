@@ -35,6 +35,8 @@ namespace ActiveOfficeLife.Infrastructure
             services.AddScoped<IVisitorRepository, VisitorRepository>();
             services.AddScoped<IUserTokenRepository, UserTokenRepository>();
             services.AddScoped<ICommentRepository, CommentRepository>();
+            services.AddScoped<ISubscriberRepository, SubscriberRepository>();
+            services.AddScoped<IMessageRepository, MessageRepository>();
             return services;
         }
     }

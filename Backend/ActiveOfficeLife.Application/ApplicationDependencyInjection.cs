@@ -30,6 +30,7 @@ namespace ActiveOfficeLife.Application
             services.AddScoped<ICommentService, CommentService>();
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<IAdService, AdService>();
+            services.AddScoped<ISubscriberService, SubscriberService>();
             return services;
 
         }
